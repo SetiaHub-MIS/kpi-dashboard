@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E9E7;font-family:'Public Sans',system-ui,sans-serif;color:#17181A}
+a{color:#2E63D8;text-decoration:none}a:hover{color:#1B4AAE}
+button{font-family:'Public Sans',system-ui,sans-serif}
+</style>
+</helmet>
+
+<div style="display:flex;flex-wrap:wrap;gap:52px;padding:44px 40px 90px;align-items:flex-start;justify-content:center">
+
+  <div style="flex:1 1 320px;max-width:400px;min-width:270px">
+    <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#8A8B87">Concept · v2 · from your workbooks</div>
+    <h1 style="font:600 31px/1.13 'Public Sans',sans-serif;letter-spacing:-0.02em;margin:14px 0 12px">Checklist Mingguan<br>as an app</h1>
+    <p style="font:400 15px/1.6 'Public Sans',sans-serif;color:#5C5E5B;margin:0 0 24px;text-wrap:pretty">Rebuilt on the real forms: KP staff checklist (22 perkara, 1–5), WS supervisor checklist (17 perkara), and the Checklist Kedai asset log. Same scoring, same roles — SV/AS marks, MANAGER verifies.</p>
+
+    <div style="background:#fff;border:1px solid #E1E1DE;border-radius:14px;padding:20px 22px;margin-bottom:14px">
+      <div style="font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8B87;margin-bottom:14px">What I read from the files</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font:400 14px/1.5 'Public Sans',sans-serif;color:#3A3B38">
+        <div>One sheet per person (KP0093…MY0644, WS0001, WS0012), 12 monthly blocks, 4 weeks each.</div>
+        <div>Every perkara is scored twice a week — once by SV/AS, once by MANAGER — then JUMLAH MARKAH and %.</div>
+        <div>Most weeks read <span style="font:500 12px 'IBM Plex Mono',monospace;color:#B0402E">#DIV/0!</span>. Only Jan, and only the SV column, is really filled. The MGR column is empty all year.</div>
+        <div>Catatan is where the value is: "2 unit a/c tak sejuk", "sdh report dlm group" — the same issue reappears for months.</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E1E1DE;border-radius:14px;padding:20px 22px;margin-bottom:14px">
+      <div style="font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8B87;margin-bottom:14px">Design calls</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font:400 14px/1.5 'Public Sans',sans-serif;color:#3A3B38">
+        <div><strong style="font-weight:600">The dashboard leads with the empty cells.</strong> An average built from one filled week is the workbook's core problem, so the grid shows exactly which person × week has no mark.</div>
+        <div><strong style="font-weight:600">Kategori collapse, sub-perkara expand.</strong> 22 lines won't fit a phone; the marker sees 7 kategori and opens one at a time, with a "semua 4" shortcut per kategori.</div>
+        <div><strong style="font-weight:600">MANAGER is a verify pass, not a re-mark.</strong> Manager sees the SV score and agrees or adjusts — that's why the second column never got filled by hand.</div>
+        <div><strong style="font-weight:600">Catatan carries forward.</strong> An open aset issue reappears on next week's form until someone closes it with a tarikh penyelesaian.</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E1E1DE;border-radius:14px;padding:20px 22px">
+      <div style="font:600 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8B87;margin-bottom:14px">Open questions</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font:400 14px/1.5 'Public Sans',sans-serif;color:#3A3B38">
+        <div>The KP sheet totals to 95 (19 lines) but the form lists 22 perkara — which three aren't scored?</div>
+        <div>Should the app be in Bahasa Melayu only, or bilingual? I kept the form labels verbatim.</div>
+        <div>Is one kedai per manager, or does an Area Manager compare kedai? That changes the top of the dashboard.</div>
+        <div>Should staff see their own markah, or only supervisors and above?</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:none;display:flex;flex-direction:column;gap:14px;align-items:center">
+    <div style="display:flex;gap:4px;padding:4px;background:#DCDCD9;border-radius:11px">
+      <sc-for list="{{ roleTabs }}" as="t" hint-placeholder-count="3">
+        <button style="{{ t.style }}" onClick="{{ t.onClick }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:#8A8B87;text-align:center;max-width:390px">{{ roleHint }}</div>
+
+    <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+      <div style="height:100%;display:flex;flex-direction:column;background:#F4F4F2;font-family:'Public Sans',system-ui,sans-serif;color:#17181A">
+        <div style="flex:1;overflow:auto">
+
+          <sc-if value="{{ isMgrHome }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:62px 18px 18px">
+              <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8B87">Kedai Machang · Area Manager</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+                <div style="font:600 24px/1.15 'Public Sans',sans-serif;letter-spacing:-0.015em">{{ month.label }}</div>
+                <div style="display:flex;gap:6px">
+                  <button onClick="{{ prevMonth }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #E1E1DE;background:#fff;font:500 14px 'IBM Plex Mono',monospace;color:#5C5E5B;cursor:pointer">‹</button>
+                  <button onClick="{{ nextMonth }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #E1E1DE;background:#fff;font:500 14px 'IBM Plex Mono',monospace;color:#5C5E5B;cursor:pointer">›</button>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:9px;margin-top:15px">
+                <div style="flex:1;background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:15px">
+                  <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8A8B87">Purata SV/AS</div>
+                  <div style="display:flex;align-items:baseline;gap:5px;margin-top:10px">
+                    <span style="{{ month.avgStyle }}">{{ month.avg }}</span>
+                    <span style="font:400 15px/1 'IBM Plex Mono',monospace;color:#A0A19D">%</span>
+                  </div>
+                  <div style="font:400 12px/1.3 'Public Sans',sans-serif;color:#6C6E6A;margin-top:7px">{{ month.avgSub }}</div>
+                </div>
+                <button onClick="{{ goGaps }}" style="{{ month.covCard }}">
+                  <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8A8B87;text-align:left">Belum dinilai</div>
+                  <div style="display:flex;align-items:baseline;gap:5px;margin-top:10px">
+                    <span style="{{ month.gapStyle }}">{{ month.gapCount }}</span>
+                    <span style="font:400 13px/1 'IBM Plex Mono',monospace;color:#A0A19D">/ {{ month.cellTotal }}</span>
+                  </div>
+                  <div style="font:400 12px/1.3 'Public Sans',sans-serif;color:#6C6E6A;margin-top:7px;text-align:left">minggu × pekerja</div>
+                </button>
+              </div>
+
+              <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:15px 14px 14px;margin-top:9px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:13px">
+                  <div style="font:600 13px/1 'Public Sans',sans-serif">Markah mingguan</div>
+                  <div style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#A0A19D">{{ gridLegend }}</div>
+                </div>
+                <div style="display:flex;gap:4px;padding-left:104px;margin-bottom:6px">
+                  <sc-for list="{{ weekCols }}" as="w" hint-placeholder-count="4">
+                    <div style="flex:1;text-align:center;font:500 10px/1 'IBM Plex Mono',monospace;color:#8A8B87">{{ w }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <sc-for list="{{ grid }}" as="r" hint-placeholder-count="8">
+                    <div style="display:flex;gap:4px;align-items:center">
+                      <button onClick="{{ r.onOpen }}" style="width:100px;flex:none;text-align:left;background:none;border:none;padding:0;cursor:pointer;font:500 11.5px/1.2 'Public Sans',sans-serif;color:#3A3B38;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.short }}</button>
+                      <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="4">
+                        <button onClick="{{ c.onOpen }}" style="{{ c.style }}">{{ c.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:16px;margin-top:9px">
+                <div style="font:600 13px/1 'Public Sans',sans-serif">Markah ikut perkara</div>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:15px">
+                  <sc-for list="{{ perkara }}" as="p" hint-placeholder-count="7">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                        <span style="font:500 12.5px/1.2 'Public Sans',sans-serif;color:#3A3B38">{{ p.name }}</span>
+                        <span style="{{ p.numStyle }}">{{ p.v }}%</span>
+                      </div>
+                      <div style="height:5px;border-radius:3px;background:#EDEDEA;margin-top:7px;overflow:hidden">
+                        <div style="{{ p.bar }}"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font:400 12px/1.45 'Public Sans',sans-serif;color:#6C6E6A;margin-top:15px;padding-top:13px;border-top:1px solid #EDEDEA;text-wrap:pretty">{{ perkaraInsight }}</div>
+              </div>
+
+              <button onClick="{{ goAssets }}" style="width:100%;text-align:left;margin-top:9px;background:#FBF3E4;border:1px solid #EEDFBE;border-radius:13px;padding:14px 15px;cursor:pointer;display:flex;gap:11px;align-items:center">
+                <div style="width:7px;height:7px;border-radius:4px;background:#A5691A;flex:none"></div>
+                <div style="flex:1;font:500 13px/1.4 'Public Sans',sans-serif;color:#6B4610">Checklist Kedai: 2 aset belum selesai, tertua 34 hari →</div>
+              </button>
+
+              <button style="width:100%;margin-top:9px;padding:14px;border-radius:12px;border:1px solid #D6D6D2;background:#fff;font:600 14px 'Public Sans',sans-serif;color:#3A3B38;cursor:pointer">Export {{ month.label }} (XLSX)</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMgrPerson }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <button onClick="{{ backMgr }}" style="background:none;border:none;padding:0;font:500 14px 'Public Sans',sans-serif;color:#6C6E6A;cursor:pointer">← {{ month.label }}</button>
+              <div style="display:flex;gap:13px;align-items:center;margin-top:16px">
+                <div style="width:46px;height:46px;border-radius:23px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 13px 'IBM Plex Mono',monospace;color:#5C5E5B">{{ person.init }}</div>
+                <div style="min-width:0">
+                  <div style="font:600 18px/1.2 'Public Sans',sans-serif;letter-spacing:-0.01em">{{ person.name }}</div>
+                  <div style="font:400 12px/1.2 'IBM Plex Mono',monospace;color:#8A8B87;margin-top:5px">{{ person.id }} · {{ person.role }}</div>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px">
+                <sc-for list="{{ person.weeks }}" as="w" hint-placeholder-count="4">
+                  <div style="{{ w.card }}">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div style="flex:1">
+                        <div style="font:600 13.5px/1.2 'Public Sans',sans-serif">{{ w.label }}</div>
+                        <div style="font:400 11.5px/1.2 'Public Sans',sans-serif;color:#8A8B87;margin-top:4px">{{ w.sub }}</div>
+                      </div>
+                      <span style="{{ w.pctStyle }}">{{ w.pct }}</span>
+                    </div>
+                    <sc-if value="{{ w.hasNote }}" hint-placeholder-val="{{ false }}">
+                      <div style="font:400 12.5px/1.5 'Public Sans',sans-serif;color:#5C5E5B;margin-top:11px;padding-top:11px;border-top:1px solid #EDEDEA;text-wrap:pretty">{{ w.note }}</div>
+                    </sc-if>
+                    <sc-if value="{{ w.needsVerify }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;gap:8px;margin-top:12px">
+                        <button onClick="{{ w.onVerify }}" style="flex:1;padding:11px;border-radius:9px;border:none;background:#17181A;color:#fff;font:600 12.5px 'Public Sans',sans-serif;cursor:pointer">Sahkan markah</button>
+                        <button style="flex:1;padding:11px;border-radius:9px;border:1px solid #E1E1DE;background:#fff;font:600 12.5px 'Public Sans',sans-serif;color:#3A3B38;cursor:pointer">Ubah</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:16px;margin-top:9px">
+                <div style="font:600 13px/1 'Public Sans',sans-serif;margin-bottom:15px">Purata ikut perkara · {{ month.label }}</div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ person.perkara }}" as="p" hint-placeholder-count="7">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                        <span style="font:500 12.5px/1.2 'Public Sans',sans-serif;color:#3A3B38">{{ p.name }}</span>
+                        <span style="{{ p.numStyle }}">{{ p.v }}%</span>
+                      </div>
+                      <div style="height:5px;border-radius:3px;background:#EDEDEA;margin-top:7px;overflow:hidden">
+                        <div style="{{ p.bar }}"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMgrGaps }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <button onClick="{{ backMgr }}" style="background:none;border:none;padding:0;font:500 14px 'Public Sans',sans-serif;color:#6C6E6A;cursor:pointer">← {{ month.label }}</button>
+              <div style="font:600 22px/1.15 'Public Sans',sans-serif;letter-spacing:-0.015em;margin-top:16px">Belum dinilai</div>
+              <div style="font:400 14px/1.45 'Public Sans',sans-serif;color:#6C6E6A;margin-top:8px;text-wrap:pretty">{{ month.gapCount }} daripada {{ month.cellTotal }} kotak minggu × pekerja masih kosong. Ini yang jadi #DIV/0! dalam fail Excel.</div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-top:18px">
+                <sc-for list="{{ gapRows }}" as="g" hint-placeholder-count="4">
+                  <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:15px 16px">
+                    <div style="display:flex;align-items:center;gap:11px">
+                      <div style="width:34px;height:34px;border-radius:17px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 11.5px 'IBM Plex Mono',monospace;color:#5C5E5B">{{ g.init }}</div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:600 13.5px/1.2 'Public Sans',sans-serif">{{ g.name }}</div>
+                        <div style="font:400 11.5px/1.2 'Public Sans',sans-serif;color:#8A8B87;margin-top:4px">{{ g.sub }}</div>
+                      </div>
+                      <div style="font:600 18px/1 'IBM Plex Mono',monospace;color:#A5691A">{{ g.n }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <button style="width:100%;margin-top:14px;padding:14px;border-radius:12px;border:none;background:#17181A;color:#fff;font:600 14px 'Public Sans',sans-serif;cursor:pointer">Hantar peringatan ke SV/AS</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMgrAssets }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <button onClick="{{ backMgr }}" style="background:none;border:none;padding:0;font:500 14px 'Public Sans',sans-serif;color:#6C6E6A;cursor:pointer">← {{ month.label }}</button>
+              <div style="font:600 22px/1.15 'Public Sans',sans-serif;letter-spacing:-0.015em;margin-top:16px">Keadaan aset kedai</div>
+              <div style="font:400 13.5px/1.45 'Public Sans',sans-serif;color:#6C6E6A;margin-top:8px">Diisikan oleh Khairul bin Talib · pemeriksaan mingguan</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+                <sc-for list="{{ assets }}" as="a" hint-placeholder-count="9">
+                  <div style="{{ a.card }}">
+                    <div style="display:flex;align-items:center;gap:11px">
+                      <div style="{{ a.dot }}"></div>
+                      <div style="flex:1;font:500 13.5px/1.3 'Public Sans',sans-serif">{{ a.name }}</div>
+                      <div style="{{ a.chipStyle }}">{{ a.chip }}</div>
+                    </div>
+                    <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:11px;padding-top:11px;border-top:1px solid #EDEDEA">
+                        <div style="font:400 12.5px/1.5 'Public Sans',sans-serif;color:#5C5E5B;text-wrap:pretty">{{ a.note }}</div>
+                        <div style="font:400 11px/1 'IBM Plex Mono',monospace;color:#A0A19D;margin-top:9px">{{ a.age }}</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSupQueue }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <div style="font:500 11px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8B87">Nur Syahirah · SV/AS · Kedai Machang</div>
+              <div style="font:600 24px/1.15 'Public Sans',sans-serif;letter-spacing:-0.015em;margin-top:8px">Checklist Minggu 2</div>
+              <div style="font:400 13.5px/1.45 'Public Sans',sans-serif;color:#6C6E6A;margin-top:8px">Tarikh 8–14 Sep. {{ pendingCount }} daripada {{ crewCount }} pekerja belum dinilai. Tutup sebelum Ahad.</div>
+
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px">
+                <sc-for list="{{ crew }}" as="c" hint-placeholder-count="8">
+                  <button onClick="{{ c.onOpen }}" style="{{ c.card }}" style-hover="border-color:#C7C7C2">
+                    <div style="display:flex;align-items:center;gap:12px;width:100%">
+                      <div style="width:34px;height:34px;border-radius:17px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 11.5px 'IBM Plex Mono',monospace;color:#5C5E5B;flex:none">{{ c.init }}</div>
+                      <div style="flex:1;min-width:0;text-align:left">
+                        <div style="font:600 13.5px/1.25 'Public Sans',sans-serif">{{ c.name }}</div>
+                        <div style="font:400 11px/1.25 'IBM Plex Mono',monospace;color:#8A8B87;margin-top:4px">{{ c.id }}</div>
+                      </div>
+                      <span style="{{ c.chipStyle }}">{{ c.chip }}</span>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSupMark }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <button onClick="{{ backSup }}" style="background:none;border:none;padding:0;font:500 14px 'Public Sans',sans-serif;color:#6C6E6A;cursor:pointer">← Batal</button>
+              <div style="display:flex;gap:12px;align-items:center;margin-top:15px">
+                <div style="width:40px;height:40px;border-radius:20px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 12px 'IBM Plex Mono',monospace;color:#5C5E5B">{{ marking.init }}</div>
+                <div style="min-width:0">
+                  <div style="font:600 17px/1.2 'Public Sans',sans-serif">{{ marking.name }}</div>
+                  <div style="font:400 11px/1.2 'IBM Plex Mono',monospace;color:#8A8B87;margin-top:4px">{{ marking.id }} · Minggu 2 · {{ scaleNote }}</div>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:15px">
+                <sc-for list="{{ form }}" as="k" hint-placeholder-count="7">
+                  <div style="{{ k.card }}">
+                    <button onClick="{{ k.onToggle }}" style="width:100%;background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:11px;text-align:left">
+                      <div style="{{ k.numBox }}">{{ k.no }}</div>
+                      <div style="flex:1;min-width:0;font:600 13.5px/1.3 'Public Sans',sans-serif">{{ k.name }}</div>
+                      <div style="{{ k.stateStyle }}">{{ k.stateLabel }}</div>
+                    </button>
+                    <sc-if value="{{ k.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:14px;display:flex;flex-direction:column;gap:14px">
+                        <sc-for list="{{ k.lines }}" as="l" hint-placeholder-count="3">
+                          <div>
+                            <div style="font:500 12.5px/1.3 'Public Sans',sans-serif;color:#3A3B38">{{ l.label }}</div>
+                            <div style="display:flex;gap:5px;margin-top:9px">
+                              <sc-for list="{{ l.bands }}" as="b" hint-placeholder-count="5">
+                                <button onClick="{{ b.onPick }}" style="{{ b.style }}">{{ b.v }}</button>
+                              </sc-for>
+                            </div>
+                          </div>
+                        </sc-for>
+                        <button onClick="{{ k.onFillFour }}" style="align-self:flex-start;padding:8px 12px;border-radius:8px;border:1px solid #E1E1DE;background:#FAFAF9;font:500 12px 'Public Sans',sans-serif;color:#5C5E5B;cursor:pointer">{{ k.fillLabel }}</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+
+                <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:15px">
+                  <div style="font:600 13px/1 'Public Sans',sans-serif">Catatan</div>
+                  <div style="background:#F4F4F2;border:1px solid #EAEAE7;border-radius:10px;padding:12px;margin-top:11px;font:400 13px/1.5 'Public Sans',sans-serif;color:{{ noteColor }};min-height:42px">{{ noteText }}</div>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+                    <sc-for list="{{ noteChips }}" as="n" hint-placeholder-count="3">
+                      <button onClick="{{ n.onPick }}" style="{{ n.style }}">{{ n.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSupDone }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:118px 26px 26px;display:flex;flex-direction:column;align-items:center;text-align:center">
+              <div style="{{ doneRing }}">{{ livePct }}%</div>
+              <div style="font:600 20px/1.3 'Public Sans',sans-serif;margin-top:24px">Markah dihantar</div>
+              <p style="font:400 14px/1.55 'Public Sans',sans-serif;color:#6C6E6A;margin:10px 0 0;text-wrap:pretty">{{ marking.name }} · {{ liveTotal }}/{{ maxTotal }} · Minggu 2. Menunggu pengesahan MANAGER.</p>
+              <button onClick="{{ backSup }}" style="margin-top:26px;padding:14px 24px;border-radius:12px;border:none;background:#17181A;color:#fff;font:600 14px 'Public Sans',sans-serif;cursor:pointer">Pekerja seterusnya ({{ pendingCount }})</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStfHome }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="min-width:0">
+                  <div style="font:400 12.5px/1.2 'Public Sans',sans-serif;color:#8A8B87">Selasa, 8 September 2026</div>
+                  <div style="font:600 20px/1.2 'Public Sans',sans-serif;letter-spacing:-0.01em;margin-top:5px">Syazana Izzah Zafirah</div>
+                  <div style="font:400 11px/1.2 'IBM Plex Mono',monospace;color:#8A8B87;margin-top:5px">KP0093 · Kedai Machang</div>
+                </div>
+                <div style="width:40px;height:40px;border-radius:20px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 12px 'IBM Plex Mono',monospace;color:#5C5E5B;flex:none">SI</div>
+              </div>
+
+              <div style="background:#17181A;border-radius:16px;padding:20px;margin-top:16px;color:#fff">
+                <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8E9089">Minggu 1 · September</div>
+                <div style="display:flex;align-items:baseline;gap:6px;margin-top:11px">
+                  <span style="font:600 44px/1 'IBM Plex Mono',monospace;letter-spacing:-0.03em">86</span>
+                  <span style="font:400 16px/1 'IBM Plex Mono',monospace;color:#75776F">% · 95/110</span>
+                  <span style="margin-left:auto;font:500 12px/1 'IBM Plex Mono',monospace;color:#7FCB9E">▲ 3</span>
+                </div>
+                <div style="display:flex;gap:4px;align-items:flex-end;height:36px;margin-top:18px">
+                  <sc-for list="{{ stfSpark }}" as="s" hint-placeholder-count="8">
+                    <div style="{{ s.bar }}"></div>
+                  </sc-for>
+                </div>
+                <div style="font:400 11.5px/1.45 'Public Sans',sans-serif;color:#A8AAA3;margin-top:14px;padding-top:13px;border-top:1px solid #2B2C2E;text-wrap:pretty">Kebersihan Kedai perkara paling rendah (72%). Tandas dan sawang disebut dua minggu berturut.</div>
+              </div>
+
+              <div style="font:600 13.5px/1 'Public Sans',sans-serif;margin:20px 2px 10px">Markah mingguan</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ stfWeeks }}" as="w" hint-placeholder-count="4">
+                  <button onClick="{{ w.onOpen }}" style="{{ w.card }}" style-hover="border-color:#C7C7C2">
+                    <div style="display:flex;align-items:center;gap:12px;width:100%">
+                      <span style="{{ w.pctStyle }}">{{ w.pct }}</span>
+                      <div style="flex:1;min-width:0;text-align:left">
+                        <div style="font:600 13.5px/1.25 'Public Sans',sans-serif">{{ w.label }}</div>
+                        <div style="font:400 11.5px/1.25 'Public Sans',sans-serif;color:#8A8B87;margin-top:4px">{{ w.sub }}</div>
+                      </div>
+                      <sc-if value="{{ w.unread }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:7px;height:7px;border-radius:4px;background:#2E63D8;flex:none"></div>
+                      </sc-if>
+                    </div>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStfDetail }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:62px 18px 18px">
+              <button onClick="{{ backStf }}" style="background:none;border:none;padding:0;font:500 14px 'Public Sans',sans-serif;color:#6C6E6A;cursor:pointer">← Kembali</button>
+              <div style="font:600 19px/1.2 'Public Sans',sans-serif;margin-top:15px">{{ stfMark.label }}</div>
+              <div style="font:400 11.5px/1.2 'Public Sans',sans-serif;color:#8A8B87;margin-top:5px">{{ stfMark.sub }}</div>
+
+              <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:18px;margin-top:15px">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="{{ stfMark.bigStyle }}">{{ stfMark.pct }}</span>
+                  <span style="font:400 15px/1 'IBM Plex Mono',monospace;color:#A0A19D">% · {{ stfMark.total }}/110</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px">
+                  <sc-for list="{{ stfMark.perkara }}" as="p" hint-placeholder-count="7">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                        <span style="font:500 12.5px/1.2 'Public Sans',sans-serif;color:#3A3B38">{{ p.name }}</span>
+                        <span style="{{ p.numStyle }}">{{ p.v }}%</span>
+                      </div>
+                      <div style="height:5px;border-radius:3px;background:#EDEDEA;margin-top:7px;overflow:hidden">
+                        <div style="{{ p.bar }}"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #E1E1DE;border-radius:13px;padding:17px;margin-top:9px">
+                <div style="display:flex;gap:11px;align-items:center">
+                  <div style="width:32px;height:32px;border-radius:16px;background:#E4E4E1;display:flex;align-items:center;justify-content:center;font:600 11px 'IBM Plex Mono',monospace;color:#5C5E5B">NS</div>
+                  <div>
+                    <div style="font:600 13px/1.2 'Public Sans',sans-serif">Nur Syahirah</div>
+                    <div style="font:400 10.5px/1.2 'IBM Plex Mono',monospace;color:#8A8B87;margin-top:4px">WS0001 · SV/AS</div>
+                  </div>
+                </div>
+                <p style="font:400 13.5px/1.6 'Public Sans',sans-serif;color:#3A3B38;margin:13px 0 0;text-wrap:pretty">{{ stfMark.note }}</p>
+              </div>
+
+              <div style="display:flex;gap:9px;margin-top:15px">
+                <button onClick="{{ backStf }}" style="flex:1;padding:14px;border-radius:12px;border:none;background:#17181A;color:#fff;font:600 14px 'Public Sans',sans-serif;cursor:pointer">Terima</button>
+                <button style="flex:1;padding:14px;border-radius:12px;border:1px solid #D6D6D2;background:#fff;font:600 14px 'Public Sans',sans-serif;color:#3A3B38;cursor:pointer">Tanya SV</button>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+
+        <sc-if value="{{ showMarkBar }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid #E1E1DE;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);padding:12px 16px 38px;display:flex;align-items:center;gap:13px">
+            <div style="flex:none">
+              <div style="font:500 9.5px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8A8B87">Jumlah markah</div>
+              <div style="display:flex;align-items:baseline;gap:4px;margin-top:6px">
+                <span style="{{ liveStyle }}">{{ liveTotal }}</span>
+                <span style="font:400 12px/1 'IBM Plex Mono',monospace;color:#A0A19D">/{{ maxTotal }} · {{ livePct }}%</span>
+              </div>
+            </div>
+            <button onClick="{{ submitMark }}" style="{{ submitStyle }}">{{ submitLabel }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showTabBar }}" hint-placeholder-val="{{ true }}">
+          <div style="border-top:1px solid #E1E1DE;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);padding:9px 12px 30px;display:flex">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.onClick }}" style="{{ t.style }}">
+                <span style="{{ t.dot }}"></span>
+                <span>{{ t.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </x-import>
+
+    <div style="font:400 12px/1.6 'Public Sans',sans-serif;color:#6C6E6A;max-width:400px;text-align:center;text-wrap:pretty">Live: tap any grid cell, open a kategori and score it, then hantar — the manager grid picks it up.</div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:1150},&quot;verifyByManager&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Peraturan&quot;},&quot;passThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:80,&quot;min&quot;:60,&quot;max&quot;:95,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Peraturan&quot;},&quot;scaleMax&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;5&quot;,&quot;10&quot;],&quot;default&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Peraturan&quot;}}">
+const MONO = "'IBM Plex Mono',monospace";
+const SANS = "'Public Sans',sans-serif";
+
+const FORM = [
+  { no:1, name:'KEDATANGAN', lines:['KEDATANGAN'] },
+  { no:2, name:'DISPLIN', lines:['DISPLIN'] },
+  { no:3, name:'KEBERSIHAN BAHAGIAN', lines:['A) LANTAI','B) RAK / TEMPAT KAUNTER','C) BARANG DISPLAY'] },
+  { no:4, name:'KEKEMASAN BAHAGIAN', lines:['A) BARANG DISPLAY','B) LEBIHAN BARANG'] },
+  { no:5, name:'KEBERSIHAN & KEKEMASAN STOR', lines:['KEBERSIHAN & KEKEMASAN STOR'] },
+  { no:6, name:'PENYUSUAN BARANG', lines:['A) PASTIKAN SETIAP BARANG SUSUN DI ATAS RAK',"B) 'FIRST IN FIRST OUT'",'C) TURUN & TAMBAH STOK','D) PERIKSA BARANG TARIKH LUPUT','E) REPACKING'] },
+  { no:7, name:'KEBERSIHAN KEDAI', lines:['A) TANDAS','B) KIPAS','C) AIR-COND','D) AIR COOLER','E) SAWANG','F) KAKI LIMA / PARKING LOT','G) LONGKANG','H) POTONG POKOK / RUMPUT','I) PETI SEJUK'] },
+];
+const LINE_COUNT = FORM.reduce((n,k) => n + k.lines.length, 0);
+
+const CREW = [
+  { id:'KP0093', name:'Syazana Izzah Zafirah', short:'Syazana', init:'SI', w:[86,null,null,null], perkara:[100,80,84,90,80,88,72] },
+  { id:'KP0103', name:'Putri Wahida Amalin', short:'Putri W.', init:'PW', w:[81,78,null,null], perkara:[100,80,80,80,80,80,76] },
+  { id:'KP0108', name:'Nor Asyikin', short:'Nor Asyikin', init:'NA', w:[81,null,null,null], perkara:[100,80,80,80,80,80,78] },
+  { id:'KP0110', name:'Filzah Diyana', short:'Filzah', init:'FD', w:[null,null,null,null], perkara:[0,0,0,0,0,0,0] },
+  { id:'KP0111', name:'Puteri Nur Hafiza', short:'Puteri N.', init:'PN', w:[74,71,null,null], perkara:[80,60,72,74,70,76,68] },
+  { id:'MY0544', name:'U Tin Tun', short:'U Tin Tun', init:'UT', w:[81,80,null,null], perkara:[100,80,80,80,80,80,80] },
+  { id:'MY0606', name:'Ah San', short:'Ah San', init:'AS', w:[81,null,null,null], perkara:[100,80,80,80,80,80,79] },
+  { id:'MY0644', name:'Pyhi Si Thu', short:'Pyhi Si Thu', init:'PS', w:[null,null,null,null], perkara:[0,0,0,0,0,0,0] },
+];
+const VERIFIED = { 'KP0093-0': true, 'KP0103-0': true, 'MY0544-0': true };
+
+const PERKARA_NOTES = {
+  'KP0093-0': 'Kedatangan penuh. Tandas belum disapu masa handover — kali kedua bulan ni.',
+  'KP0103-1': 'Rak kaunter kemas. Lebihan barang tak dipulangkan ke stor.',
+  'KP0111-0': 'Lewat 3 hari minggu ni. Sawang di bahagian atas rak belum dibersihkan.',
+};
+
+const ASSETS = [
+  { name:'A) AIR-COND', open:true, note:'2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', age:'34 hari terbuka' },
+  { name:'B) AIR COOLER', open:false },
+  { name:'C) LAMPU', open:false },
+  { name:'D) KIPAS', open:false },
+  { name:'E) KOMPUTER', open:false },
+  { name:'F) SALURAN AIR TANDAS', open:false },
+  { name:'G) KEBOCORAN AIR', open:false },
+  { name:'H) SIGNBOARD', open:false },
+  { name:'I) SPOTLIGHT', open:false },
+  { name:'J) LAIN-LAIN: TILE LANTAI', open:true, note:'Tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', age:'12 hari terbuka' },
+];
+
+const NOTE_CHIPS = [
+  { key:'tandas', label:'Tandas belum disapu', text:'Tandas belum disapu masa handover. Perkara sama minggu lepas.' },
+  { key:'lewat', label:'Lewat / kedatangan', text:'Lewat 3 hari minggu ini; kedatangan perlu diperbaiki.' },
+  { key:'bagus', label:'Kerja memuaskan', text:'Kerja memuaskan. Susunan rak dan display kemas sepanjang minggu.' },
+];
+
+const MONTHS = ['JULAI 2026','OGOS 2026','SEPTEMBER 2026'];
+
+class Component extends DCLogic {
+  state = {
+    role:'mgr', mgr:'home', sup:'queue', stf:'home',
+    monthIdx:2, personId:'KP0093', markId:'KP0093',
+    openKat:1, scores:{}, note:null, done:{}, verified:{}, stfWeek:0,
+  };
+  set = (o) => this.setState(o);
+
+  get scaleMax() { return Number(this.props.scaleMax) || 5; }
+  get pass() { return this.props.passThreshold ?? 80; }
+
+  pctColor(v) {
+    const p = this.pass;
+    return v >= p + 8 ? '#1F7A4D' : v >= p ? '#17181A' : v >= p - 15 ? '#A5691A' : '#B0402E';
+  }
+  pctBg(v) {
+    const p = this.pass;
+    return v >= p + 8 ? '#E8F3EC' : v >= p ? '#EDEDEA' : v >= p - 15 ? '#FBF1DF' : '#F8E7E3';
+  }
+
+  totals() {
+    const s = this.state.scores, max = this.scaleMax;
+    const keys = Object.keys(s);
+    const total = keys.reduce((n,k) => n + s[k], 0);
+    return { total, filled: keys.length, complete: keys.length === LINE_COUNT, max: LINE_COUNT * max,
+      pct: keys.length ? Math.round(total / (LINE_COUNT * max) * 100) : 0 };
+  }
+
+  renderVals() {
+    const st = this.state, max = this.scaleMax, verifyOn = this.props.verifyByManager ?? true;
+    const role = st.role;
+    const cur = { ...VERIFIED, ...st.verified };
+
+    const roleTabs = [['mgr','Manager'],['sup','SV / AS'],['stf','Pekerja']].map(([k,label]) => ({
+      label,
+      style: `padding:8px 18px;border-radius:8px;border:none;cursor:pointer;font:${role===k?600:500} 13px ${SANS};background:${role===k?'#fff':'transparent'};color:${role===k?'#17181A':'#6C6E6A'};box-shadow:${role===k?'0 1px 2px rgba(0,0,0,.08)':'none'}`,
+      onClick: () => this.set({ role:k }),
+    }));
+    const roleHint = {
+      mgr:'Grid minggu × pekerja — the #DIV/0! problem made visible.',
+      sup:'Isi checklist 22 perkara; jumlah markah dikira sendiri.',
+      stf:'Lihat markah sendiri dan sebab di sebaliknya.',
+    }[role];
+
+    const weekCols = ['M1','M2','M3','M4'];
+    const marked = (p, i) => st.done[p.id] != null && i === 1 ? st.done[p.id] : p.w[i];
+
+    let sum = 0, n = 0, gaps = 0;
+    CREW.forEach(p => p.w.forEach((v, i) => {
+      const val = marked(p, i);
+      if (val == null) gaps++; else { sum += val; n++; }
+    }));
+    const avg = n ? Math.round(sum / n) : 0;
+    const cellTotal = CREW.length * 4;
+
+    const month = {
+      label: MONTHS[st.monthIdx],
+      avg, avgSub: `${n} penilaian direkod`,
+      avgStyle: `font:600 34px/1 ${MONO};letter-spacing:-0.03em;color:${this.pctColor(avg)}`,
+      gapCount: gaps, cellTotal,
+      gapStyle: `font:600 34px/1 ${MONO};letter-spacing:-0.03em;color:${gaps>cellTotal*0.3?'#A5691A':'#17181A'}`,
+      covCard: `flex:1;background:#fff;border:1px solid ${gaps>cellTotal*0.3?'#EEDFBE':'#E1E1DE'};border-radius:13px;padding:15px;cursor:pointer;display:block`,
+    };
+
+    const cellStyle = (v, verified) => {
+      if (v == null) return `flex:1;height:30px;border-radius:6px;border:1px dashed #D6D6D2;background:#FAFAF9;color:#C3C3BE;font:500 11px ${MONO};cursor:pointer`;
+      return `flex:1;height:30px;border-radius:6px;border:${verified&&verifyOn?'1.5px solid #1F7A4D':'1px solid transparent'};background:${this.pctBg(v)};color:${this.pctColor(v)};font:600 11.5px ${MONO};cursor:pointer`;
+    };
+
+    const grid = CREW.map(p => ({
+      short: p.short,
+      onOpen: () => this.set({ mgr:'person', personId:p.id }),
+      cells: p.w.map((_, i) => {
+        const v = marked(p, i);
+        return { label: v == null ? '–' : v, style: cellStyle(v, cur[`${p.id}-${i}`]),
+          onOpen: () => this.set({ mgr:'person', personId:p.id }) };
+      }),
+    }));
+    const gridLegend = verifyOn ? 'hijau = disahkan MGR' : '% mingguan';
+
+    const perkaraAvg = FORM.map((k, i) => {
+      const vals = CREW.map(p => p.perkara[i]).filter(v => v > 0);
+      return Math.round(vals.reduce((a,b) => a+b, 0) / (vals.length || 1));
+    });
+    const perkara = FORM.map((k, i) => ({
+      name: k.name, v: perkaraAvg[i],
+      numStyle: `font:600 12.5px/1 ${MONO};color:${this.pctColor(perkaraAvg[i])}`,
+      bar: `width:${perkaraAvg[i]}%;height:100%;border-radius:3px;background:${this.pctColor(perkaraAvg[i])}`,
+    }));
+    const lowest = FORM[perkaraAvg.indexOf(Math.min(...perkaraAvg))].name;
+    const perkaraInsight = `${lowest} kekal perkara paling rendah — tandas dan sawang paling kerap disebut dalam catatan.`;
+
+    const pr = CREW.find(p => p.id === st.personId) || CREW[0];
+    const person = {
+      ...pr, role: pr.id.startsWith('KP') || pr.id.startsWith('MY') ? 'Pekerja kedai' : 'SV/AS',
+      weeks: pr.w.map((_, i) => {
+        const v = marked(pr, i);
+        const key = `${pr.id}-${i}`;
+        const verified = !!cur[key];
+        const note = PERKARA_NOTES[key];
+        return {
+          label: `Minggu ${i+1}`,
+          sub: v == null ? 'Belum dinilai' : verified ? `Dinilai SV/AS · disahkan MGR` : 'Dinilai SV/AS · belum disahkan',
+          pct: v == null ? '–' : v + '%',
+          pctStyle: `font:600 17px/1 ${MONO};color:${v==null?'#C3C3BE':this.pctColor(v)}`,
+          card: `background:#fff;border:1px solid ${v==null?'#EAEAE7':'#E1E1DE'};border-radius:13px;padding:15px`,
+          hasNote: !!note, note,
+          needsVerify: verifyOn && v != null && !verified,
+          onVerify: () => this.setState(s => ({ verified: { ...s.verified, [key]: true } })),
+        };
+      }),
+      perkara: FORM.map((k, i) => ({
+        name: k.name, v: pr.perkara[i],
+        numStyle: `font:600 12.5px/1 ${MONO};color:${this.pctColor(pr.perkara[i])}`,
+        bar: `width:${pr.perkara[i]}%;height:100%;border-radius:3px;background:${this.pctColor(pr.perkara[i])}`,
+      })),
+    };
+
+    const gapRows = CREW.map(p => {
+      const nGap = p.w.filter((_, i) => marked(p, i) == null).length;
+      return { init:p.init, name:p.name, sub:`${p.id} · minggu ${p.w.map((_,i)=>marked(p,i)==null?i+1:null).filter(Boolean).join(', ')||'—'}`, n:nGap };
+    }).filter(g => g.n > 0);
+
+    const assets = ASSETS.map(a => ({
+      ...a,
+      card: `background:#fff;border:1px solid ${a.open?'#EEDFBE':'#E1E1DE'};border-radius:12px;padding:14px 15px`,
+      dot: `width:7px;height:7px;border-radius:4px;flex:none;background:${a.open?'#A5691A':'#1F7A4D'}`,
+      chip: a.open ? 'BELUM SELESAI' : 'OK',
+      chipStyle: `font:600 9.5px/1 ${MONO};letter-spacing:.06em;padding:5px 8px;border-radius:6px;background:${a.open?'#FBF3E4':'#E8F3EC'};color:${a.open?'#6B4610':'#1F7A4D'}`,
+    }));
+
+    const t = this.totals();
+    const mk = CREW.find(p => p.id === st.markId) || CREW[0];
+    const pending = CREW.filter(p => marked(p, 1) == null);
+
+    const crew = CREW.map(p => {
+      const v = marked(p, 1);
+      return { id:p.id, name:p.name, init:p.init,
+        card: `width:100%;background:#fff;border:1px solid #E1E1DE;border-radius:12px;padding:13px 14px;cursor:pointer;opacity:${v==null?1:0.6}`,
+        chip: v == null ? 'Isi' : v + '%',
+        chipStyle: v == null
+          ? `font:600 12px/1 ${SANS};padding:7px 11px;border-radius:8px;background:#17181A;color:#fff`
+          : `font:600 12.5px/1 ${MONO};padding:7px 10px;border-radius:8px;background:${this.pctBg(v)};color:${this.pctColor(v)}`,
+        onOpen: () => this.set({ sup:'mark', markId:p.id, scores:{}, note:null, openKat:1 }),
+      };
+    });
+
+    const form = FORM.map(k => {
+      const open = st.openKat === k.no;
+      const vals = k.lines.map((_, i) => st.scores[`${k.no}-${i}`]).filter(v => v != null);
+      const done = vals.length === k.lines.length;
+      const katPct = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0) / (k.lines.length * max) * 100) : null;
+      return {
+        no: k.no, name: k.name, open,
+        card: `background:#fff;border:1px solid ${open?'#C7C7C2':'#E1E1DE'};border-radius:13px;padding:14px 15px`,
+        numBox: `width:22px;height:22px;border-radius:6px;flex:none;display:flex;align-items:center;justify-content:center;font:600 11px ${MONO};background:${done?'#E8F3EC':'#EFEFEC'};color:${done?'#1F7A4D':'#8A8B87'}`,
+        stateLabel: katPct == null ? `0/${k.lines.length}` : done ? katPct + '%' : `${vals.length}/${k.lines.length}`,
+        stateStyle: `font:600 12px/1 ${MONO};color:${done?this.pctColor(katPct):'#A0A19D'}`,
+        onToggle: () => this.setState(s => ({ openKat: s.openKat === k.no ? null : k.no })),
+        fillLabel: `Semua ${max - 1}`,
+        onFillFour: () => this.setState(s => {
+          const next = { ...s.scores };
+          k.lines.forEach((_, i) => { next[`${k.no}-${i}`] = max - 1; });
+          const nextKat = FORM.find(x => x.no > k.no);
+          return { scores: next, openKat: nextKat ? nextKat.no : null };
+        }),
+        lines: k.lines.map((label, i) => {
+          const key = `${k.no}-${i}`;
+          return { label,
+            bands: Array.from({ length: max }, (_, j) => {
+              const v = j + 1, on = st.scores[key] === v;
+              const c = v >= max ? '#1F7A4D' : v >= max - 1 ? '#17181A' : v >= Math.ceil(max*0.6) ? '#A5691A' : '#B0402E';
+              return { v,
+                style: `flex:1;padding:10px 0;border-radius:8px;cursor:pointer;font:600 12.5px ${MONO};border:1px solid ${on?'transparent':'#E1E1DE'};background:${on?c:'#fff'};color:${on?'#fff':'#8A8B87'}`,
+                onPick: () => this.setState(s => ({ scores: { ...s.scores, [key]: v } })),
+              };
+            }),
+          };
+        }),
+      };
+    });
+
+    const noteChips = NOTE_CHIPS.map(nc => ({
+      label: nc.label,
+      style: `padding:8px 11px;border-radius:8px;cursor:pointer;font:500 12px ${SANS};border:1px solid ${st.note===nc.key?'transparent':'#E1E1DE'};background:${st.note===nc.key?'#17181A':'#fff'};color:${st.note===nc.key?'#fff':'#5C5E5B'}`,
+      onPick: () => this.setState(s => ({ note: s.note === nc.key ? null : nc.key })),
+    }));
+
+    const stfWeeksData = [
+      { label:'Minggu 1 · 1–7 Sep', pct:86, total:95, unread:true, note:'Kedatangan penuh dan display kemas. Tandas belum disapu masa handover — kali kedua bulan ni, tolong ambil perhatian.', perkara:[100,80,84,90,80,88,72] },
+      { label:'Ogos · Minggu 4', pct:83, total:91, unread:false, note:'Susunan barang bagus. Sawang atas rak belum dibersihkan.', perkara:[100,80,80,84,80,84,74] },
+      { label:'Ogos · Minggu 3', pct:81, total:89, unread:false, note:'Semua okey. Repacking lambat sikit hari Khamis.', perkara:[100,80,80,80,80,76,76] },
+      { label:'Ogos · Minggu 2', pct:78, total:86, unread:false, note:'Lewat 2 hari. Lantai bahagian belum dimop sebelum tutup.', perkara:[80,80,76,80,80,80,72] },
+    ];
+    const sw = stfWeeksData[st.stfWeek] || stfWeeksData[0];
+
+    const tabsFor = {
+      mgr: [['home','Ringkasan'],['gaps','Belum dinilai'],['assets','Aset kedai']],
+      sup: [['queue','Checklist'],['history','Rekod'],['team','Pekerja']],
+      stf: [['home','Markah saya'],['history','Rekod'],['profile','Profil']],
+    }[role];
+    const activeSub = role==='mgr' ? st.mgr : role==='sup' ? st.sup : st.stf;
+    const tabs = tabsFor.map(([k,label]) => {
+      const active = k === activeSub || (role==='mgr' && k==='home' && st.mgr==='person') || (role==='sup' && k==='queue' && st.sup!=='queue');
+      return { label,
+        style: `flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0;font:${active?600:500} 10.5px ${SANS};color:${active?'#17181A':'#A0A19D'}`,
+        dot: `width:16px;height:16px;border-radius:${k==='home'||k==='queue'?'4px':'8px'};background:${active?'#17181A':'#C9C9C4'};display:block`,
+        onClick: () => role==='mgr' ? this.set({ mgr:k }) : role==='sup' ? this.set({ sup:'queue' }) : this.set({ stf:'home' }),
+      };
+    });
+
+    return {
+      tabs, roleTabs, roleHint, month, weekCols, grid, gridLegend, perkara, perkaraInsight, person, gapRows, assets,
+      prevMonth: () => this.set({ monthIdx: Math.max(0, st.monthIdx - 1) }),
+      nextMonth: () => this.set({ monthIdx: Math.min(MONTHS.length - 1, st.monthIdx + 1) }),
+      isMgrHome: role==='mgr' && st.mgr==='home',
+      isMgrPerson: role==='mgr' && st.mgr==='person',
+      isMgrGaps: role==='mgr' && st.mgr==='gaps',
+      isMgrAssets: role==='mgr' && st.mgr==='assets',
+      isSupQueue: role==='sup' && st.sup==='queue',
+      isSupMark: role==='sup' && st.sup==='mark',
+      isSupDone: role==='sup' && st.sup==='done',
+      isStfHome: role==='stf' && st.stf==='home',
+      isStfDetail: role==='stf' && st.stf==='detail',
+      showTabBar: !(role==='sup' && st.sup!=='queue'),
+      showMarkBar: role==='sup' && st.sup==='mark',
+      goGaps: () => this.set({ mgr:'gaps' }),
+      goAssets: () => this.set({ mgr:'assets' }),
+      backMgr: () => this.set({ mgr:'home' }),
+      backSup: () => this.set({ sup:'queue' }),
+      backStf: () => this.set({ stf:'home' }),
+      crew, crewCount: CREW.length, pendingCount: pending.length,
+      marking: mk, form, noteChips,
+      noteText: st.note ? NOTE_CHIPS.find(x => x.key === st.note).text : 'Tulis atau pilih catatan…',
+      noteColor: st.note ? '#3A3B38' : '#A0A19D',
+      scaleNote: `skala 1–${max}`,
+      liveTotal: t.total, maxTotal: t.max, livePct: t.pct,
+      liveStyle: `font:600 26px/1 ${MONO};letter-spacing:-0.02em;color:${t.filled?this.pctColor(t.pct):'#C9C9C4'}`,
+      doneRing: `width:118px;height:118px;border-radius:59px;display:flex;align-items:center;justify-content:center;font:600 30px ${MONO};letter-spacing:-0.02em;background:${this.pctBg(t.pct)};color:${this.pctColor(t.pct)}`,
+      submitLabel: t.complete ? 'Hantar markah' : `${t.filled}/${LINE_COUNT} perkara diisi`,
+      submitStyle: `flex:1;padding:15px;border-radius:12px;border:none;font:600 15px ${SANS};cursor:${t.complete?'pointer':'not-allowed'};background:${t.complete?'#17181A':'#E1E1DE'};color:${t.complete?'#fff':'#A0A19D'}`,
+      submitMark: () => { if (t.complete) this.setState(s => ({ sup:'done', done: { ...s.done, [s.markId]: t.pct } })); },
+      stfSpark: [78,81,83,79,84,81,83,86].map((v,i) => ({ bar: `flex:1;height:${Math.round((v-70)/20*28)+6}px;border-radius:2px;background:${i===7?'#fff':'#4A4C4E'}` })),
+      stfWeeks: stfWeeksData.map((w, i) => ({
+        label: w.label, sub: `${w.total}/110 · Nur Syahirah`, pct: w.pct + '%', unread: w.unread,
+        pctStyle: `font:600 15px/1 ${MONO};color:${this.pctColor(w.pct)};background:${this.pctBg(w.pct)};padding:9px 10px;border-radius:9px;flex:none`,
+        card: `width:100%;background:#fff;border:1px solid #E1E1DE;border-radius:12px;padding:13px 14px;cursor:pointer`,
+        onOpen: () => this.set({ stf:'detail', stfWeek:i }),
+      })),
+      stfMark: {
+        label: sw.label, sub: `Dinilai oleh Nur Syahirah (WS0001) · checklist mingguan`,
+        pct: sw.pct, total: sw.total, note: sw.note,
+        bigStyle: `font:600 38px/1 ${MONO};letter-spacing:-0.03em;color:${this.pctColor(sw.pct)}`,
+        perkara: FORM.map((k, i) => ({
+          name: k.name, v: sw.perkara[i],
+          numStyle: `font:600 12.5px/1 ${MONO};color:${this.pctColor(sw.perkara[i])}`,
+          bar: `width:${sw.perkara[i]}%;height:100%;border-radius:3px;background:${this.pctColor(sw.perkara[i])}`,
+        })),
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
