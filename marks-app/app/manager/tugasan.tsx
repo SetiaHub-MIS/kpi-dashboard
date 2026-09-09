@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
+import { todayShort } from '@/data/period';
 import { MONTHS, WEEK_COLS } from '@/data/checklist';
 import { useBranchLabel } from '@/store/useBranches';
 import { useUsers } from '@/store/useUsers';
@@ -16,7 +17,7 @@ import {
 } from '@/store/useTugasan';
 import { C } from '@/theme/scoring';
 
-const TODAY = '8/9/2026';
+
 
 export default function Tugasan() {
   const monthIdx = useMarks((s) => s.monthIdx);
@@ -112,7 +113,7 @@ export default function Tugasan() {
                       >
                         <Pressable
                           onPress={() =>
-                            toggle(scope, item.key, weekIdx, TODAY, managerName)
+                            toggle(scope, item.key, weekIdx, todayShort(), managerName)
                           }
                           disabled={!canFill}
                           accessibilityRole="checkbox"
@@ -168,7 +169,7 @@ export default function Tugasan() {
                             <TextInput
                               value={entry.tarikh}
                               onChangeText={(t) => setTarikh(scope, item.key, weekIdx, t)}
-                              placeholder={TODAY}
+                              placeholder={todayShort()}
                               placeholderTextColor={C.ink6}
                               className="bg-card border border-line rounded-lg px-2.5 py-2 font-mono text-[12px] text-ink-2"
                             />

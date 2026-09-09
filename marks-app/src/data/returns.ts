@@ -1,5 +1,14 @@
-/** Today, as the rest of the app fixes it. Dates are ISO so ageing is arithmetic. */
-export const TODAY_ISO = '2026-09-08';
+import { todayIso } from '@/data/period';
+
+/**
+ * Today, read from the device. Every ageing figure in this file is measured
+ * against it, so a frozen value here silently understated how long a bill had
+ * been sitting — which was the workbook's failure mode, reproduced in code.
+ *
+ * Evaluated once per app start rather than per call: a value that changes
+ * mid-render would make two figures on the same screen disagree.
+ */
+export const TODAY_ISO = todayIso();
 
 export type ReturnReason = 'damage' | 'expired';
 

@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, Pressable, Text, View } from 'react-native';
+import { todayShort } from '@/data/period';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
@@ -24,7 +25,7 @@ import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { findUser, useUsers } from '@/store/useUsers';
 import { C, pctColor } from '@/theme/scoring';
 
-const TODAY = '8/9/2026';
+
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -65,7 +66,7 @@ export default function UserDetail() {
       Alert.alert('Tidak boleh tukar peranan', blocked);
       return;
     }
-    setRole(user.id, next, TODAY);
+    setRole(user.id, next, todayShort());
   };
 
   const moveBranch = (next: string) => {

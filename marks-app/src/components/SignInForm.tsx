@@ -4,9 +4,7 @@ import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-nativ
 import { MonoLabel } from '@/components/Card';
 import { Role } from '@/data/users';
 import { AUTH_EMAIL_DOMAIN } from '@/lib/auth';
-import { useBranches } from '@/store/useBranches';
 import { useSession } from '@/store/useSession';
-import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 /** Where each role lands after signing in. */
@@ -34,8 +32,6 @@ export function SignInForm() {
   const status = useSession((s) => s.status);
   const error = useSession((s) => s.error);
   const clearError = useSession((s) => s.clearError);
-  const hydrateUsers = useUsers((s) => s.hydrate);
-  const hydrateBranches = useBranches((s) => s.hydrate);
 
   const [payrollId, setPayrollId] = useState('');
   const [password, setPassword] = useState('');
@@ -51,20 +47,10 @@ export function SignInForm() {
 
       // Loaded here rather than at boot: before sign-in there is no session, and
       // every policy is written for `authenticated`, so the queries would come
-      // back empty and look like an empty company.
-      const now = new Date();
-      const { fetchDirectory } = await import('@/lib/directory');
-      try {
-        const dir = await fetchDirectory({
-          year: now.getUTCFullYear(),
-          month: now.getUTCMonth() + 1,
-        });
-        hydrateBranches(dir.branches);
-        hydrateUsers(dir.users);
-      } catch {
-        // Signed in but the directory would not load — better to continue on
-        // the seed than to bounce someone who authenticated correctly.
-      }
+      // back empty and look like an empty company. A failure is not fatal —
+      // better to continue on the seed than bounce someone who authenticated.
+      const { hydrateDirectory } = await import('@/lib/hydrate');
+      await hydrateDirectory();
 
       router.replace(HOME_ROUTE[staff.role] as Href);
     } finally {

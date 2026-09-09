@@ -6,7 +6,7 @@ import { Card } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { MONTHS } from '@/data/checklist';
-import { WEEK_NOTES } from '@/data/crew';
+import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { formForRole, isVerified, useMarks, weekMark } from '@/store/useMarks';
 import { C, pctColor } from '@/theme/scoring';
@@ -18,6 +18,7 @@ export default function PersonDetail() {
   const { monthIdx, submitted, submittedNotes, verified, passThreshold, verifyByManager } =
     useMarks();
   const verify = useMarks((s) => s.verify);
+  const me = currentUser(users, useSession((x) => x.currentUserId));
 
   if (!person) {
     return (
@@ -52,7 +53,7 @@ export default function PersonDetail() {
           const v = weekMark(person, i, submitted);
           const key = `${person.id}-${i}`;
           const ok = isVerified(key, verified);
-          const note = submittedNotes[key] ?? WEEK_NOTES[key];
+          const note = submittedNotes[key];
           const needsVerify = verifyByManager && v != null && !ok;
 
           return (
@@ -91,7 +92,7 @@ export default function PersonDetail() {
               {needsVerify && (
                 <View className="flex-row gap-2 mt-3">
                   <Pressable
-                    onPress={() => verify(key)}
+                    onPress={() => void verify(key, me ? { verifiedBy: me.id } : undefined)}
                     accessibilityRole="button"
                     className="flex-1 py-[11px] rounded-[9px] bg-ink items-center active:opacity-80"
                   >

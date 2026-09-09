@@ -1,3 +1,5 @@
+import { periodLabel, recentPeriods, todayIso, weekIndexOf } from '@/data/period';
+
 export type Kategori = {
   no: number;
   name: string;
@@ -120,8 +122,16 @@ export const STOR_LINE_COUNT = countLines(STOR_FORM);
 
 export const lineKey = (katNo: number, lineIdx: number) => `${katNo}-${lineIdx}`;
 
-export const MONTHS = ['JULAI 2026', 'OGOS 2026', 'SEPTEMBER 2026'];
+/**
+ * The months the switcher offers, newest last. Derived from today rather than
+ * written down, so the app does not quietly stop at a month someone typed in.
+ */
+export const PERIODS = recentPeriods(6);
+export const MONTHS = PERIODS.map(periodLabel);
 
-/** The week currently being marked by SV/AS — Minggu 2 in the sample month. */
-export const ACTIVE_WEEK = 1;
+/**
+ * Which of the four columns this week is, 0-based. Marking always lands in the
+ * current week; the earlier ones are history and are read-only.
+ */
+export const ACTIVE_WEEK = weekIndexOf(todayIso());
 export const WEEK_COLS = ['M1', 'M2', 'M3', 'M4'];

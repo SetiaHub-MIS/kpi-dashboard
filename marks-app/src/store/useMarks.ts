@@ -8,8 +8,12 @@ import {
   countLines,
   lineKey,
 } from '@/data/checklist';
-import { VERIFIED } from '@/data/crew';
+import { Period, currentPeriod } from '@/data/period';
 import { Role, User } from '@/data/users';
+import { isRetryable } from '@/data/queue';
+import { submitMark, verifyMark } from '@/lib/marks';
+import { useQueue } from '@/store/useQueue';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 /** Kedai and stor are scored on different forms, so every total is form-relative. */
 export const formKeyForRole = (role: Role): FormKey =>
@@ -37,6 +41,21 @@ const emptyDraft: Draft = {
   openKat: 1,
 };
 
+/** What a save needs that the store does not know: who is marking, and where. */
+export type SaveContext = {
+  branchId: string;
+  scoredBy: string;
+  period?: Period;
+  /** Resolves a payroll number to a name, for the rejection notice. */
+  nameOf?: (userId: string) => string;
+};
+
+export type VerifyContext = {
+  verifiedBy: string;
+  /** Set only when the manager overrides the total rather than agreeing. */
+  adjustedTo?: number;
+};
+
 type MarksState = {
   /** Peraturan — the scoring rules the kedai runs on. */
   passThreshold: number;
@@ -50,6 +69,10 @@ type MarksState = {
   submittedNotes: Record<string, string>;
   /** Manager sign-off, keyed `${personId}-${weekIndex}`. */
   verified: Record<string, boolean>;
+  /** marks.id for a person's week, once known. Verification needs the row id. */
+  markIds: Record<string, number>;
+  /** Set when a write to Postgres failed, so the screen can say so. */
+  saveError: string | null;
   draft: Draft;
 
   prevMonth: () => void;
@@ -60,8 +83,11 @@ type MarksState = {
   fillKategori: (katNo: number) => void;
   pickNoteChip: (chip: { key: string; text: string }) => void;
   setNoteText: (text: string) => void;
-  submitDraft: () => void;
-  verify: (key: string) => void;
+  submitDraft: (ctx?: SaveContext) => Promise<void>;
+  verify: (key: string, ctx?: VerifyContext) => Promise<void>;
+  noteMarkIds: (ids: Record<string, number>) => void;
+  noteVerified: (flags: Record<string, boolean>) => void;
+  noteWeekNotes: (notes: Record<string, string>) => void;
   setRule: (rule: Partial<Pick<MarksState, 'passThreshold' | 'scaleMax' | 'verifyByManager'>>) => void;
 };
 
@@ -74,6 +100,8 @@ export const useMarks = create<MarksState>((set, get) => ({
   submitted: {},
   submittedNotes: {},
   verified: {},
+  markIds: {},
+  saveError: null,
   draft: emptyDraft,
 
   prevMonth: () => set((s) => ({ monthIdx: Math.max(0, s.monthIdx - 1) })),
@@ -119,22 +147,85 @@ export const useMarks = create<MarksState>((set, get) => ({
   setNoteText: (noteText) =>
     set((s) => ({ draft: { ...s.draft, noteText, noteChip: null } })),
 
-  submitDraft: () =>
-    set((s) => {
-      const { personId, noteText } = s.draft;
-      const t = draftTotals(s);
-      if (!personId || !t.complete) return s;
-      const note = noteText.trim();
-      return {
-        submitted: { ...s.submitted, [personId]: t.pct },
-        submittedNotes: note
-          ? { ...s.submittedNotes, [`${personId}-${ACTIVE_WEEK}`]: note }
-          : s.submittedNotes,
-        draft: emptyDraft,
-      };
-    }),
+  /**
+   * Records the mark locally first, then writes it.
+   *
+   * The local write is not an optimisation — it is what lets a supervisor keep
+   * marking when the stockroom has no signal. A failed write leaves the mark on
+   * screen and sets saveError; Sprint 2's queue is what will retry it.
+   */
+  submitDraft: async (ctx) => {
+    const s = get();
+    const { personId, noteText, formKey } = s.draft;
+    const t = draftTotals(s);
+    if (!personId || !t.complete) return;
 
-  verify: (key) => set((s) => ({ verified: { ...s.verified, [key]: true } })),
+    const note = noteText.trim();
+    set({
+      submitted: { ...s.submitted, [personId]: t.pct },
+      submittedNotes: note
+        ? { ...s.submittedNotes, [`${personId}-${ACTIVE_WEEK}`]: note }
+        : s.submittedNotes,
+      saveError: null,
+      draft: emptyDraft,
+    });
+
+    if (!isSupabaseConfigured || !ctx) return;
+
+    const input = {
+      userId: personId,
+      branchId: ctx.branchId,
+      formKey,
+      period: ctx.period ?? currentPeriod(),
+      weekNo: ACTIVE_WEEK + 1,
+      scores: s.draft.scores,
+      maxScore: t.max,
+      note,
+      scoredBy: ctx.scoredBy,
+    };
+
+    try {
+      const result = await submitMark(input);
+      if (result.ok) {
+        set((cur) => ({
+          markIds: { ...cur.markIds, [`${personId}-${ACTIVE_WEEK}`]: result.markId },
+        }));
+      }
+      // This write proved the network is back, so anything still queued from
+      // earlier gets its chance now rather than waiting for the next restart.
+      if (useQueue.getState().pending.length > 0) {
+        void useQueue.getState().drain(ctx.nameOf ?? ((id) => id));
+      }
+    } catch (e: any) {
+      if (isRetryable(e)) {
+        // No signal. The mark is already on screen; queue it and carry on, which
+        // is the whole point — a stockroom with no bars must not stop marking.
+        await useQueue.getState().add(input);
+      } else {
+        set({ saveError: e?.message ?? 'Markah tidak dapat disimpan.' });
+      }
+    }
+  },
+
+  verify: async (key, ctx) => {
+    set((s) => ({ verified: { ...s.verified, [key]: true }, saveError: null }));
+
+    const markId = get().markIds[key];
+    if (!isSupabaseConfigured || !ctx || markId == null) return;
+
+    try {
+      await verifyMark(markId, ctx.verifiedBy, ctx.adjustedTo);
+    } catch (e: any) {
+      set({ saveError: e?.message ?? 'Pengesahan tidak dapat disimpan.' });
+    }
+  },
+
+  noteMarkIds: (ids) => set((s) => ({ markIds: { ...s.markIds, ...ids } })),
+
+  noteVerified: (flags) => set((s) => ({ verified: { ...s.verified, ...flags } })),
+
+  noteWeekNotes: (notes) =>
+    set((s) => ({ submittedNotes: { ...notes, ...s.submittedNotes } })),
 
   setRule: (rule) => set(rule),
 }));
@@ -176,11 +267,16 @@ export function weekMark(
   return person.w[weekIdx];
 }
 
+/**
+ * Whether the Area Manager has signed a mark off. Loaded from
+ * `mark_verifications` at hydration and set optimistically when they sign one
+ * off in-app, so the tick appears without waiting for a round trip.
+ */
 export function isVerified(
   key: string,
   verified: Record<string, boolean>
 ): boolean {
-  return !!(VERIFIED[key] || verified[key]);
+  return !!verified[key];
 }
 
 export function monthStats(staff: User[], submitted: Record<string, number>) {

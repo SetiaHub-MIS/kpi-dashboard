@@ -3,38 +3,47 @@ import { Pressable, Text, View } from 'react-native';
 import { Card } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
-import { STAFF_WEEKS } from '@/data/crew';
 import { FORM } from '@/data/checklist';
+import { useMyWeeks } from '@/store/useMyWeeks';
 import { useMarks } from '@/store/useMarks';
 import { pctBg, pctColor } from '@/theme/scoring';
 
 export default function StaffRekod() {
   const passThreshold = useMarks((s) => s.passThreshold);
+  const weeks = useMyWeeks((s) => s.weeks);
 
+  // Averaged over the weeks that carry per-perkara detail. Marks imported from
+  // the workbooks have only a weekly total, so including them would divide by
+  // weeks that contributed nothing.
+  const detailed = weeks.filter((w) => w.perkara.length > 0);
   const average = FORM.map((_, i) =>
-    Math.round(
-      STAFF_WEEKS.reduce((sum, w) => sum + w.perkara[i], 0) / STAFF_WEEKS.length
-    )
+    detailed.length
+      ? Math.round(detailed.reduce((sum, w) => sum + (w.perkara[i] ?? 0), 0) / detailed.length)
+      : 0
   );
 
   return (
     <Screen>
       <Text className="font-sans-semi text-[22px] text-ink">Rekod saya</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        {STAFF_WEEKS.length} minggu terakhir yang sudah dinilai.
+        {weeks.length === 0
+          ? 'Belum ada minggu yang dinilai.'
+          : `${weeks.length} minggu terakhir yang sudah dinilai.`}
       </Text>
 
-      <Card className="p-4 mt-[18px]">
-        <Text className="font-sans-semi text-[13px] text-ink mb-4">
-          Purata ikut perkara · 4 minggu
-        </Text>
-        <PerkaraBars values={average} />
-      </Card>
+      {detailed.length > 0 && (
+        <Card className="p-4 mt-[18px]">
+          <Text className="font-sans-semi text-[13px] text-ink mb-4">
+            Purata ikut perkara · {detailed.length} minggu
+          </Text>
+          <PerkaraBars values={average} />
+        </Card>
+      )}
 
       <View className="gap-2 mt-2.5">
-        {STAFF_WEEKS.map((w, i) => (
+        {weeks.map((w, i) => (
           <Pressable
-            key={w.label}
+            key={w.markId}
             onPress={() => router.push(`/week/${i}`)}
             accessibilityRole="button"
             className="bg-card border border-line rounded-xl px-3.5 py-3 active:opacity-70"

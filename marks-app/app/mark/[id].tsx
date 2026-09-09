@@ -16,6 +16,7 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { NOTE_CHIPS } from '@/data/assets';
 import { ACTIVE_WEEK, FORM_LABEL, countLines, lineKey } from '@/data/checklist';
+import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { draftTotals, formForRole, formKeyForRole, useMarks } from '@/store/useMarks';
 import { C, bandColor, pctColor } from '@/theme/scoring';
@@ -24,6 +25,7 @@ export default function MarkPerson() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const users = useUsers((s) => s.users);
   const person = findUser(users, id);
+  const me = currentUser(users, useSession((x) => x.currentUserId));
   const insets = useSafeAreaInsets();
 
   const draft = useMarks((s) => s.draft);
@@ -64,7 +66,19 @@ export default function MarkPerson() {
 
   const submit = () => {
     if (!totals.complete) return;
-    submitDraft();
+    // The mark is filed against the person's branch, not the marker's: they are
+    // the same for an SV/AS, and the person's is the one the record belongs to.
+    // Not awaited — the local write has already happened, and the screen should
+    // not hold the supervisor while the network decides.
+    void submitDraft(
+      me && person.branchId
+        ? {
+            branchId: person.branchId,
+            scoredBy: me.id,
+            nameOf: (uid: string) => findUser(users, uid)?.short ?? uid,
+          }
+        : undefined
+    );
     router.replace({
       pathname: '/done',
       params: {

@@ -1,6 +1,7 @@
 import { Branch } from '@/data/branches';
 import { FORMS } from '@/data/checklist';
 import { Role, User } from '@/data/users';
+import { MarkRow, fetchMarks, fetchPerkaraAverages } from '@/lib/marks';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -31,64 +32,72 @@ export async function fetchBranches(): Promise<Branch[]> {
 }
 
 /**
- * The four weekly percentages the app hangs off each person, and their
+ * The four weekly percentages the app hangs off each person, plus their
  * per-kategori averages.
  *
  * These live on `User` because the marking screens were written against a
- * fixture that embedded them. Marks move onto Supabase properly in Sprint 2;
- * until then they are read here so the grids keep working, rather than every
- * screen going blank the moment the directory becomes real.
+ * fixture that embedded them. Both now come from Postgres — the averages need
+ * mark_lines joined back through categories, which is why they were zeroes
+ * until the marks layer existed.
  */
-type MarkRow = {
-  user_id: string;
-  week_no: number;
-  pct: number;
-  form_key: string;
-};
-
-export async function fetchStaff(period: { year: number; month: number }): Promise<User[]> {
-  const [{ data: users, error: userErr }, { data: marks, error: markErr }] =
-    await Promise.all([
-      supabase.from('users').select(USER_COLUMNS).order('id'),
-      supabase
-        .from('marks')
-        .select('user_id, week_no, pct, form_key')
-        .eq('period_year', period.year)
-        .eq('period_month', period.month),
-    ]);
+export async function fetchStaff(
+  period: { year: number; month: number },
+  scaleMax = 5
+): Promise<{
+  users: User[];
+  markIds: Record<string, number>;
+  verified: Record<string, boolean>;
+  notes: Record<string, string>;
+}> {
+  const [{ data: users, error: userErr }, marks, perkara] = await Promise.all([
+    supabase.from('users').select(USER_COLUMNS).order('id'),
+    fetchMarks(period),
+    fetchPerkaraAverages(period, scaleMax),
+  ]);
 
   if (userErr) throw userErr;
-  if (markErr) throw markErr;
 
   const byUser = new Map<string, MarkRow[]>();
-  (marks ?? []).forEach((m) => {
-    const rows = byUser.get(m.user_id) ?? [];
-    rows.push(m as MarkRow);
-    byUser.set(m.user_id, rows);
+  marks.forEach((m) => {
+    byUser.set(m.userId, [...(byUser.get(m.userId) ?? []), m]);
   });
 
-  return (users ?? []).map((u) => {
-    const mine = byUser.get(u.id) ?? [];
-    const w: (number | null)[] = [null, null, null, null];
-    mine.forEach((m) => {
-      if (m.week_no >= 1 && m.week_no <= 4) w[m.week_no - 1] = m.pct;
-    });
-
-    return {
-      id: u.id,
-      name: u.name,
-      short: u.short_name,
-      init: u.initials,
-      role: u.role as Role,
-      branchId: u.branch_id,
-      active: u.active,
-      w,
-      // Per-kategori averages need mark_lines joined through to categories,
-      // which is Sprint 2's query. Zeroes render as "no data" rather than as a
-      // wrong number, which is the safer of the two while this is unfinished.
-      perkara: emptyPerkara(u.role as Role),
-    };
+  // marks.id per person-week, so a manager verifying a mark knows which row,
+  // and which of them the manager has already signed off.
+  const markIds: Record<string, number> = {};
+  const verified: Record<string, boolean> = {};
+  const notes: Record<string, string> = {};
+  marks.forEach((m) => {
+    const key = `${m.userId}-${m.weekNo - 1}`;
+    markIds[key] = m.id;
+    if (m.verified) verified[key] = true;
+    if (m.note) notes[key] = m.note;
   });
+
+  return {
+    verified,
+    notes,
+    users: (users ?? []).map((u) => {
+      const mine = byUser.get(u.id) ?? [];
+      const w: (number | null)[] = [null, null, null, null];
+      mine.forEach((m) => {
+        if (m.weekNo >= 1 && m.weekNo <= 4) w[m.weekNo - 1] = m.pct;
+      });
+
+      return {
+        id: u.id,
+        name: u.name,
+        short: u.short_name,
+        init: u.initials,
+        role: u.role as Role,
+        branchId: u.branch_id,
+        active: u.active,
+        w,
+        perkara: perkara[u.id] ?? emptyPerkara(u.role as Role),
+      };
+    }),
+    markIds,
+  };
 }
 
 const emptyPerkara = (role: Role): number[] =>
@@ -110,17 +119,23 @@ export async function fetchUserBranches(): Promise<Record<string, string[]>> {
 }
 
 /** Everything the directory needs, in one round of queries. */
-export async function fetchDirectory(period: { year: number; month: number }) {
+export async function fetchDirectory(
+  period: { year: number; month: number },
+  scaleMax = 5
+) {
   const [branches, staff, extraBranches] = await Promise.all([
     fetchBranches(),
-    fetchStaff(period),
+    fetchStaff(period, scaleMax),
     fetchUserBranches(),
   ]);
 
   return {
     branches,
-    users: staff.map((u) =>
+    users: staff.users.map((u) =>
       extraBranches[u.id] ? { ...u, branchIds: extraBranches[u.id] } : u
     ),
+    markIds: staff.markIds,
+    verified: staff.verified,
+    notes: staff.notes,
   };
 }

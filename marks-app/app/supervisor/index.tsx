@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
+import { QueueBanner } from '@/components/QueueBanner';
 import { MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { ACTIVE_WEEK } from '@/data/checklist';
+import { currentPeriod, weekRangeLabel } from '@/data/period';
 import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL, User } from '@/data/users';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
@@ -37,9 +39,11 @@ export default function SupervisorQueue() {
         Checklist Minggu {ACTIVE_WEEK + 1}
       </Text>
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
-        Tarikh 8–14 Sep. {pending.length} daripada {crew.length} pekerja belum dinilai.
-        Tutup sebelum Ahad.
+        Tarikh {weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1)}. {pending.length} daripada{' '}
+        {crew.length} pekerja belum dinilai. Tutup sebelum Ahad.
       </Text>
+
+      <QueueBanner />
 
       <View className="gap-2 mt-[18px]">
         {crew.map((p) => {

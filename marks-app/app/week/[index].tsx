@@ -5,7 +5,7 @@ import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
-import { STAFF_WEEKS } from '@/data/crew';
+import { useMyWeeks } from '@/store/useMyWeeks';
 import { ROLE_LABEL } from '@/data/users';
 import { useMarks } from '@/store/useMarks';
 import { primaryOf, useUsers } from '@/store/useUsers';
@@ -16,7 +16,23 @@ export default function WeekDetail() {
   const passThreshold = useMarks((s) => s.passThreshold);
   const supervisor = primaryOf(useUsers((s) => s.users), 'supervisor');
   const svName = supervisor?.name ?? 'SV/AS';
-  const week = STAFF_WEEKS[Number(index)] ?? STAFF_WEEKS[0];
+  const weeks = useMyWeeks((s) => s.weeks);
+  // Reachable by deep link, or after a restart before the list has loaded.
+  const week = weeks[Number(index)] as (typeof weeks)[number] | undefined;
+
+  if (!week) {
+    return (
+      <Screen>
+        <BackLink label="Kembali" />
+        <Text className="font-sans-semi text-[19px] text-ink mt-4">
+          Markah tidak dijumpai
+        </Text>
+        <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
+          Buka semula dari senarai markah mingguan.
+        </Text>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>

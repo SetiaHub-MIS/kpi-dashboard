@@ -3,7 +3,8 @@ import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { ME_ID, STAFF_WEEKS } from '@/data/crew';
+import { currentUser, useSession } from '@/store/useSession';
+import { useMyWeeks } from '@/store/useMyWeeks';
 import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL } from '@/data/users';
 import { useMarks } from '@/store/useMarks';
@@ -13,12 +14,13 @@ import { pctColor } from '@/theme/scoring';
 export default function Profil() {
   const passThreshold = useMarks((s) => s.passThreshold);
   const users = useUsers((s) => s.users);
-  const me = findUser(users, ME_ID);
+  const me = currentUser(users, useSession((s) => s.currentUserId));
   const supervisor = primaryOf(users, 'supervisor');
   const branchLabel = useBranchLabel();
-  const avg = Math.round(
-    STAFF_WEEKS.reduce((sum, w) => sum + w.pct, 0) / STAFF_WEEKS.length
-  );
+  const weeks = useMyWeeks((s) => s.weeks);
+  const avg = weeks.length
+    ? Math.round(weeks.reduce((sum, w) => sum + w.pct, 0) / weeks.length)
+    : 0;
 
   return (
     <Screen>
@@ -37,7 +39,9 @@ export default function Profil() {
           >
             {avg}
           </Text>
-          <Text className="font-mono text-[13px] text-ink-6">% purata 4 minggu</Text>
+          <Text className="font-mono text-[13px] text-ink-6">
+            % purata {weeks.length} minggu
+          </Text>
         </View>
       </Card>
 
