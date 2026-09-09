@@ -5,8 +5,8 @@
 -- plumbing and is never shown; users.auth_user_id is the real link, which is
 -- why a mark's history survives any change to it.
 --
--- Run in the Supabase SQL editor. It is idempotent — anyone who already has an
--- account is skipped — so re-run it after adding staff.
+-- Paste into the Supabase SQL editor and run. It is idempotent — anyone who
+-- already has an account is skipped — so re-run it after adding staff.
 --
 --   1. Set the two settings below.
 --   2. Run.
@@ -16,7 +16,9 @@
 -- because nobody has real data in front of them yet. Change it before pilot,
 -- and make first-login password change part of handing the app over.
 
-\set ON_ERROR_STOP on
+-- pgcrypto lives in the extensions schema on Supabase, so crypt() and
+-- gen_salt() are not reachable unqualified until it is on the search path.
+SET search_path = public, extensions;
 
 DO $$
 DECLARE
@@ -31,10 +33,16 @@ BEGIN
   LOOP
     new_uid := gen_random_uuid();
 
+    -- The four token columns are set to '' rather than left NULL on purpose:
+    -- GoTrue reads them as strings, and a NULL there surfaces later as
+    -- "converting NULL to string is unsupported" the first time someone tries
+    -- a password reset.
     INSERT INTO auth.users (
       instance_id, id, aud, role, email,
       encrypted_password, email_confirmed_at,
       raw_app_meta_data, raw_user_meta_data,
+      confirmation_token, recovery_token,
+      email_change, email_change_token_new,
       created_at, updated_at
     ) VALUES (
       '00000000-0000-0000-0000-000000000000',
@@ -48,6 +56,7 @@ BEGIN
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
       jsonb_build_object('payroll_id', staff.id),
+      '', '', '', '',
       now(), now()
     );
 

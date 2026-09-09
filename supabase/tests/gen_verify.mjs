@@ -28,6 +28,8 @@ const MIGRATIONS = [
   '20260909030000_tugasan_stays_with_area_manager.sql',
   '20260909030100_returns_leave_admin.sql',
   '20260909030200_central_store_at_hq.sql',
+  '20260909030300_grants.sql',
+  '20260909030400_real_branches.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));
@@ -56,6 +58,13 @@ const fns = await db.query(`
    ORDER BY 1
 `);
 
+const grants = await db.query(`
+  SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
+    FROM information_schema.role_table_grants
+   WHERE table_schema = 'public' AND grantee = 'authenticated'
+   GROUP BY table_name ORDER BY table_name
+`);
+
 const rls = await db.query(`
   SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity ORDER BY 1
@@ -79,6 +88,9 @@ ${fns.rows.map((r) => `  (${q(r.proname)})`).join(',\n')}
 ),
 expected_rls(tbl) AS (VALUES
 ${rls.rows.map((r) => `  (${q(r.relname)})`).join(',\n')}
+),
+expected_grant(tbl, privs) AS (VALUES
+${grants.rows.map((r) => `  (${q(r.table_name)}, ${q(r.privs)})`).join(',\n')}
 ),
 expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
 ${rows.map((r) => `  (${q(r.tablename)}, ${q(r.policyname)}, ${q(r.cmd)}, ${q(r.fns)}, ${q(r.roles)})`).join(',\n')}
@@ -109,6 +121,24 @@ SELECT * FROM (
     FROM expected_rls e
     LEFT JOIN pg_class c ON c.relname = e.tbl
      AND c.relnamespace = 'public'::regnamespace
+
+  UNION ALL
+  -- 2b. the signed-in role can reach the table at all. RLS says which rows;
+  --     without a GRANT every request is 42501 no matter how right the policy.
+  SELECT 2, 'grant on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'NO GRANT'
+              WHEN a.privs <> e.privs THEN 'DIFFERS'
+              ELSE 'PASS' END,
+         CASE WHEN a.privs IS NULL THEN 'authenticated cannot reach this table'
+              WHEN a.privs <> e.privs THEN 'expected [' || e.privs || '] got [' || a.privs || ']'
+              ELSE '' END
+    FROM expected_grant e
+    LEFT JOIN (
+      SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee = 'authenticated'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
 
   UNION ALL
   -- 3. each policy exists and rests on the rules it should
@@ -142,4 +172,4 @@ ORDER BY CASE result WHEN 'PASS' THEN 9 ELSE 0 END, ord, item;
 `;
 
 writeFileSync(`${ROOT}supabase/tests/verify_policies.sql`, sql);
-console.log(`policies: ${rows.length}, functions: ${fns.rows.length}, rls tables: ${rls.rows.length}`);
+console.log(`policies: ${rows.length}, functions: ${fns.rows.length}, rls tables: ${rls.rows.length}, granted tables: ${grants.rows.length}`);

@@ -45,6 +45,33 @@ expected_rls(tbl) AS (VALUES
   ('user_branches'),
   ('users')
 ),
+expected_grant(tbl, privs) AS (VALUES
+  ('assets', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('branch_changes', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('branches', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('checklist_categories', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('checklist_forms', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('checklist_lines', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('mark_coverage', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('mark_lines', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('mark_verifications', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('marks', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_ageing', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_events', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_stage_gaps', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_submission', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_submission_kpi', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('return_turnaround', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('returns', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('role_changes', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('scoring_rules', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('suppliers', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('tugasan_checks', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('tugasan_items', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('tugasan_signoffs', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('user_branches', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('users', 'DELETE,INSERT,SELECT,UPDATE')
+),
 expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('assets', 'assets_read', 'SELECT', 'app_can_see_branch', ''),
   ('assets', 'assets_write', 'ALL', 'app_can_see_branch,app_is_exec,app_role', 'area_manager,supervisor'),
@@ -112,6 +139,24 @@ SELECT * FROM (
     FROM expected_rls e
     LEFT JOIN pg_class c ON c.relname = e.tbl
      AND c.relnamespace = 'public'::regnamespace
+
+  UNION ALL
+  -- 2b. the signed-in role can reach the table at all. RLS says which rows;
+  --     without a GRANT every request is 42501 no matter how right the policy.
+  SELECT 2, 'grant on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'NO GRANT'
+              WHEN a.privs <> e.privs THEN 'DIFFERS'
+              ELSE 'PASS' END,
+         CASE WHEN a.privs IS NULL THEN 'authenticated cannot reach this table'
+              WHEN a.privs <> e.privs THEN 'expected [' || e.privs || '] got [' || a.privs || ']'
+              ELSE '' END
+    FROM expected_grant e
+    LEFT JOIN (
+      SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee = 'authenticated'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
 
   UNION ALL
   -- 3. each policy exists and rests on the rules it should

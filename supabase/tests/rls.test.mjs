@@ -25,6 +25,7 @@ for (const m of [
   'supabase/migrations/20260909030000_tugasan_stays_with_area_manager.sql',
   'supabase/migrations/20260909030100_returns_leave_admin.sql',
   'supabase/migrations/20260909030200_central_store_at_hq.sql',
+  'supabase/migrations/20260909030300_grants.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -32,12 +33,15 @@ for (const m of [
 try { await db.exec(file('supabase/seed.sql')); console.log('OK   seed.sql'); }
 catch (e) { console.log(`FAIL seed.sql\n     ${e.message}`); process.exit(1); }
 
-// Supabase grants these to `authenticated` out of the box, including access to
-// the auth schema so auth.uid() is callable from policies and from queries.
+// Only what Supabase genuinely provides: reach into the auth schema so
+// auth.uid() is callable from a policy and from a query.
+//
+// Table privileges are NOT granted here on purpose. They used to be, and that
+// hid a real bug — the migrations never granted them, so every policy was
+// correct and every request still came back `42501 permission denied`. The
+// grants now live in 20260909030300_grants.sql, where the database can be held
+// to them.
 await db.exec(`
-  GRANT USAGE ON SCHEMA public TO authenticated;
-  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
-  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
   GRANT USAGE ON SCHEMA auth TO authenticated;
   GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
 `);
