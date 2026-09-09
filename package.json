@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Database tooling for Checklist Mingguan. The Expo app lives in marks-app/.",
   "scripts": {
-    "test:rls": "node supabase/tests/rls.test.mjs"
+    "test:rls": "node supabase/tests/rls.test.mjs",
+    "verify:policies": "node supabase/tests/gen_verify.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.11"

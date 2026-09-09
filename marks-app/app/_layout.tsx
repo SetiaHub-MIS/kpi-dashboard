@@ -17,6 +17,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useSession } from '@/store/useSession';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,6 +35,13 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
+
+  // A session stored on the device outlives a restart, so check for one before
+  // showing the way in. Resolves to 'idle' whether or not it finds anything.
+  const restore = useSession((s) => s.restore);
+  useEffect(() => {
+    restore();
+  }, [restore]);
 
   if (!loaded && !error) return null;
 

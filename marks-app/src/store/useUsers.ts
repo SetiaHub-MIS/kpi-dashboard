@@ -22,6 +22,8 @@ type UsersState = {
   users: User[];
   /** Most recent first — promotions and demotions made in-app. */
   history: RoleChange[];
+  /** Replaces the seed with rows read from Postgres. */
+  hydrate: (users: User[]) => void;
 
   addUser: (input: { name: string; id: string; role: Role; branchId: string | null }) => void;
   setRole: (id: string, role: Role, at: string) => void;
@@ -32,6 +34,8 @@ type UsersState = {
 export const useUsers = create<UsersState>((set) => ({
   users: SEED_USERS,
   history: [],
+
+  hydrate: (users) => set({ users }),
 
   addUser: ({ name, id, role, branchId }) =>
     set((s) => ({

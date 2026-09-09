@@ -3,6 +3,8 @@ import { Branch, SEED_BRANCHES, branchLabel, defaultShort } from '@/data/branche
 
 type BranchesState = {
   branches: Branch[];
+  /** Replaces the seed with rows read from Postgres. */
+  hydrate: (branches: Branch[]) => void;
   addBranch: (input: { id: string; name: string; short: string }) => void;
   renameBranch: (id: string, name: string, short: string) => void;
   setBranchActive: (id: string, active: boolean) => void;
@@ -10,6 +12,8 @@ type BranchesState = {
 
 export const useBranches = create<BranchesState>((set) => ({
   branches: SEED_BRANCHES,
+
+  hydrate: (branches) => set({ branches }),
 
   addBranch: ({ id, name, short }) =>
     set((s) => ({
