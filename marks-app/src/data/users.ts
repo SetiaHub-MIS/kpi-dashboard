@@ -76,9 +76,9 @@ export const ROLE_BLURB: Record<Role, string> = {
   clerk: 'Uruskan panggilan pembekal dan pungutan barang pulangan.',
   supervisor: 'Menilai pekerja kedai dan stor setiap minggu.',
   area_manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
-  manager: 'Semua cawangan bahagian kedai. Tiada akses pulangan atau markah stor.',
-  general_manager: 'Semua cawangan — analitik markah, KPI dan tugasan.',
-  human_resources: 'Semua cawangan — analitik markah, KPI dan tugasan.',
+  manager: 'Laporan semua cawangan, bahagian kedai sahaja. Tiada pulangan atau markah stor.',
+  general_manager: 'Laporan semua cawangan — markah kedai, markah stor dan KPI pulangan.',
+  human_resources: 'Laporan semua cawangan — markah kedai, markah stor dan KPI pulangan.',
   admin: 'Urus akaun, peranan dan kenaikan pangkat.',
 };
 

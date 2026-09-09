@@ -22,6 +22,7 @@ for (const m of [
   'supabase/migrations/20260909010200_rls.sql',
   'supabase/migrations/20260909020000_return_submission_stage.sql',
   'supabase/migrations/20260909020100_return_kpi.sql',
+  'supabase/migrations/20260909030000_tugasan_stays_with_area_manager.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -279,6 +280,28 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
   check('HR may NOT create a branch either',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
+}
+
+console.log('\n=== the tugasan self-check stays with the Area Manager ===');
+{
+  // Head office watches whether it was filled in, and cannot fill it in.
+  const r = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM tugasan_checks`);
+  check('GM reads the tugasan of every outlet', r.rows[0].n > 0, true);
+
+  check('GM may NOT fill in a tugasan check',
+    await tryWrite(ACCOUNTS.gm[0],
+      `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
+       VALUES ('MCG',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'blocked');
+
+  check('HR may NOT sign off a tugasan month either',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO tugasan_signoffs (branch_id,period_year,period_month,week_no,filled_by)
+       VALUES ('KBR',2026,10,1,'HR0001')`), 'blocked');
+
+  check('the Area Manager still can',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
+       VALUES ('MCG',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'allowed');
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);

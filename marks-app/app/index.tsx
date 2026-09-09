@@ -20,14 +20,13 @@ const BRANCH_ROLES: { role: Role; href: Href }[] = [
 
 /**
  * Head office. These four hold no branch, so they are listed apart from the
- * outlet roles. Admin gets the administration console; the other three land on
- * the marks dashboard, which reads cross-branch when the account has no branch
- * of its own. None of them has a screen designed for them yet.
+ * outlet roles. Admin gets the administration console; the other three get the
+ * outlet report, which summarises every kedai without naming anyone.
  */
 const HQ_ROLES: { role: Role; href: Href }[] = [
-  { role: 'manager', href: '/manager' },
-  { role: 'general_manager', href: '/manager' },
-  { role: 'human_resources', href: '/manager' },
+  { role: 'manager', href: '/hq' },
+  { role: 'general_manager', href: '/hq' },
+  { role: 'human_resources', href: '/hq' },
   { role: 'admin', href: '/admin' },
 ];
 

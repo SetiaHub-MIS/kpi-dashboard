@@ -31,6 +31,10 @@ export default function Tugasan() {
   const manager = currentUser(users, useSession((s) => s.currentUserId));
   const managerName = manager?.name ?? 'Area Manager';
   const branchId = manager?.branchId ?? null;
+  // The self-check is the Area Manager's own. Head office reads whether it was
+  // done and never fills it in, which is what the RLS policy enforces too — so
+  // an account that reached this screen by URL gets it read-only.
+  const canFill = manager?.role === 'area_manager' || manager?.role === 'admin';
   const scope = tugasanScope(branchId, monthIdx);
   const branchLabel = useBranchLabel();
 
@@ -47,9 +51,22 @@ export default function Tugasan() {
       <MonoLabel>{branchLabel(branchId)} · Tugasan Area Manager</MonoLabel>
       <Text className="font-sans-semi text-2xl text-ink mt-2">{MONTHS[monthIdx]}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        Pemeriksaan sendiri oleh {managerName} — bukan dinilai oleh SV/AS. {doneTicks}/
-        {totalTicks} semakan selesai bulan ini.
+        {canFill
+          ? `Pemeriksaan sendiri oleh ${managerName}`
+          : 'Pemeriksaan sendiri Area Manager cawangan'}{' '}
+        — bukan dinilai oleh SV/AS. {doneTicks}/{totalTicks} semakan selesai bulan ini.
       </Text>
+
+      {!canFill && (
+        <View
+          className="mt-3 rounded-[10px] px-3.5 py-3 border"
+          style={{ backgroundColor: C.warnBg, borderColor: C.warnLine }}
+        >
+          <Text className="font-sans-med text-[12.5px] leading-[19px]" style={{ color: C.warnInk }}>
+            Paparan sahaja. Tugasan ini diisi oleh Area Manager cawangan sendiri.
+          </Text>
+        </View>
+      )}
 
       <View className="gap-2.5 mt-[18px]">
         {TUGASAN_ITEMS.map((item, idx) => {
@@ -97,8 +114,9 @@ export default function Tugasan() {
                           onPress={() =>
                             toggle(scope, item.key, weekIdx, TODAY, managerName)
                           }
+                          disabled={!canFill}
                           accessibilityRole="checkbox"
-                          accessibilityState={{ checked: entry.done }}
+                          accessibilityState={{ checked: entry.done, disabled: !canFill }}
                           hitSlop={6}
                           className="w-5 h-5 rounded-md items-center justify-center border"
                           style={{
