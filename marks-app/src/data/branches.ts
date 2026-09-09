@@ -6,13 +6,58 @@ export type Branch = {
   active: boolean;
 };
 
+/** HQ Jenjarom is the central store, not a kedai. Pekerja stor and kerani stor
+ * are posted there and serve every outlet; nobody is marked on a kedai
+ * checklist at HQ. */
+export const HQ_BRANCH_ID = 'HQ';
+
+export const isHq = (id: string | null | undefined) => id === HQ_BRANCH_ID;
+
 /**
- * Kedai Machang is the branch the source workbooks cover. Kota Bharu is
- * invented so branch scoping can be exercised. Admin can add more in-app.
+ * REAL: uploads/Cawangan.xlsx — HQ plus 38 outlets, codes verbatim.
+ * These are the same codes the stock system's export uses, so a returns CSV
+ * saying DMC reconciles against Kedai Machang without a translation table.
  */
 export const SEED_BRANCHES: Branch[] = [
-  { id: 'MCG', name: 'Kedai Machang', short: 'Machang', active: true },
-  { id: 'KBR', name: 'Kedai Kota Bharu', short: 'Kota Bharu', active: true },
+  { id: 'HQ', name: 'HQ Jenjarom', short: 'HQ', active: true },
+  { id: 'AKK', name: 'Kedai Kuala Kangsar', short: 'Kuala Kangsar', active: true },
+  { id: 'APR', name: 'Kedai Pantai Remis', short: 'Pantai Remis', active: true },
+  { id: 'ASP', name: 'Kedai Sungai Siput', short: 'Sungai Siput', active: true },
+  { id: 'ASU', name: 'Kedai Sungai Sumun', short: 'Sungai Sumun', active: true },
+  { id: 'BBT', name: 'Kedai Banting', short: 'Banting', active: true },
+  { id: 'BKP', name: 'Kedai Kapar', short: 'Kapar', active: true },
+  { id: 'BLB', name: 'Kedai Kg. Lombong', short: 'Kg. Lombong', active: true },
+  { id: 'BPC', name: 'Kedai Puchong', short: 'Puchong', active: true },
+  { id: 'BPG', name: 'Kedai Teluk Panglima Garang', short: 'Teluk Panglima Garang', active: true },
+  { id: 'BRP', name: 'Kedai Rantau Panjang', short: 'Rantau Panjang', active: true },
+  { id: 'BSK', name: 'Kedai Sekinchan', short: 'Sekinchan', active: true },
+  { id: 'BSM', name: 'Kedai Semenyih', short: 'Semenyih', active: true },
+  { id: 'BTS', name: 'Kedai Taman Sentosa', short: 'Taman Sentosa', active: true },
+  { id: 'CJR', name: 'Kedai Jerantut', short: 'Jerantut', active: true },
+  { id: 'DKB', name: 'Kedai Kota Bharu', short: 'Kota Bharu', active: true },
+  { id: 'DKD', name: 'Kedai Kadok', short: 'Kadok', active: true },
+  { id: 'DKK', name: 'Kedai Kok Lanas', short: 'Kok Lanas', active: true },
+  { id: 'DMC', name: 'Kedai Machang', short: 'Machang', active: true },
+  { id: 'DMU', name: 'Kedai Machang Uptown', short: 'Machang Uptown', active: true },
+  { id: 'DPM', name: 'Kedai Pasir Mas', short: 'Pasir Mas', active: true },
+  { id: 'DSS', name: 'Kedai Selising', short: 'Selising', active: true },
+  { id: 'DTD', name: 'Kedai Tendong', short: 'Tendong', active: true },
+  { id: 'DTP', name: 'Kedai Tumpat', short: 'Tumpat', active: true },
+  { id: 'DWB', name: 'Kedai Wakaf Baru', short: 'Wakaf Baru', active: true },
+  { id: 'DWS', name: 'Kedai Wakaf Siku', short: 'Wakaf Siku', active: true },
+  { id: 'KBL', name: 'Kedai Baling', short: 'Baling', active: true },
+  { id: 'KKT', name: 'Kedai Kuala Ketil', short: 'Kuala Ketil', active: true },
+  { id: 'NBH', name: 'Kedai Bahau', short: 'Bahau', active: true },
+  { id: 'NPD', name: 'Kedai Port Dickson', short: 'Port Dickson', active: true },
+  { id: 'NS2', name: 'Kedai Seremban 2', short: 'Seremban 2', active: true },
+  { id: 'NSK', name: 'Kedai Sikamat', short: 'Sikamat', active: true },
+  { id: 'NTM', name: 'Kedai Seremban', short: 'Seremban', active: true },
+  { id: 'PMB', name: 'Kedai Machang Bubok', short: 'Machang Bubok', active: true },
+  { id: 'PSJ', name: 'Kedai Sungai Jawi', short: 'Sungai Jawi', active: true },
+  { id: 'QPJ', name: 'Kedai Miri', short: 'Miri', active: true },
+  { id: 'TKM', name: 'Kedai Kemaman', short: 'Kemaman', active: true },
+  { id: 'VBC', name: 'Kedai Batu Caves', short: 'Batu Caves', active: true },
+  { id: 'VTR', name: 'Kedai Tun Razak', short: 'Tun Razak', active: true },
 ];
 
 export const findBranch = (branches: Branch[], id: string | null | undefined) =>

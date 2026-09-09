@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MonoLabel } from '@/components/Card';
+import { HQ_BRANCH_ID, isHq } from '@/data/branches';
 import { useActiveBranches } from '@/store/useBranches';
 import { ME_ID } from '@/data/crew';
 import { ROLE_BLURB, ROLE_LABEL, Role } from '@/data/users';
@@ -10,23 +11,33 @@ import { useSession } from '@/store/useSession';
 import { byRole, findUser, inBranch, useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
+/** Posted to one kedai, so the outlet picker above decides who is offered. */
 const BRANCH_ROLES: { role: Role; href: Href }[] = [
   { role: 'area_manager', href: '/manager' },
   { role: 'supervisor', href: '/supervisor' },
   { role: 'staff', href: '/staff' },
+];
+
+/**
+ * The central store at HQ. Listed apart from the outlet roles because they are
+ * not posted to a kedai — one team handles returns from all of them — so
+ * hiding them behind an outlet selector would be wrong.
+ */
+const STORE_ROLES: { role: Role; href: Href }[] = [
   { role: 'store', href: '/pulangan' },
   { role: 'clerk', href: '/pulangan' },
 ];
 
 /**
  * Head office. These four hold no branch, so they are listed apart from the
- * outlet roles. Admin gets the administration console; the other three get the
- * outlet report, which summarises every kedai without naming anyone.
+ * outlet roles. Admin gets the administration console; manager and general
+ * manager get the outlet report, which names no one. HR goes further — it reads
+ * individual marking sheets and the returns flow — so it has its own area.
  */
 const HQ_ROLES: { role: Role; href: Href }[] = [
   { role: 'manager', href: '/hq' },
   { role: 'general_manager', href: '/hq' },
-  { role: 'human_resources', href: '/hq' },
+  { role: 'human_resources', href: '/hr' },
   { role: 'admin', href: '/admin' },
 ];
 
@@ -35,10 +46,18 @@ export default function RolePicker() {
   const users = useUsers((s) => s.users);
   const signIn = useSession((s) => s.signIn);
   const branches = useActiveBranches();
+  const outlets = branches.filter((b) => !isHq(b.id));
   const [selected, setSelected] = useState<string | null>(null);
-  const branchId = selected ?? branches[0]?.id ?? null;
+  // Default to the first outlet that actually has someone posted to it: with 38
+  // kedai and a two-outlet pilot, landing on an empty one reads as breakage.
+  const firstStaffed = outlets.find((b) => users.some((u) => u.active && u.branchId === b.id));
+  const branchId = selected ?? firstStaffed?.id ?? outlets[0]?.id ?? null;
 
   const hq = HQ_ROLES.map((r) => ({ ...r, holder: byRole(users, r.role)[0] }));
+  const storeCrew = STORE_ROLES.map((r) => ({
+    ...r,
+    holder: inBranch(byRole(users, r.role), HQ_BRANCH_ID)[0],
+  }));
 
   const enter = (userId: string | undefined, href: Href) => {
     if (!userId) return;
@@ -62,25 +81,31 @@ export default function RolePicker() {
         </Text>
         <Text className="font-sans text-[14.5px] leading-6 text-ink-3 mt-3">
           SV/AS dan Area Manager hanya melihat pekerja di cawangan mereka sendiri.
+          Stor pusat di HQ menerima pulangan dari semua cawangan.
         </Text>
 
-        <View className="flex-row flex-wrap gap-1.5 mt-5">
-          {branches.map((b) => {
+        <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-5 mb-2">
+          Cawangan · {outlets.length}
+        </Text>
+        <View className="flex-row flex-wrap gap-1.5">
+          {outlets.map((b) => {
             const on = b.id === branchId;
+            const staffed = users.some((u) => u.active && u.branchId === b.id);
             return (
               <Pressable
                 key={b.id}
                 onPress={() => setSelected(b.id)}
                 accessibilityRole="button"
-                className="flex-1 py-2.5 rounded-lg border items-center"
+                className="px-2.5 py-2 rounded-lg border"
                 style={{
                   borderColor: on ? 'transparent' : C.line,
                   backgroundColor: on ? C.ink : C.card,
+                  opacity: on || staffed ? 1 : 0.55,
                 }}
               >
                 <Text
-                  className="font-sans-med text-[12.5px]"
-                  style={{ color: on ? '#fff' : C.ink3 }}
+                  className="font-sans-med text-[12px]"
+                  style={{ color: on ? '#fff' : staffed ? C.ink3 : C.ink6 }}
                 >
                   {b.short}
                 </Text>
@@ -122,6 +147,30 @@ export default function RolePicker() {
               </Pressable>
             );
           })}
+        </View>
+
+        <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">
+          Stor pusat · HQ Jenjarom
+        </Text>
+        <View className="gap-2.5">
+          {storeCrew.map(({ role, href, holder }) => (
+            <Pressable
+              key={role}
+              onPress={() => enter(holder?.id, href)}
+              disabled={!holder}
+              accessibilityRole="button"
+              className="bg-card border border-line rounded-[14px] p-[18px] active:opacity-70"
+              style={{ opacity: holder ? 1 : 0.5 }}
+            >
+              <MonoLabel>{ROLE_LABEL[role].toUpperCase()}</MonoLabel>
+              <Text className="font-sans-semi text-[16px] text-ink mt-2">
+                {holder ? `${holder.name} · ${holder.id}` : 'Tiada pemegang'}
+              </Text>
+              <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
+                {ROLE_BLURB[role]}
+              </Text>
+            </Pressable>
+          ))}
         </View>
 
         <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">

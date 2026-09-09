@@ -255,9 +255,10 @@ export function toVendorRows(table: string[][], mapping: Mapping, hasHeader = tr
 
 /**
  * The location codes present in a file, with how many rows each has. The
- * export is per-location and its codes (`DMC`) are not our branch ids (`MCG`),
- * so rather than inventing a mapping the screen shows these and lets the
- * person reconciling choose which belong to the branch in front of them.
+ * export's codes are our branch ids — `DMC` is Kedai Machang on both sides,
+ * because the branch list came from the same source — so no translation is
+ * needed. They are still surfaced, because one export can carry several
+ * outlets and the person reconciling may want only some of them.
  */
 export function locationCounts(rows: VendorRow[]): { code: string; count: number }[] {
   const acc = new Map<string, number>();

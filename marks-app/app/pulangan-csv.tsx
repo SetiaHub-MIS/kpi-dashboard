@@ -6,7 +6,7 @@ import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { submissionStats, toCsv } from '@/data/returns';
 import { useBranchLabel } from '@/store/useBranches';
-import { returnsOfBranch, useReturns } from '@/store/useReturns';
+import { returnsVisibleTo, useReturns } from '@/store/useReturns';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -19,7 +19,7 @@ export default function PulanganCsv() {
   const records = useReturns((s) => s.records);
   const [copied, setCopied] = useState(false);
 
-  const rows = returnsOfBranch(records, branchId);
+  const rows = returnsVisibleTo(records, me);
   const csv = toCsv(rows);
   const stats = submissionStats(rows);
 

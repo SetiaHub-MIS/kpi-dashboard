@@ -54,7 +54,7 @@ export default function AdminPulangan() {
 
   return (
     <Screen>
-      <MonoLabel>Semua cawangan · Pentadbiran</MonoLabel>
+      <MonoLabel>Semua cawangan · Human Resources</MonoLabel>
       <Text className="font-sans-semi text-2xl text-ink mt-2">Umur pulangan</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
         Masa terima → pelarasan stok merentas semua cawangan. Area Manager tidak

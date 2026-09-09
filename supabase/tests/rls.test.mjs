@@ -23,6 +23,8 @@ for (const m of [
   'supabase/migrations/20260909020000_return_submission_stage.sql',
   'supabase/migrations/20260909020100_return_kpi.sql',
   'supabase/migrations/20260909030000_tugasan_stays_with_area_manager.sql',
+  'supabase/migrations/20260909030100_returns_leave_admin.sql',
+  'supabase/migrations/20260909030200_central_store_at_hq.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -41,13 +43,13 @@ await db.exec(`
 `);
 
 // --- issue logins across every role shape and link them to their payroll rows.
-// Herdi is the multi-outlet case: home MCG, plus KBR via user_branches.
+// Herdi is the multi-outlet case: home DMC, plus DKB via user_branches.
 const ACCOUNTS = {
   syahirah: ['11111111-1111-1111-1111-111111111111', 'WS0001', 'SV/AS, Machang'],
-  farah:    ['22222222-2222-2222-2222-222222222222', 'AM0002', 'Area Mgr, KBR only'],
-  hafiz:    ['33333333-3333-3333-3333-333333333333', 'ST0001', 'Store, Machang'],
+  farah:    ['22222222-2222-2222-2222-222222222222', 'AM0002', 'Area Mgr, DKB only'],
+  hafiz:    ['33333333-3333-3333-3333-333333333333', 'ST0001', 'Store, HQ'],
   admin:    ['44444444-4444-4444-4444-444444444444', 'AD0001', 'Admin, cross-branch'],
-  herdi:    ['55555555-5555-5555-5555-555555555555', 'AM0001', 'Area Mgr, MCG+KBR'],
+  herdi:    ['55555555-5555-5555-5555-555555555555', 'AM0001', 'Area Mgr, DMC+DKB'],
   manager:  ['66666666-6666-6666-6666-666666666666', 'MG0001', 'Manager, no stor'],
   gm:       ['77777777-7777-7777-7777-777777777777', 'GM0001', 'General Manager'],
   hr:       ['88888888-8888-8888-8888-888888888888', 'HR0001', 'Human Resources'],
@@ -76,24 +78,34 @@ console.log('\n=== reads are confined to the caller\'s branch ===');
 for (const [who, [uuid, , desc]] of Object.entries(ACCOUNTS)) {
   const r = await as(uuid, `SELECT DISTINCT branch_id FROM users WHERE branch_id IS NOT NULL ORDER BY 1`);
   const seen = r.rows.map((x) => x.branch_id);
-  const CROSS = ['admin', 'manager', 'gm', 'hr', 'herdi'];
-  const expected = CROSS.includes(who) ? ['KBR', 'MCG'] : who === 'farah' ? ['KBR'] : ['MCG'];
+  // HQ is a branch like any other for staff listings; it just holds the central
+  // store team rather than a kedai crew.
+  const CROSS = ['admin', 'manager', 'gm', 'hr'];
+  const expected = CROSS.includes(who)
+    ? ['DKB', 'DMC', 'HQ']
+    : who === 'herdi'
+      ? ['DKB', 'DMC']
+      : who === 'farah'
+        ? ['DKB']
+        : who === 'hafiz'
+          ? ['HQ']
+          : ['DMC'];
   check(`${desc.padEnd(22)} sees branches ${JSON.stringify(seen)}`, seen, expected);
 }
 
 console.log('\n=== the negative case: another branch is not merely hidden, it is unreachable ===');
 {
-  const r = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM users WHERE branch_id = 'KBR'`);
-  check('Machang SV asking explicitly for KBR staff gets 0', r.rows[0].n, 0);
+  const r = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM users WHERE branch_id = 'DKB'`);
+  check('Machang SV asking explicitly for DKB staff gets 0', r.rows[0].n, 0);
 
-  const m = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM marks WHERE branch_id = 'KBR'`);
-  check('Machang SV asking explicitly for KBR marks gets 0', m.rows[0].n, 0);
+  const m = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM marks WHERE branch_id = 'DKB'`);
+  check('Machang SV asking explicitly for DKB marks gets 0', m.rows[0].n, 0);
 
-  const a = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM assets WHERE branch_id = 'MCG'`);
-  check('KBR area manager asking for Machang assets gets 0', a.rows[0].n, 0);
+  const a = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM assets WHERE branch_id = 'DMC'`);
+  check('DKB area manager asking for Machang assets gets 0', a.rows[0].n, 0);
 
-  const t = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM tugasan_checks WHERE branch_id = 'MCG'`);
-  check("KBR area manager cannot read Machang's tugasan", t.rows[0].n, 0);
+  const t = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM tugasan_checks WHERE branch_id = 'DMC'`);
+  check("DKB area manager cannot read Machang's tugasan", t.rows[0].n, 0);
 }
 
 console.log('\n=== everyone can still see their own record ===');
@@ -105,9 +117,9 @@ console.log('\n=== everyone can still see their own record ===');
 console.log('\n=== views respect the caller, not their owner ===');
 {
   const r = await as(ACCOUNTS.farah[0], `SELECT DISTINCT branch_id FROM return_turnaround ORDER BY 1`);
-  check('return_turnaround scoped for KBR area manager', r.rows.map((x) => x.branch_id), ['KBR']);
+  check('return_turnaround scoped for DKB area manager', r.rows.map((x) => x.branch_id), ['DKB']);
 
-  const c = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM mark_coverage WHERE branch_id = 'KBR'`);
+  const c = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM mark_coverage WHERE branch_id = 'DKB'`);
   check('mark_coverage hides other branches', c.rows[0].n, 0);
 }
 
@@ -118,32 +130,32 @@ const tryWrite = async (uuid, sql) => {
 check('SV/AS may insert a mark in own branch',
   await tryWrite(ACCOUNTS.syahirah[0],
     `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-     VALUES ('KP0110','MCG','kedai',2026,9,3,88,110)`), 'allowed');
+     VALUES ('KP0110','DMC','kedai',2026,9,3,88,110)`), 'allowed');
 
 check('SV/AS may NOT insert a mark in another branch',
   await tryWrite(ACCOUNTS.syahirah[0],
     `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-     VALUES ('KP0201','KBR','kedai',2026,9,3,88,110)`), 'blocked');
+     VALUES ('KP0201','DKB','kedai',2026,9,3,88,110)`), 'blocked');
 
 check('store staff may NOT insert a mark at all',
   await tryWrite(ACCOUNTS.hafiz[0],
     `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-     VALUES ('KP0111','MCG','kedai',2026,9,4,88,110)`), 'blocked');
+     VALUES ('KP0111','DMC','kedai',2026,9,4,88,110)`), 'blocked');
 
 check('store staff may log a return in own branch',
   await tryWrite(ACCOUNTS.hafiz[0],
     `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
-     VALUES ('PR9001','MCG','BR-9001',DATE '2026-09-09','damage')`), 'allowed');
+     VALUES ('PR9001','DMC','BR-9001',DATE '2026-09-09','damage')`), 'allowed');
 
 check('SV/AS may NOT create a user',
   await tryWrite(ACCOUNTS.syahirah[0],
     `INSERT INTO users (id,name,short_name,initials,role,branch_id)
-     VALUES ('KP9999','Test','Test','TT','staff','MCG')`), 'blocked');
+     VALUES ('KP9999','Test','Test','TT','staff','DMC')`), 'blocked');
 
 check('admin may create a user',
   await tryWrite(ACCOUNTS.admin[0],
     `INSERT INTO users (id,name,short_name,initials,role,branch_id)
-     VALUES ('KP9998','Test Two','Test T.','TT','staff','MCG')`), 'allowed');
+     VALUES ('KP9998','Test Two','Test T.','TT','staff','DMC')`), 'allowed');
 
 console.log('\n=== rule 1: submission is scored on-time over received ===');
 {
@@ -191,45 +203,45 @@ console.log('\n=== rules 2 and 3: two-month ceiling, one-week grace ===');
 console.log('\n=== the KPI views stay branch-scoped ===');
 {
   const r = await as(ACCOUNTS.farah[0],
-    `SELECT count(*)::int n FROM return_ageing WHERE branch_id = 'MCG'`);
-  check('KBR area manager cannot read Machang ageing', r.rows[0].n, 0);
+    `SELECT count(*)::int n FROM return_ageing WHERE branch_id = 'DMC'`);
+  check('DKB area manager cannot read Machang ageing', r.rows[0].n, 0);
   const s = await as(ACCOUNTS.farah[0],
-    `SELECT count(*)::int n FROM return_submission_kpi WHERE branch_id = 'MCG'`);
-  check('KBR area manager cannot read Machang submission KPI', s.rows[0].n, 0);
+    `SELECT count(*)::int n FROM return_submission_kpi WHERE branch_id = 'DMC'`);
+  check('DKB area manager cannot read Machang submission KPI', s.rows[0].n, 0);
 }
 
 console.log('\n=== an Area Manager reaches every outlet assigned to them ===');
 {
   const r = await as(ACCOUNTS.herdi[0],
     `SELECT DISTINCT branch_id FROM assets WHERE branch_id IS NOT NULL ORDER BY 1`);
-  check('Herdi reads assets at both his outlets', r.rows.map((x) => x.branch_id), ['KBR', 'MCG']);
+  check('Herdi reads assets at both his outlets', r.rows.map((x) => x.branch_id), ['DKB', 'DMC']);
 
   // The reverse direction is what proves user_branches is doing the work rather
   // than the role alone: Farah holds the same role and reaches only her own.
   const f = await as(ACCOUNTS.farah[0],
     `SELECT DISTINCT branch_id FROM assets WHERE branch_id IS NOT NULL ORDER BY 1`);
-  check('Farah, same role, reaches only KBR', f.rows.map((x) => x.branch_id), ['KBR']);
+  check('Farah, same role, reaches only DKB', f.rows.map((x) => x.branch_id), ['DKB']);
 
   check('Herdi may write tugasan at his assigned second outlet',
     await tryWrite(ACCOUNTS.herdi[0],
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
-       VALUES ('KBR',2026,9,1,'peti_cash',true,'RM3,000',DATE '2026-09-04')`), 'allowed');
+       VALUES ('DKB',2026,9,1,'peti_cash',true,'RM3,000',DATE '2026-09-04')`), 'allowed');
 
   check('Farah may NOT write tugasan at an outlet she does not cover',
     await tryWrite(ACCOUNTS.farah[0],
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
-       VALUES ('MCG',2026,9,2,'peti_cash',true,'RM3,000',DATE '2026-09-11')`), 'blocked');
+       VALUES ('DMC',2026,9,2,'peti_cash',true,'RM3,000',DATE '2026-09-11')`), 'blocked');
 
   check('user_branches rejects a role that is not area_manager',
     await tryWrite(ACCOUNTS.admin[0],
-      `INSERT INTO user_branches (user_id,branch_id) VALUES ('WS0001','KBR')`), 'blocked');
+      `INSERT INTO user_branches (user_id,branch_id) VALUES ('WS0001','DKB')`), 'blocked');
 }
 
 console.log('\n=== manager is cross-branch on kedai, and blind to the stor side ===');
 {
   const m = await as(ACCOUNTS.manager[0],
     `SELECT DISTINCT branch_id FROM marks WHERE form_key = 'kedai' ORDER BY 1`);
-  check('manager reads kedai marks at every branch', m.rows.map((x) => x.branch_id), ['KBR', 'MCG']);
+  check('manager reads kedai marks at every branch', m.rows.map((x) => x.branch_id), ['DKB', 'DMC']);
 
   const stor = await as(ACCOUNTS.manager[0],
     `SELECT count(*)::int n FROM marks WHERE form_key = 'stor'`);
@@ -248,12 +260,12 @@ console.log('\n=== manager is cross-branch on kedai, and blind to the stor side 
   check('manager may NOT insert a mark (that pass belongs to SV and head office)',
     await tryWrite(ACCOUNTS.manager[0],
       `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-       VALUES ('KP0201','KBR','kedai',2026,9,2,90,110)`), 'blocked');
+       VALUES ('KP0201','DKB','kedai',2026,9,2,90,110)`), 'blocked');
 }
 
 console.log('\n=== general manager and HR write operational data anywhere ===');
 {
-  const r = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM returns WHERE branch_id = 'MCG'`);
+  const r = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM returns WHERE branch_id = 'DMC'`);
   check('GM reads the stor side the manager cannot', r.rows[0].n > 0, true);
 
   const stor = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM marks WHERE form_key = 'stor'`);
@@ -262,12 +274,12 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
   check('GM may insert a mark in a branch they have no posting to',
     await tryWrite(ACCOUNTS.gm[0],
       `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-       VALUES ('KP0202','KBR','kedai',2026,9,2,95,110)`), 'allowed');
+       VALUES ('KP0202','DKB','kedai',2026,9,2,95,110)`), 'allowed');
 
   check('HR may sign off a mark verification cross-branch',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO mark_verifications (mark_id, verified_by)
-       SELECT m.id, 'HR0001' FROM marks m WHERE m.branch_id = 'KBR' AND m.form_key = 'kedai'
+       SELECT m.id, 'HR0001' FROM marks m WHERE m.branch_id = 'DKB' AND m.form_key = 'kedai'
         AND NOT EXISTS (SELECT 1 FROM mark_verifications v WHERE v.mark_id = m.id) LIMIT 1`), 'allowed');
 
   // The line between head office and admin: operational data yes, the staff
@@ -275,11 +287,75 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
   check('GM may NOT create a user — that stays admin',
     await tryWrite(ACCOUNTS.gm[0],
       `INSERT INTO users (id,name,short_name,initials,role,branch_id)
-       VALUES ('KP9997','Test Three','Test Th.','TT','staff','MCG')`), 'blocked');
+       VALUES ('KP9997','Test Three','Test Th.','TT','staff','DMC')`), 'blocked');
 
   check('HR may NOT create a branch either',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
+}
+
+console.log('\n=== the central store reaches every outlet\'s returns ===');
+{
+  // The store team is posted to HQ, but returns carry the outlet the goods came
+  // from. Scoping them to their own branch would show them nothing at all.
+  const own = await as(ACCOUNTS.hafiz[0], `SELECT DISTINCT branch_id FROM returns ORDER BY 1`);
+  check('HQ store staff read returns from every outlet',
+    own.rows.map((x) => x.branch_id), ['DKB', 'DMC']);
+
+  check('...and may log one against an outlet that is not their own branch',
+    await tryWrite(ACCOUNTS.hafiz[0],
+      `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
+       VALUES ('PR9200','DKB','BR-9200',DATE '2026-09-09','damage')`), 'allowed');
+
+  // The reach is returns-only: their own marks stay scoped to HQ.
+  const m = await as(ACCOUNTS.hafiz[0], `SELECT DISTINCT branch_id FROM marks ORDER BY 1`);
+  check('...while their marks stay at HQ', m.rows.map((x) => x.branch_id), ['HQ']);
+
+  // An Area Manager is still confined to the outlets assigned to them.
+  const f = await as(ACCOUNTS.farah[0], `SELECT DISTINCT branch_id FROM returns ORDER BY 1`);
+  check('an Area Manager is not swept along with them', f.rows.map((x) => x.branch_id), ['DKB']);
+}
+
+console.log('\n=== returns are operational, so admin is out of them ===');
+{
+  const r = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM returns`);
+  check('admin cannot read returns', r.rows[0].n, 0);
+
+  const e = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM return_events`);
+  check('...nor the stage events', e.rows[0].n, 0);
+
+  const k = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM return_ageing`);
+  check('...nor the ageing report that used to be an admin screen', k.rows[0].n, 0);
+
+  check('admin may NOT log a return',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
+       VALUES ('PR9100','DMC','BR-9100',DATE '2026-09-09','damage')`), 'blocked');
+
+  // Admin keeps the stor *marks*: this change is about returns only.
+  const m = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM marks WHERE form_key = 'stor'`);
+  check('admin still reads stor marks', m.rows[0].n > 0, true);
+}
+
+console.log('\n=== HR runs the returns side end to end ===');
+{
+  const r = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM returns`);
+  check('HR reads returns at every outlet', r.rows[0].n > 0, true);
+
+  const a = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_ageing`);
+  check('HR reads the ageing report', a.rows[0].n > 0, true);
+
+  const f = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_stage_gaps`);
+  check('HR reads the stage-gap flow view', f.rows[0].n > 0, true);
+
+  const marks = await as(ACCOUNTS.hr[0],
+    `SELECT count(DISTINCT user_id)::int n FROM marks`);
+  check('HR reads individual staff marks', marks.rows[0].n > 0, true);
+
+  check('HR may advance a return',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
+       VALUES ('PR9101','DKB','BR-9101',DATE '2026-09-09','expired')`), 'allowed');
 }
 
 console.log('\n=== the tugasan self-check stays with the Area Manager ===');
@@ -291,17 +367,17 @@ console.log('\n=== the tugasan self-check stays with the Area Manager ===');
   check('GM may NOT fill in a tugasan check',
     await tryWrite(ACCOUNTS.gm[0],
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
-       VALUES ('MCG',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'blocked');
+       VALUES ('DMC',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'blocked');
 
   check('HR may NOT sign off a tugasan month either',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO tugasan_signoffs (branch_id,period_year,period_month,week_no,filled_by)
-       VALUES ('KBR',2026,10,1,'HR0001')`), 'blocked');
+       VALUES ('DKB',2026,10,1,'HR0001')`), 'blocked');
 
   check('the Area Manager still can',
     await tryWrite(ACCOUNTS.herdi[0],
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
-       VALUES ('MCG',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'allowed');
+       VALUES ('DMC',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'allowed');
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);

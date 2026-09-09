@@ -58,6 +58,16 @@ export const isCrossBranch = (role: Role) => CROSS_BRANCH_ROLES.includes(role);
  */
 export const seesStoreOps = (role: Role) => role !== 'manager';
 
+/**
+ * The HQ stor team. They are posted to HQ Jenjarom rather than to a kedai, and
+ * handle returns raised by every outlet — so branch scoping does not apply to
+ * them on the returns side. Mirrors app_is_central_store() in RLS.
+ */
+export const isCentralStore = (role: Role) => role === 'store' || role === 'clerk';
+
+/** Returns are closed to the cross-branch manager and to admin alike. */
+export const seesReturns = (role: Role) => role !== 'manager' && role !== 'admin';
+
 export const ROLE_LABEL: Record<Role, string> = {
   staff: 'Pekerja Kedai',
   store: 'Pekerja Stor',
@@ -72,14 +82,14 @@ export const ROLE_LABEL: Record<Role, string> = {
 
 export const ROLE_BLURB: Record<Role, string> = {
   staff: 'Dinilai mingguan atas 22 perkara checklist kedai.',
-  store: 'Dinilai mingguan atas 17 perkara checklist stor.',
-  clerk: 'Uruskan panggilan pembekal dan pungutan barang pulangan.',
+  store: 'Stor pusat HQ. Dinilai mingguan atas 17 perkara checklist stor.',
+  clerk: 'Stor pusat HQ. Uruskan panggilan pembekal dan pungutan barang pulangan.',
   supervisor: 'Menilai pekerja kedai dan stor setiap minggu.',
   area_manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
   manager: 'Laporan semua cawangan, bahagian kedai sahaja. Tiada pulangan atau markah stor.',
   general_manager: 'Laporan semua cawangan — markah kedai, markah stor dan KPI pulangan.',
-  human_resources: 'Laporan semua cawangan — markah kedai, markah stor dan KPI pulangan.',
-  admin: 'Urus akaun, peranan dan kenaikan pangkat.',
+  human_resources: 'Semua cawangan — markah setiap pekerja, KPI stor dan aliran pulangan.',
+  admin: 'Pentadbiran sahaja — akaun, peranan, cawangan. Tiada akses pulangan.',
 };
 
 /** Roles that get marked on a weekly checklist. */
@@ -131,35 +141,35 @@ const noMarks: Pick<User, 'w' | 'perkara'> = {
 };
 
 export const SEED_USERS: User[] = [
-  { id: 'KP0093', name: 'Syazana Izzah Zafirah', short: 'Syazana', init: 'SI', role: 'staff', branchId: 'MCG', active: true, w: [86, null, null, null], perkara: [100, 80, 84, 90, 80, 88, 72] },
-  { id: 'KP0103', name: 'Putri Wahida Amalin', short: 'Putri W.', init: 'PW', role: 'staff', branchId: 'MCG', active: true, w: [81, 78, null, null], perkara: [100, 80, 80, 80, 80, 80, 76] },
-  { id: 'KP0108', name: 'Nor Asyikin', short: 'Nor Asyikin', init: 'NA', role: 'staff', branchId: 'MCG', active: true, w: [81, null, null, null], perkara: [100, 80, 80, 80, 80, 80, 78] },
-  { id: 'KP0110', name: 'Filzah Diyana', short: 'Filzah', init: 'FD', role: 'staff', branchId: 'MCG', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
-  { id: 'KP0111', name: 'Puteri Nur Hafiza', short: 'Puteri N.', init: 'PN', role: 'staff', branchId: 'MCG', active: true, w: [74, 71, null, null], perkara: [80, 60, 72, 74, 70, 76, 68] },
-  { id: 'MY0544', name: 'U Tin Tun', short: 'U Tin Tun', init: 'UT', role: 'staff', branchId: 'MCG', active: true, w: [81, 80, null, null], perkara: [100, 80, 80, 80, 80, 80, 80] },
-  { id: 'MY0606', name: 'Ah San', short: 'Ah San', init: 'AS', role: 'staff', branchId: 'MCG', active: true, w: [81, null, null, null], perkara: [100, 80, 80, 80, 80, 80, 79] },
-  { id: 'MY0644', name: 'Pyhi Si Thu', short: 'Pyhi Si Thu', init: 'PS', role: 'staff', branchId: 'MCG', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
+  { id: 'KP0093', name: 'Syazana Izzah Zafirah', short: 'Syazana', init: 'SI', role: 'staff', branchId: 'DMC', active: true, w: [86, null, null, null], perkara: [100, 80, 84, 90, 80, 88, 72] },
+  { id: 'KP0103', name: 'Putri Wahida Amalin', short: 'Putri W.', init: 'PW', role: 'staff', branchId: 'DMC', active: true, w: [81, 78, null, null], perkara: [100, 80, 80, 80, 80, 80, 76] },
+  { id: 'KP0108', name: 'Nor Asyikin', short: 'Nor Asyikin', init: 'NA', role: 'staff', branchId: 'DMC', active: true, w: [81, null, null, null], perkara: [100, 80, 80, 80, 80, 80, 78] },
+  { id: 'KP0110', name: 'Filzah Diyana', short: 'Filzah', init: 'FD', role: 'staff', branchId: 'DMC', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
+  { id: 'KP0111', name: 'Puteri Nur Hafiza', short: 'Puteri N.', init: 'PN', role: 'staff', branchId: 'DMC', active: true, w: [74, 71, null, null], perkara: [80, 60, 72, 74, 70, 76, 68] },
+  { id: 'MY0544', name: 'U Tin Tun', short: 'U Tin Tun', init: 'UT', role: 'staff', branchId: 'DMC', active: true, w: [81, 80, null, null], perkara: [100, 80, 80, 80, 80, 80, 80] },
+  { id: 'MY0606', name: 'Ah San', short: 'Ah San', init: 'AS', role: 'staff', branchId: 'DMC', active: true, w: [81, null, null, null], perkara: [100, 80, 80, 80, 80, 80, 79] },
+  { id: 'MY0644', name: 'Pyhi Si Thu', short: 'Pyhi Si Thu', init: 'PS', role: 'staff', branchId: 'DMC', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
 
   // perkara here is index-aligned with STOR_FORM's 6 kategori, not the kedai form's 7.
-  { id: 'ST0001', name: 'Hafiz bin Osman', short: 'Hafiz', init: 'HO', role: 'store', branchId: 'MCG', active: true, w: [84, 81, null, null], perkara: [88, 84, 80, 76, 84, 80] },
-  { id: 'ST0002', name: 'Ramesh a/l Kumaran', short: 'Ramesh', init: 'RK', role: 'store', branchId: 'MCG', active: true, w: [79, null, null, null], perkara: [80, 76, 72, 76, 80, 76] },
-  { id: 'ST0003', name: 'Nurul Huda binti Salleh', short: 'Nurul H.', init: 'NH', role: 'store', branchId: 'MCG', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0] },
+  { id: 'ST0001', name: 'Hafiz bin Osman', short: 'Hafiz', init: 'HO', role: 'store', branchId: 'HQ', active: true, w: [84, 81, null, null], perkara: [88, 84, 80, 76, 84, 80] },
+  { id: 'ST0002', name: 'Ramesh a/l Kumaran', short: 'Ramesh', init: 'RK', role: 'store', branchId: 'HQ', active: true, w: [79, null, null, null], perkara: [80, 76, 72, 76, 80, 76] },
+  { id: 'ST0003', name: 'Nurul Huda binti Salleh', short: 'Nurul H.', init: 'NH', role: 'store', branchId: 'HQ', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0] },
 
-  { id: 'KR0001', name: 'Faridah binti Hassan', short: 'Faridah', init: 'FH', role: 'clerk', branchId: 'MCG', active: true, ...noMarks },
+  { id: 'KR0001', name: 'Faridah binti Hassan', short: 'Faridah', init: 'FH', role: 'clerk', branchId: 'HQ', active: true, ...noMarks },
 
-  { id: 'WS0001', name: 'Nur Syahirah', short: 'Nur Syahirah', init: 'NS', role: 'supervisor', branchId: 'MCG', active: true, ...noMarks },
-  { id: 'AM0001', name: 'Herdi', short: 'Herdi', init: 'H', role: 'area_manager', branchId: 'MCG', branchIds: ['KBR'], active: true, ...noMarks },
+  { id: 'WS0001', name: 'Nur Syahirah', short: 'Nur Syahirah', init: 'NS', role: 'supervisor', branchId: 'DMC', active: true, ...noMarks },
+  { id: 'AM0001', name: 'Herdi', short: 'Herdi', init: 'H', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'], active: true, ...noMarks },
 
   // Kedai Kota Bharu — invented so branch scoping can be exercised.
-  { id: 'KP0201', name: 'Aina Sofea binti Roslan', short: 'Aina S.', init: 'AR', role: 'staff', branchId: 'KBR', active: true, w: [88, 85, null, null], perkara: [100, 88, 84, 88, 84, 88, 80] },
-  { id: 'KP0202', name: 'Muhammad Danial bin Zulkifli', short: 'Danial', init: 'MZ', role: 'staff', branchId: 'KBR', active: true, w: [76, null, null, null], perkara: [80, 72, 76, 76, 72, 76, 72] },
-  { id: 'KP0203', name: 'Lim Wei Jian', short: 'Wei Jian', init: 'LW', role: 'staff', branchId: 'KBR', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
-  { id: 'ST0101', name: 'Sanjay a/l Muthu', short: 'Sanjay', init: 'SM', role: 'store', branchId: 'KBR', active: true, w: [83, null, null, null], perkara: [84, 84, 80, 80, 84, 84] },
+  { id: 'KP0201', name: 'Aina Sofea binti Roslan', short: 'Aina S.', init: 'AR', role: 'staff', branchId: 'DKB', active: true, w: [88, 85, null, null], perkara: [100, 88, 84, 88, 84, 88, 80] },
+  { id: 'KP0202', name: 'Muhammad Danial bin Zulkifli', short: 'Danial', init: 'MZ', role: 'staff', branchId: 'DKB', active: true, w: [76, null, null, null], perkara: [80, 72, 76, 76, 72, 76, 72] },
+  { id: 'KP0203', name: 'Lim Wei Jian', short: 'Wei Jian', init: 'LW', role: 'staff', branchId: 'DKB', active: true, w: [null, null, null, null], perkara: [0, 0, 0, 0, 0, 0, 0] },
+  { id: 'ST0101', name: 'Sanjay a/l Muthu', short: 'Sanjay', init: 'SM', role: 'store', branchId: 'HQ', active: true, w: [83, null, null, null], perkara: [84, 84, 80, 80, 84, 84] },
 
-  { id: 'KR0101', name: 'Chong Mei Ling', short: 'Mei Ling', init: 'CM', role: 'clerk', branchId: 'KBR', active: true, ...noMarks },
+  { id: 'KR0101', name: 'Chong Mei Ling', short: 'Mei Ling', init: 'CM', role: 'clerk', branchId: 'HQ', active: true, ...noMarks },
 
-  { id: 'WS0012', name: 'Wan Nurul Nabilah Haizum', short: 'Wan Nurul', init: 'WN', role: 'supervisor', branchId: 'KBR', active: true, ...noMarks },
-  { id: 'AM0002', name: 'Farah Adilah', short: 'Farah', init: 'FA', role: 'area_manager', branchId: 'KBR', active: true, ...noMarks },
+  { id: 'WS0012', name: 'Wan Nurul Nabilah Haizum', short: 'Wan Nurul', init: 'WN', role: 'supervisor', branchId: 'DKB', active: true, ...noMarks },
+  { id: 'AM0002', name: 'Farah Adilah', short: 'Farah', init: 'FA', role: 'area_manager', branchId: 'DKB', active: true, ...noMarks },
 
   // INVENTED: head office. No workbook names these people; they exist so the
   // four cross-branch roles can be signed into and tested.

@@ -10,6 +10,13 @@ import {
   nextReturnId,
   nextStage,
 } from '@/data/returns';
+import {
+  User,
+  branchesOf,
+  isCentralStore,
+  isCrossBranch,
+  seesReturns,
+} from '@/data/users';
 
 type ReturnsState = {
   records: ReturnRecord[];
@@ -84,6 +91,25 @@ export const useReturns = create<ReturnsState>((set) => ({
 
 export const returnsOfBranch = (records: ReturnRecord[], branchId: string | null) =>
   branchId == null ? records : records.filter((r) => r.branchId === branchId);
+
+/**
+ * The returns an account may act on. A return's branch_id is the outlet the
+ * goods came *from*, so the HQ stor team — who are posted to HQ and handle all
+ * of them — cannot be scoped by their own branch or they would see nothing.
+ * Head office sees every outlet, an Area Manager the ones assigned to them, and
+ * the cross-branch manager and admin none at all.
+ *
+ * Mirrors app_can_see_branch_returns() and app_can_see_returns() in RLS.
+ */
+export const returnsVisibleTo = (
+  records: ReturnRecord[],
+  user: User | undefined
+): ReturnRecord[] => {
+  if (!user || !seesReturns(user.role)) return [];
+  if (isCentralStore(user.role) || isCrossBranch(user.role)) return records;
+  const mine = branchesOf(user);
+  return records.filter((r) => mine.includes(r.branchId));
+};
 
 export const openReturns = (records: ReturnRecord[]) => records.filter((r) => !isCleared(r));
 

@@ -16,10 +16,6 @@ export default function AdminLayout() {
         name="cawangan"
         options={{ title: 'Cawangan', tabBarIcon: dotIcon('circle') }}
       />
-      <Tabs.Screen
-        name="pulangan"
-        options={{ title: 'Pulangan', tabBarIcon: dotIcon('circle') }}
-      />
     </Tabs>
   );
 }

@@ -25,7 +25,7 @@ export const tugasanScope = (branchId: string | null, monthIdx: number) =>
   `${branchId ?? 'ALL'}-${monthIdx}`;
 
 /** The seeded Ogos block belongs to Kedai Machang, the branch the workbook covers. */
-export const TUGASAN_SEED_SCOPE = tugasanScope('MCG', TUGASAN_SEED_MONTH_IDX);
+export const TUGASAN_SEED_SCOPE = tugasanScope('DMC', TUGASAN_SEED_MONTH_IDX);
 
 /**
  * Verbatim from the source workbook: Ogos was fully self-checked by the

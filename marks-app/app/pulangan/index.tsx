@@ -14,7 +14,7 @@ import {
 } from '@/data/returns';
 import { useBranchLabel } from '@/store/useBranches';
 import { currentUser, useSession } from '@/store/useSession';
-import { openReturns, returnsOfBranch, useReturns } from '@/store/useReturns';
+import { openReturns, returnsVisibleTo, useReturns } from '@/store/useReturns';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
@@ -27,7 +27,8 @@ export default function PulanganAktif() {
 
   // Only the two store roles can advance a return; others read it.
   const myOwner = ownerForRole(me?.role);
-  const open = openReturns(returnsOfBranch(records, branchId));
+  const visible = returnsVisibleTo(records, me);
+  const open = openReturns(visible);
 
   const mine = open.filter((r) => {
     const stage = nextStage(r);
@@ -37,7 +38,7 @@ export default function PulanganAktif() {
   const oldest = open.reduce((n, r) => Math.max(n, turnaroundDays(r)), 0);
 
   // Rule 1 is scored over every list this branch received, cleared or not.
-  const submission = submissionStats(returnsOfBranch(records, branchId));
+  const submission = submissionStats(visible);
   // Rules 2 and 3: past two months, and past the week allowed to fix that.
   const aged = open.filter((r) => ageingStatus(r) !== 'ok');
   const overdue = aged.filter((r) => ageingStatus(r) === 'overdue');

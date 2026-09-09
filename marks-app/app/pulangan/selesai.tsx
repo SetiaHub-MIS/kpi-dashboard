@@ -3,7 +3,7 @@ import { Card, MonoLabel } from '@/components/Card';
 import { ReturnRow } from '@/components/ReturnRow';
 import { Screen } from '@/components/Screen';
 import { DISPOSITION_LABEL, gapDays, turnaroundDays } from '@/data/returns';
-import { clearedReturns, returnsOfBranch, useReturns } from '@/store/useReturns';
+import { clearedReturns, returnsVisibleTo, useReturns } from '@/store/useReturns';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -13,7 +13,7 @@ export default function PulanganSelesai() {
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const records = useReturns((s) => s.records);
 
-  const done = clearedReturns(returnsOfBranch(records, me?.branchId ?? null));
+  const done = clearedReturns(returnsVisibleTo(records, me));
   const avg = done.length
     ? Math.round(done.reduce((n, r) => n + turnaroundDays(r), 0) / done.length)
     : 0;

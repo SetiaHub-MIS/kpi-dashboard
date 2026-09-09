@@ -304,7 +304,7 @@ export function transitionStats(records: ReturnRecord[]): Transition[] {
 export const SEED_RETURNS: ReturnRecord[] = [
   {
     id: 'PR0001',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8842',
     billDate: '2026-08-24',
@@ -323,7 +323,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   },
   {
     id: 'PR0002',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8907',
     billDate: '2026-09-01',
@@ -340,7 +340,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   },
   {
     id: 'PR0003',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8931',
     billDate: '2026-09-05',
@@ -356,7 +356,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   },
   {
     id: 'PR0004',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8944',
     billDate: '2026-09-07',
@@ -371,7 +371,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   // 65 days old: past two months, still inside the week allowed to clear it.
   {
     id: 'PR0005',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8611',
     billDate: '2026-07-05',
@@ -388,7 +388,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   // 75 days old: the week is gone.
   {
     id: 'PR0006',
-    branchId: 'MCG',
+    branchId: 'DMC',
     outlet: 'Kedai Machang',
     billNo: 'BR-8502',
     billDate: '2026-06-25',
@@ -403,7 +403,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
   },
   {
     id: 'PR0101',
-    branchId: 'KBR',
+    branchId: 'DKB',
     outlet: 'Kedai Kota Bharu',
     billNo: 'BR-2210',
     billDate: '2026-09-03',

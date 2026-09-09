@@ -8,7 +8,7 @@
  * the other head-office roles get numbers — nulls rather than zeroes, so the
  * screen can say "not in remit" instead of implying an empty stor.
  */
-import { Branch, branchLabel } from '@/data/branches';
+import { Branch, branchLabel, isHq } from '@/data/branches';
 import {
   AGE_LIMIT_DAYS,
   ReturnRecord,
@@ -109,8 +109,10 @@ export function outletReport(input: {
   records: ReturnRecord[];
   markOf: MarkOf;
   seesStore: boolean;
+  /** False for a single outlet: the stor crew is central, so an outlet has none. */
+  includeStor?: boolean;
 }): OutletReport {
-  const { branchId, label, users, records, markOf, seesStore } = input;
+  const { branchId, label, users, records, markOf, seesStore, includeStor = true } = input;
   const here = <T extends { branchId: string | null }>(rows: T[]) =>
     branchId == null ? rows : rows.filter((r) => r.branchId === branchId);
 
@@ -120,15 +122,25 @@ export function outletReport(input: {
     branchId,
     label,
     kedai: cohortStat(staff.filter((u) => u.role === 'staff'), markOf),
-    stor: seesStore ? cohortStat(staff.filter((u) => u.role === 'store'), markOf) : null,
+    stor:
+      seesStore && includeStor
+        ? cohortStat(staff.filter((u) => u.role === 'store'), markOf)
+        : null,
     returns: seesStore ? returnStat(here(records)) : null,
   };
 }
 
 /**
- * The whole report: one row per active outlet, plus an all-outlets row first.
- * Outlets with nobody posted to them are still listed — an empty kedai is a
- * finding, not a row to hide.
+ * The whole report.
+ *
+ * HQ is not an outlet: it is the central store, and the only place pekerja stor
+ * are posted. So the stor figures appear once, on the total, and never as a
+ * column on a kedai that has no stor crew of its own.
+ *
+ * Only outlets with people or returns are listed. With 38 kedai and a pilot
+ * running at two of them, listing the other 36 as empty rows would bury the
+ * ones carrying data; the count comes back as `quiet` so the screen can say so
+ * in a line instead.
  */
 export function hqReport(input: {
   branches: Branch[];
@@ -136,10 +148,26 @@ export function hqReport(input: {
   records: ReturnRecord[];
   markOf: MarkOf;
   viewerRole: User['role'];
-}): { total: OutletReport; outlets: OutletReport[] } {
+}): { total: OutletReport; outlets: OutletReport[]; quiet: number } {
   const { branches, users, records, markOf, viewerRole } = input;
   const seesStore = seesStoreOps(viewerRole);
-  const active = branches.filter((b) => b.active);
+  const active = branches.filter((b) => b.active && !isHq(b.id));
+
+  const rows = active.map((b) =>
+    outletReport({
+      branchId: b.id,
+      label: branchLabel(branches, b.id),
+      users,
+      records,
+      markOf,
+      seesStore,
+      includeStor: false,
+    })
+  );
+
+  const live = rows.filter(
+    (o) => o.kedai.people > 0 || (o.returns?.received ?? 0) > 0
+  );
 
   return {
     total: outletReport({
@@ -150,16 +178,8 @@ export function hqReport(input: {
       markOf,
       seesStore,
     }),
-    outlets: active.map((b) =>
-      outletReport({
-        branchId: b.id,
-        label: branchLabel(branches, b.id),
-        users,
-        records,
-        markOf,
-        seesStore,
-      })
-    ),
+    outlets: live,
+    quiet: rows.length - live.length,
   };
 }
 

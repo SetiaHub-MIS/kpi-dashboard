@@ -20,7 +20,7 @@ import {
   toVendorRows,
 } from '@/data/reconcile';
 import { REASON_LABEL, ageingStatus, fmtDate, isCleared, ownerForRole } from '@/data/returns';
-import { returnsOfBranch, useReturns } from '@/store/useReturns';
+import { returnsVisibleTo, useReturns } from '@/store/useReturns';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -75,7 +75,7 @@ export default function PulanganRecon() {
     [allRows, dropped]
   );
 
-  const mine = returnsOfBranch(records, branchId);
+  const mine = returnsVisibleTo(records, me);
   const result = useMemo(
     () => (active && canReconcile(active) ? reconcile(mine, rows) : null),
     [active, rows, mine]
@@ -101,6 +101,8 @@ export default function PulanganRecon() {
         supplier: row.supplier,
         // Left blank for a type we do not model, so the form asks rather than guesses.
         reason: row.reason ?? '',
+        // The export's location code is our branch id, so the outlet carries over.
+        outlet: row.branch,
       },
     });
 
@@ -211,8 +213,8 @@ export default function PulanganRecon() {
             <Card className="p-[15px] mt-2.5">
               <MonoLabel>Kod lokasi dalam fail</MonoLabel>
               <Text className="font-sans text-xs leading-[18px] text-ink-4 mt-2">
-                Kod sistem stok bukan kod cawangan app, jadi ia tidak dipadankan
-                sendiri. Matikan kod yang bukan milik cawangan ini.
+                Kod sistem stok sama dengan kod cawangan app. Matikan kod yang
+                bukan untuk semakan ini.
               </Text>
               <View className="flex-row flex-wrap gap-1.5 mt-2.5">
                 {locations.map((loc) => {

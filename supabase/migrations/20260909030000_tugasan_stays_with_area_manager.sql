@@ -9,8 +9,8 @@
 -- Read access is unchanged — app_can_see_branch() still shows every outlet to a
 -- cross-branch role.
 
-DROP POLICY tugasan_checks_write ON tugasan_checks;
-DROP POLICY tugasan_signoffs_write ON tugasan_signoffs;
+DROP POLICY IF EXISTS tugasan_checks_write ON tugasan_checks;
+DROP POLICY IF EXISTS tugasan_signoffs_write ON tugasan_signoffs;
 
 CREATE POLICY tugasan_checks_write ON tugasan_checks FOR ALL TO authenticated
   USING (app_can_see_branch(branch_id) AND (app_role() = 'area_manager' OR app_is_admin()))

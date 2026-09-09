@@ -11,44 +11,85 @@
 
 -- ------------------------------------------------------------- branches ----
 
-INSERT INTO branches (id, name, short_name, active) VALUES
-  ('MCG', 'Kedai Machang',    'Machang',    true),   -- REAL: the workbook branch
-  ('KBR', 'Kedai Kota Bharu', 'Kota Bharu', true);   -- NEW
+-- REAL: uploads/Cawangan.xlsx. HQ Jenjarom is the central store; the rest
+-- are the 38 kedai. Codes match the stock system's export.
+INSERT INTO branches (id, name, short_name) VALUES
+  ('HQ', 'HQ Jenjarom', 'HQ'),
+  ('AKK', 'Kedai Kuala Kangsar', 'Kuala Kangsar'),
+  ('APR', 'Kedai Pantai Remis', 'Pantai Remis'),
+  ('ASP', 'Kedai Sungai Siput', 'Sungai Siput'),
+  ('ASU', 'Kedai Sungai Sumun', 'Sungai Sumun'),
+  ('BBT', 'Kedai Banting', 'Banting'),
+  ('BKP', 'Kedai Kapar', 'Kapar'),
+  ('BLB', 'Kedai Kg. Lombong', 'Kg. Lombong'),
+  ('BPC', 'Kedai Puchong', 'Puchong'),
+  ('BPG', 'Kedai Teluk Panglima Garang', 'Teluk Panglima Garang'),
+  ('BRP', 'Kedai Rantau Panjang', 'Rantau Panjang'),
+  ('BSK', 'Kedai Sekinchan', 'Sekinchan'),
+  ('BSM', 'Kedai Semenyih', 'Semenyih'),
+  ('BTS', 'Kedai Taman Sentosa', 'Taman Sentosa'),
+  ('CJR', 'Kedai Jerantut', 'Jerantut'),
+  ('DKB', 'Kedai Kota Bharu', 'Kota Bharu'),
+  ('DKD', 'Kedai Kadok', 'Kadok'),
+  ('DKK', 'Kedai Kok Lanas', 'Kok Lanas'),
+  ('DMC', 'Kedai Machang', 'Machang'),
+  ('DMU', 'Kedai Machang Uptown', 'Machang Uptown'),
+  ('DPM', 'Kedai Pasir Mas', 'Pasir Mas'),
+  ('DSS', 'Kedai Selising', 'Selising'),
+  ('DTD', 'Kedai Tendong', 'Tendong'),
+  ('DTP', 'Kedai Tumpat', 'Tumpat'),
+  ('DWB', 'Kedai Wakaf Baru', 'Wakaf Baru'),
+  ('DWS', 'Kedai Wakaf Siku', 'Wakaf Siku'),
+  ('KBL', 'Kedai Baling', 'Baling'),
+  ('KKT', 'Kedai Kuala Ketil', 'Kuala Ketil'),
+  ('NBH', 'Kedai Bahau', 'Bahau'),
+  ('NPD', 'Kedai Port Dickson', 'Port Dickson'),
+  ('NS2', 'Kedai Seremban 2', 'Seremban 2'),
+  ('NSK', 'Kedai Sikamat', 'Sikamat'),
+  ('NTM', 'Kedai Seremban', 'Seremban'),
+  ('PMB', 'Kedai Machang Bubok', 'Machang Bubok'),
+  ('PSJ', 'Kedai Sungai Jawi', 'Sungai Jawi'),
+  ('QPJ', 'Kedai Miri', 'Miri'),
+  ('TKM', 'Kedai Kemaman', 'Kemaman'),
+  ('VBC', 'Kedai Batu Caves', 'Batu Caves'),
+  ('VTR', 'Kedai Tun Razak', 'Tun Razak');
 
 INSERT INTO scoring_rules (branch_id, pass_threshold, scale_max, verify_by_manager) VALUES
-  ('MCG', 80, 5, true),
-  ('KBR', 80, 5, true);
+  ('HQ',  80, 5, true),
+  ('DMC', 80, 5, true),
+  ('DKB', 80, 5, true);
 
 -- ---------------------------------------------------------------- users ----
 
 INSERT INTO users (id, name, short_name, initials, role, branch_id) VALUES
   -- REAL: KP-STAFF-2026.xlsx, one sheet per person
-  ('KP0093', 'Syazana Izzah Zafirah',        'Syazana',      'SI', 'staff',      'MCG'),
-  ('KP0103', 'Putri Wahida Amalin',          'Putri W.',     'PW', 'staff',      'MCG'),
-  ('KP0108', 'Nor Asyikin',                  'Nor Asyikin',  'NA', 'staff',      'MCG'),
-  ('KP0110', 'Filzah Diyana',                'Filzah',       'FD', 'staff',      'MCG'),
-  ('KP0111', 'Puteri Nur Hafiza',            'Puteri N.',    'PN', 'staff',      'MCG'),
-  ('MY0544', 'U Tin Tun',                    'U Tin Tun',    'UT', 'staff',      'MCG'),
-  ('MY0606', 'Ah San',                       'Ah San',       'AS', 'staff',      'MCG'),
-  ('MY0644', 'Pyhi Si Thu',                  'Pyhi Si Thu',  'PS', 'staff',      'MCG'),
+  ('KP0093', 'Syazana Izzah Zafirah',        'Syazana',      'SI', 'staff',      'DMC'),
+  ('KP0103', 'Putri Wahida Amalin',          'Putri W.',     'PW', 'staff',      'DMC'),
+  ('KP0108', 'Nor Asyikin',                  'Nor Asyikin',  'NA', 'staff',      'DMC'),
+  ('KP0110', 'Filzah Diyana',                'Filzah',       'FD', 'staff',      'DMC'),
+  ('KP0111', 'Puteri Nur Hafiza',            'Puteri N.',    'PN', 'staff',      'DMC'),
+  ('MY0544', 'U Tin Tun',                    'U Tin Tun',    'UT', 'staff',      'DMC'),
+  ('MY0606', 'Ah San',                       'Ah San',       'AS', 'staff',      'DMC'),
+  ('MY0644', 'Pyhi Si Thu',                  'Pyhi Si Thu',  'PS', 'staff',      'DMC'),
   -- REAL: WS-SUPV-2026.xlsx
-  ('WS0001', 'Nur Syahirah',                 'Nur Syahirah', 'NS', 'supervisor', 'MCG'),
-  ('WS0012', 'Wan Nurul Nabilah Haizum',     'Wan Nurul',    'WN', 'supervisor', 'KBR'),
+  ('WS0001', 'Nur Syahirah',                 'Nur Syahirah', 'NS', 'supervisor', 'DMC'),
+  ('WS0012', 'Wan Nurul Nabilah Haizum',     'Wan Nurul',    'WN', 'supervisor', 'DKB'),
   -- REAL name, NEW id: Herdi signs the TUGASAN AREA MANAGER block but is never numbered
-  ('AM0001', 'Herdi',                        'Herdi',        'H',  'area_manager', 'MCG'),
-  -- NEW: pekerja stor
-  ('ST0001', 'Hafiz bin Osman',              'Hafiz',        'HO', 'store',      'MCG'),
-  ('ST0002', 'Ramesh a/l Kumaran',           'Ramesh',       'RK', 'store',      'MCG'),
-  ('ST0003', 'Nurul Huda binti Salleh',      'Nurul H.',     'NH', 'store',      'MCG'),
-  ('ST0101', 'Sanjay a/l Muthu',             'Sanjay',       'SM', 'store',      'KBR'),
+  ('AM0001', 'Herdi',                        'Herdi',        'H',  'area_manager', 'DMC'),
+  -- NEW: pekerja stor. Posted to HQ, not to a kedai — one central store
+  -- receives returns from every outlet.
+  ('ST0001', 'Hafiz bin Osman',              'Hafiz',        'HO', 'store',      'HQ'),
+  ('ST0002', 'Ramesh a/l Kumaran',           'Ramesh',       'RK', 'store',      'HQ'),
+  ('ST0003', 'Nurul Huda binti Salleh',      'Nurul H.',     'NH', 'store',      'HQ'),
+  ('ST0101', 'Sanjay a/l Muthu',             'Sanjay',       'SM', 'store',      'HQ'),
   -- NEW: kerani stor
-  ('KR0001', 'Faridah binti Hassan',         'Faridah',      'FH', 'clerk',      'MCG'),
-  ('KR0101', 'Chong Mei Ling',               'Mei Ling',     'CM', 'clerk',      'KBR'),
+  ('KR0001', 'Faridah binti Hassan',         'Faridah',      'FH', 'clerk',      'HQ'),
+  ('KR0101', 'Chong Mei Ling',               'Mei Ling',     'CM', 'clerk',      'HQ'),
   -- NEW: Kota Bharu outlet
-  ('KP0201', 'Aina Sofea binti Roslan',      'Aina S.',      'AR', 'staff',      'KBR'),
-  ('KP0202', 'Muhammad Danial bin Zulkifli', 'Danial',       'MZ', 'staff',      'KBR'),
-  ('KP0203', 'Lim Wei Jian',                 'Wei Jian',     'LW', 'staff',      'KBR'),
-  ('AM0002', 'Farah Adilah',                 'Farah',        'FA', 'area_manager', 'KBR'),
+  ('KP0201', 'Aina Sofea binti Roslan',      'Aina S.',      'AR', 'staff',      'DKB'),
+  ('KP0202', 'Muhammad Danial bin Zulkifli', 'Danial',       'MZ', 'staff',      'DKB'),
+  ('KP0203', 'Lim Wei Jian',                 'Wei Jian',     'LW', 'staff',      'DKB'),
+  ('AM0002', 'Farah Adilah',                 'Farah',        'FA', 'area_manager', 'DKB'),
   -- NEW: head office. No branch_id — these four roles read every outlet.
   ('MG0001', 'Zulkarnain bin Ahmad',         'Zulkarnain',   'ZA', 'manager',         NULL),
   ('GM0001', 'Tan Chee Keong',               'Chee Keong',   'TC', 'general_manager', NULL),
@@ -60,7 +101,7 @@ INSERT INTO users (id, name, short_name, initials, role, branch_id) VALUES
 -- INVENTED: no workbook says who covers what, so this is a placeholder that
 -- exists to exercise the multi-outlet path.
 INSERT INTO user_branches (user_id, branch_id) VALUES
-  ('AM0001', 'KBR');
+  ('AM0001', 'DKB');
 
 -- ----------------------------------------------------- checklist: kedai ----
 -- REAL: CHECKLIST STAFF, 7 kategori / 22 perkara, labels verbatim.
@@ -138,24 +179,24 @@ JOIN checklist_categories c
 
 INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score, note, scored_by)
 VALUES
-  ('KP0093', 'MCG', 'kedai', 2026, 9, 1,  95, 110, 'Kedatangan penuh. Tandas belum disapu masa handover — kali kedua bulan ni.', 'WS0001'),
-  ('KP0103', 'MCG', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
-  ('KP0103', 'MCG', 'kedai', 2026, 9, 2,  86, 110, 'Rak kaunter kemas. Lebihan barang tak dipulangkan ke stor.', 'WS0001'),
-  ('KP0108', 'MCG', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
-  ('KP0111', 'MCG', 'kedai', 2026, 9, 1,  81, 110, 'Lewat 3 hari minggu ni. Sawang di bahagian atas rak belum dibersihkan.', 'WS0001'),
-  ('KP0111', 'MCG', 'kedai', 2026, 9, 2,  78, 110, NULL, 'WS0001'),
-  ('MY0544', 'MCG', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
-  ('MY0544', 'MCG', 'kedai', 2026, 9, 2,  88, 110, NULL, 'WS0001'),
-  ('MY0606', 'MCG', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
+  ('KP0093', 'DMC', 'kedai', 2026, 9, 1,  95, 110, 'Kedatangan penuh. Tandas belum disapu masa handover — kali kedua bulan ni.', 'WS0001'),
+  ('KP0103', 'DMC', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
+  ('KP0103', 'DMC', 'kedai', 2026, 9, 2,  86, 110, 'Rak kaunter kemas. Lebihan barang tak dipulangkan ke stor.', 'WS0001'),
+  ('KP0108', 'DMC', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
+  ('KP0111', 'DMC', 'kedai', 2026, 9, 1,  81, 110, 'Lewat 3 hari minggu ni. Sawang di bahagian atas rak belum dibersihkan.', 'WS0001'),
+  ('KP0111', 'DMC', 'kedai', 2026, 9, 2,  78, 110, NULL, 'WS0001'),
+  ('MY0544', 'DMC', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
+  ('MY0544', 'DMC', 'kedai', 2026, 9, 2,  88, 110, NULL, 'WS0001'),
+  ('MY0606', 'DMC', 'kedai', 2026, 9, 1,  89, 110, NULL, 'WS0001'),
   -- NEW: pekerja stor, scored out of 85
-  ('ST0001', 'MCG', 'stor',  2026, 9, 1,  71,  85, NULL, 'WS0001'),
-  ('ST0001', 'MCG', 'stor',  2026, 9, 2,  69,  85, NULL, 'WS0001'),
-  ('ST0002', 'MCG', 'stor',  2026, 9, 1,  67,  85, NULL, 'WS0001'),
+  ('ST0001', 'HQ', 'stor',  2026, 9, 1,  71,  85, NULL, 'WS0001'),
+  ('ST0001', 'HQ', 'stor',  2026, 9, 2,  69,  85, NULL, 'WS0001'),
+  ('ST0002', 'HQ', 'stor',  2026, 9, 1,  67,  85, NULL, 'WS0001'),
   -- NEW: Kota Bharu
-  ('KP0201', 'KBR', 'kedai', 2026, 9, 1,  97, 110, NULL, 'WS0012'),
-  ('KP0201', 'KBR', 'kedai', 2026, 9, 2,  94, 110, NULL, 'WS0012'),
-  ('KP0202', 'KBR', 'kedai', 2026, 9, 1,  84, 110, NULL, 'WS0012'),
-  ('ST0101', 'KBR', 'stor',  2026, 9, 1,  71,  85, NULL, 'WS0012');
+  ('KP0201', 'DKB', 'kedai', 2026, 9, 1,  97, 110, NULL, 'WS0012'),
+  ('KP0201', 'DKB', 'kedai', 2026, 9, 2,  94, 110, NULL, 'WS0012'),
+  ('KP0202', 'DKB', 'kedai', 2026, 9, 1,  84, 110, NULL, 'WS0012'),
+  ('ST0101', 'HQ', 'stor',  2026, 9, 1,  71,  85, NULL, 'WS0012');
 
 -- REAL: the only three cells the manager ever signed off.
 INSERT INTO mark_verifications (mark_id, verified_by)
@@ -172,47 +213,47 @@ INSERT INTO tugasan_items (key, label, note_kind, position) VALUES
   ('x_report',  'B) X REPORT',  'status', 2);
 
 INSERT INTO tugasan_checks (branch_id, period_year, period_month, week_no, item_key, done, note, inspected_on) VALUES
-  ('MCG', 2026, 8, 1, 'peti_cash', true, 'RM4,000',  DATE '2026-08-02'),
-  ('MCG', 2026, 8, 2, 'peti_cash', true, 'RM4,000',  DATE '2026-08-09'),
-  ('MCG', 2026, 8, 3, 'peti_cash', true, 'RM4,000',  DATE '2026-08-16'),
+  ('DMC', 2026, 8, 1, 'peti_cash', true, 'RM4,000',  DATE '2026-08-02'),
+  ('DMC', 2026, 8, 2, 'peti_cash', true, 'RM4,000',  DATE '2026-08-09'),
+  ('DMC', 2026, 8, 3, 'peti_cash', true, 'RM4,000',  DATE '2026-08-16'),
   -- Week 4 was ticked with an amount but never dated in the workbook.
-  ('MCG', 2026, 8, 4, 'peti_cash', true, 'RM4,000',  NULL),
-  ('MCG', 2026, 8, 1, 'x_report',  true, 'SALES OK', DATE '2026-08-02'),
-  ('MCG', 2026, 8, 2, 'x_report',  true, 'SALES OK', DATE '2026-08-09'),
-  ('MCG', 2026, 8, 3, 'x_report',  true, 'SALES OK', DATE '2026-08-16'),
-  ('MCG', 2026, 8, 4, 'x_report',  true, 'SALES OK', NULL);
+  ('DMC', 2026, 8, 4, 'peti_cash', true, 'RM4,000',  NULL),
+  ('DMC', 2026, 8, 1, 'x_report',  true, 'SALES OK', DATE '2026-08-02'),
+  ('DMC', 2026, 8, 2, 'x_report',  true, 'SALES OK', DATE '2026-08-09'),
+  ('DMC', 2026, 8, 3, 'x_report',  true, 'SALES OK', DATE '2026-08-16'),
+  ('DMC', 2026, 8, 4, 'x_report',  true, 'SALES OK', NULL);
 
 -- checked_by stays NULL: DIPERIKSA OLEH is blank in every workbook block.
 INSERT INTO tugasan_signoffs (branch_id, period_year, period_month, week_no, filled_by, checked_by, signed_on) VALUES
-  ('MCG', 2026, 8, 1, 'AM0001', NULL, DATE '2026-08-02'),
-  ('MCG', 2026, 8, 2, 'AM0001', NULL, DATE '2026-08-09'),
-  ('MCG', 2026, 8, 3, 'AM0001', NULL, DATE '2026-08-16'),
-  ('MCG', 2026, 8, 4, 'AM0001', NULL, DATE '2026-08-23');
+  ('DMC', 2026, 8, 1, 'AM0001', NULL, DATE '2026-08-02'),
+  ('DMC', 2026, 8, 2, 'AM0001', NULL, DATE '2026-08-09'),
+  ('DMC', 2026, 8, 3, 'AM0001', NULL, DATE '2026-08-16'),
+  ('DMC', 2026, 8, 4, 'AM0001', NULL, DATE '2026-08-23');
 
 -- --------------------------------------------------------------- assets ----
 -- REAL: CHECKLIST KEDAI asset log for Machang.
 
 INSERT INTO assets (branch_id, name, is_open, note, opened_on) VALUES
-  ('MCG', 'A) AIR-COND',              true,  '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', DATE '2026-08-05'),
-  ('MCG', 'B) AIR COOLER',            false, NULL, NULL),
-  ('MCG', 'C) LAMPU',                 false, NULL, NULL),
-  ('MCG', 'D) KIPAS',                 false, NULL, NULL),
-  ('MCG', 'E) KOMPUTER',              false, NULL, NULL),
-  ('MCG', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
-  ('MCG', 'G) KEBOCORAN AIR',         false, NULL, NULL),
-  ('MCG', 'H) SIGNBOARD',             false, NULL, NULL),
-  ('MCG', 'I) SPOTLIGHT',             false, NULL, NULL),
-  ('MCG', 'J) LAIN-LAIN: TILE LANTAI', true, 'Tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
+  ('DMC', 'A) AIR-COND',              true,  '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', DATE '2026-08-05'),
+  ('DMC', 'B) AIR COOLER',            false, NULL, NULL),
+  ('DMC', 'C) LAMPU',                 false, NULL, NULL),
+  ('DMC', 'D) KIPAS',                 false, NULL, NULL),
+  ('DMC', 'E) KOMPUTER',              false, NULL, NULL),
+  ('DMC', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
+  ('DMC', 'G) KEBOCORAN AIR',         false, NULL, NULL),
+  ('DMC', 'H) SIGNBOARD',             false, NULL, NULL),
+  ('DMC', 'I) SPOTLIGHT',             false, NULL, NULL),
+  ('DMC', 'J) LAIN-LAIN: TILE LANTAI', true, 'Tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
   -- NEW
-  ('KBR', 'A) AIR-COND',              false, NULL, NULL),
-  ('KBR', 'B) AIR COOLER',            false, NULL, NULL),
-  ('KBR', 'C) LAMPU',                 false, NULL, NULL),
-  ('KBR', 'D) KIPAS',                 false, NULL, NULL),
-  ('KBR', 'E) KOMPUTER',              false, NULL, NULL),
-  ('KBR', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
-  ('KBR', 'G) KEBOCORAN AIR',         true,  'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.', DATE '2026-08-31'),
-  ('KBR', 'H) SIGNBOARD',             false, NULL, NULL),
-  ('KBR', 'I) SPOTLIGHT',             false, NULL, NULL);
+  ('DKB', 'A) AIR-COND',              false, NULL, NULL),
+  ('DKB', 'B) AIR COOLER',            false, NULL, NULL),
+  ('DKB', 'C) LAMPU',                 false, NULL, NULL),
+  ('DKB', 'D) KIPAS',                 false, NULL, NULL),
+  ('DKB', 'E) KOMPUTER',              false, NULL, NULL),
+  ('DKB', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
+  ('DKB', 'G) KEBOCORAN AIR',         true,  'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.', DATE '2026-08-31'),
+  ('DKB', 'H) SIGNBOARD',             false, NULL, NULL),
+  ('DKB', 'I) SPOTLIGHT',             false, NULL, NULL);
 
 -- -------------------------------------------------------------- returns ----
 -- NEW: the returns workflow has no workbook equivalent.
@@ -228,11 +269,11 @@ INSERT INTO returns (ref, branch_id, bill_no, bill_date, reason, remark, supplie
 SELECT v.ref, v.branch_id, v.bill_no, v.bill_date::date, v.reason::return_reason, v.remark,
        s.id, v.disposition::return_disposition, v.created_by
 FROM (VALUES
-  ('PR0001', 'MCG', 'BR-8842', '2026-08-24', 'damage',  'Kotak biskut penyek masa hantar.',     'Munchy Food Industries', 'supplier', 'ST0001'),
-  ('PR0002', 'MCG', 'BR-8907', '2026-09-01', 'expired', 'Roti dan susu segar tamat tempoh.',    'Gardenia Bakeries',      'discard',  'ST0001'),
-  ('PR0003', 'MCG', 'BR-8931', '2026-09-05', 'damage',  'Tin susu kemek, 6 unit.',              'Dutch Lady Milk',        'supplier', 'ST0002'),
-  ('PR0004', 'MCG', 'BR-8944', '2026-09-07', 'expired', 'Sos cili tamat tempoh 2 kotak.',       'Life Food Industries',   NULL,       'ST0001'),
-  ('PR0101', 'KBR', 'BR-2210', '2026-09-03', 'damage',  'Beg beras koyak.',                     'Padiberas Nasional',     'supplier', 'ST0101')
+  ('PR0001', 'DMC', 'BR-8842', '2026-08-24', 'damage',  'Kotak biskut penyek masa hantar.',     'Munchy Food Industries', 'supplier', 'ST0001'),
+  ('PR0002', 'DMC', 'BR-8907', '2026-09-01', 'expired', 'Roti dan susu segar tamat tempoh.',    'Gardenia Bakeries',      'discard',  'ST0001'),
+  ('PR0003', 'DMC', 'BR-8931', '2026-09-05', 'damage',  'Tin susu kemek, 6 unit.',              'Dutch Lady Milk',        'supplier', 'ST0002'),
+  ('PR0004', 'DMC', 'BR-8944', '2026-09-07', 'expired', 'Sos cili tamat tempoh 2 kotak.',       'Life Food Industries',   NULL,       'ST0001'),
+  ('PR0101', 'DKB', 'BR-2210', '2026-09-03', 'damage',  'Beg beras koyak.',                     'Padiberas Nasional',     'supplier', 'ST0101')
 ) AS v(ref, branch_id, bill_no, bill_date, reason, remark, supplier_name, disposition, created_by)
 JOIN suppliers s ON s.name = v.supplier_name;
 
@@ -242,8 +283,8 @@ INSERT INTO returns (ref, branch_id, bill_no, bill_date, reason, remark, supplie
 SELECT v.ref, v.branch_id, v.bill_no, v.bill_date, v.reason::return_reason, v.remark,
        s.id, v.disposition::return_disposition, v.created_by
 FROM (VALUES
-  ('PR0005', 'MCG', 'BR-8611', CURRENT_DATE - 65, 'damage',  'Kotak mi segera rosak, belum dipulangkan.', 'Munchy Food Industries', 'supplier', 'ST0001'),
-  ('PR0006', 'MCG', 'BR-8502', CURRENT_DATE - 75, 'expired', 'Jus kotak tamat tempoh, masih dalam stor.',  'Life Food Industries',   'supplier', 'ST0002')
+  ('PR0005', 'DMC', 'BR-8611', CURRENT_DATE - 65, 'damage',  'Kotak mi segera rosak, belum dipulangkan.', 'Munchy Food Industries', 'supplier', 'ST0001'),
+  ('PR0006', 'DMC', 'BR-8502', CURRENT_DATE - 75, 'expired', 'Jus kotak tamat tempoh, masih dalam stor.',  'Life Food Industries',   'supplier', 'ST0002')
 ) AS v(ref, branch_id, bill_no, bill_date, reason, remark, supplier_name, disposition, created_by)
 JOIN suppliers s ON s.name = v.supplier_name;
 

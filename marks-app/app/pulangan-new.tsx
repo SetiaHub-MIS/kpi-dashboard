@@ -10,7 +10,8 @@ import {
   TODAY_ISO,
   newReturnBlocker,
 } from '@/data/returns';
-import { useBranchLabel } from '@/store/useBranches';
+import { isHq } from '@/data/branches';
+import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { useReturns } from '@/store/useReturns';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
@@ -30,8 +31,22 @@ export default function NewReturn() {
     billDate?: string;
     supplier?: string;
     reason?: string;
+    outlet?: string;
   }>();
   const fromRecon = !!prefill.billNo;
+
+  // The stor team sits at HQ, so the outlet the goods came from has to be
+  // chosen — it is no longer implied by who is signed in. The stock system's
+  // location code is the same code, so a bill arriving from the comparison
+  // screen already knows its outlet.
+  const outlets = useActiveBranches().filter((b) => !isHq(b.id));
+  const [outletId, setOutletId] = useState<string | null>(
+    outlets.some((b) => b.id === prefill.outlet) ? (prefill.outlet as string) : null
+  );
+  const [outletFilter, setOutletFilter] = useState('');
+  const shownOutlets = outlets.filter((b) =>
+    `${b.id} ${b.name}`.toLowerCase().includes(outletFilter.trim().toLowerCase())
+  );
 
   const [billNo, setBillNo] = useState(prefill.billNo ?? '');
   const [billDate, setBillDate] = useState(prefill.billDate || TODAY_ISO);
@@ -43,14 +58,18 @@ export default function NewReturn() {
   const [error, setError] = useState<string | null>(null);
 
   const submit = () => {
+    if (!outletId) {
+      setError('Pilih cawangan yang hantar barang.');
+      return;
+    }
     const blocked = newReturnBlocker(records, billNo, billDate);
     if (blocked) {
       setError(blocked);
       return;
     }
     const id = addReturn({
-      branchId: me?.branchId ?? 'MCG',
-      outlet: branchLabel(me?.branchId),
+      branchId: outletId,
+      outlet: branchLabel(outletId),
       billNo,
       billDate,
       reason,
@@ -81,6 +100,51 @@ export default function NewReturn() {
         )}
 
         <Card className="p-[15px] mt-4">
+          <MonoLabel>Cawangan hantar</MonoLabel>
+          <TextInput
+            value={outletFilter}
+            onChangeText={setOutletFilter}
+            placeholder="Cari cawangan atau kod…"
+            placeholderTextColor={C.ink6}
+            autoCorrect={false}
+            className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13px] text-ink"
+          />
+          <View className="flex-row flex-wrap gap-1.5 mt-2.5">
+            {shownOutlets.slice(0, 24).map((b) => {
+              const on = outletId === b.id;
+              return (
+                <Pressable
+                  key={b.id}
+                  onPress={() => {
+                    setOutletId(b.id);
+                    setError(null);
+                  }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  className="px-2.5 py-1.5 rounded-lg border"
+                  style={{
+                    borderColor: on ? 'transparent' : C.line,
+                    backgroundColor: on ? C.ink : C.card,
+                  }}
+                >
+                  <Text
+                    className="font-mono text-[11px]"
+                    style={{ color: on ? '#fff' : C.ink3 }}
+                  >
+                    {b.id} · {b.short}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          {shownOutlets.length > 24 && (
+            <Text className="font-sans text-[11.5px] text-ink-5 mt-2">
+              {shownOutlets.length - 24} lagi — taip untuk tapis.
+            </Text>
+          )}
+        </Card>
+
+        <Card className="p-[15px] mt-2.5">
           <MonoLabel>No. bil</MonoLabel>
           <TextInput
             value={billNo}

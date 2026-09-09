@@ -9,22 +9,22 @@ export type AssetRow = {
 /** Checklist Kedai asset log — filled weekly by the kedai supervisor. */
 export const ASSETS: AssetRow[] = [
   {
-    branchId: 'MCG',
+    branchId: 'DMC',
     name: 'A) AIR-COND',
     open: true,
     note: '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.',
     age: '34 hari terbuka',
   },
-  { branchId: 'MCG', name: 'B) AIR COOLER', open: false },
-  { branchId: 'MCG', name: 'C) LAMPU', open: false },
-  { branchId: 'MCG', name: 'D) KIPAS', open: false },
-  { branchId: 'MCG', name: 'E) KOMPUTER', open: false },
-  { branchId: 'MCG', name: 'F) SALURAN AIR TANDAS', open: false },
-  { branchId: 'MCG', name: 'G) KEBOCORAN AIR', open: false },
-  { branchId: 'MCG', name: 'H) SIGNBOARD', open: false },
-  { branchId: 'MCG', name: 'I) SPOTLIGHT', open: false },
+  { branchId: 'DMC', name: 'B) AIR COOLER', open: false },
+  { branchId: 'DMC', name: 'C) LAMPU', open: false },
+  { branchId: 'DMC', name: 'D) KIPAS', open: false },
+  { branchId: 'DMC', name: 'E) KOMPUTER', open: false },
+  { branchId: 'DMC', name: 'F) SALURAN AIR TANDAS', open: false },
+  { branchId: 'DMC', name: 'G) KEBOCORAN AIR', open: false },
+  { branchId: 'DMC', name: 'H) SIGNBOARD', open: false },
+  { branchId: 'DMC', name: 'I) SPOTLIGHT', open: false },
   {
-    branchId: 'MCG',
+    branchId: 'DMC',
     name: 'J) LAIN-LAIN: TILE LANTAI',
     open: true,
     note: 'Tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.',
@@ -32,21 +32,21 @@ export const ASSETS: AssetRow[] = [
   },
 
   // Kedai Kota Bharu — invented alongside that branch's staff.
-  { branchId: 'KBR', name: 'A) AIR-COND', open: false },
-  { branchId: 'KBR', name: 'B) AIR COOLER', open: false },
-  { branchId: 'KBR', name: 'C) LAMPU', open: false },
-  { branchId: 'KBR', name: 'D) KIPAS', open: false },
-  { branchId: 'KBR', name: 'E) KOMPUTER', open: false },
-  { branchId: 'KBR', name: 'F) SALURAN AIR TANDAS', open: false },
+  { branchId: 'DKB', name: 'A) AIR-COND', open: false },
+  { branchId: 'DKB', name: 'B) AIR COOLER', open: false },
+  { branchId: 'DKB', name: 'C) LAMPU', open: false },
+  { branchId: 'DKB', name: 'D) KIPAS', open: false },
+  { branchId: 'DKB', name: 'E) KOMPUTER', open: false },
+  { branchId: 'DKB', name: 'F) SALURAN AIR TANDAS', open: false },
   {
-    branchId: 'KBR',
+    branchId: 'DKB',
     name: 'G) KEBOCORAN AIR',
     open: true,
     note: 'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.',
     age: '8 hari terbuka',
   },
-  { branchId: 'KBR', name: 'H) SIGNBOARD', open: false },
-  { branchId: 'KBR', name: 'I) SPOTLIGHT', open: false },
+  { branchId: 'DKB', name: 'H) SIGNBOARD', open: false },
+  { branchId: 'DKB', name: 'I) SPOTLIGHT', open: false },
 ];
 
 export const assetsOfBranch = (branchId: string | null): AssetRow[] =>
