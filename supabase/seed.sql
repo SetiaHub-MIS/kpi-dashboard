@@ -9,8 +9,6 @@
 -- seeded percentages land one point off the spreadsheet where the total cannot
 -- express that exact percentage (e.g. 83% of 85 is not reachable).
 
-BEGIN;
-
 -- ------------------------------------------------------------- branches ----
 
 INSERT INTO branches (id, name, short_name, active) VALUES
@@ -37,7 +35,7 @@ INSERT INTO users (id, name, short_name, initials, role, branch_id) VALUES
   ('WS0001', 'Nur Syahirah',                 'Nur Syahirah', 'NS', 'supervisor', 'MCG'),
   ('WS0012', 'Wan Nurul Nabilah Haizum',     'Wan Nurul',    'WN', 'supervisor', 'KBR'),
   -- REAL name, NEW id: Herdi signs the TUGASAN AREA MANAGER block but is never numbered
-  ('AM0001', 'Herdi',                        'Herdi',        'H',  'manager',    'MCG'),
+  ('AM0001', 'Herdi',                        'Herdi',        'H',  'area_manager', 'MCG'),
   -- NEW: pekerja stor
   ('ST0001', 'Hafiz bin Osman',              'Hafiz',        'HO', 'store',      'MCG'),
   ('ST0002', 'Ramesh a/l Kumaran',           'Ramesh',       'RK', 'store',      'MCG'),
@@ -50,9 +48,19 @@ INSERT INTO users (id, name, short_name, initials, role, branch_id) VALUES
   ('KP0201', 'Aina Sofea binti Roslan',      'Aina S.',      'AR', 'staff',      'KBR'),
   ('KP0202', 'Muhammad Danial bin Zulkifli', 'Danial',       'MZ', 'staff',      'KBR'),
   ('KP0203', 'Lim Wei Jian',                 'Wei Jian',     'LW', 'staff',      'KBR'),
-  ('AM0002', 'Farah Adilah',                 'Farah',        'FA', 'manager',    'KBR'),
+  ('AM0002', 'Farah Adilah',                 'Farah',        'FA', 'area_manager', 'KBR'),
+  -- NEW: head office. No branch_id — these four roles read every outlet.
+  ('MG0001', 'Zulkarnain bin Ahmad',         'Zulkarnain',   'ZA', 'manager',         NULL),
+  ('GM0001', 'Tan Chee Keong',               'Chee Keong',   'TC', 'general_manager', NULL),
+  ('HR0001', 'Siti Norhaliza binti Yusof',   'Siti N.',      'SN', 'human_resources', NULL),
   -- NEW: cross-branch administrator
-  ('AD0001', 'Pentadbir Sistem',             'Pentadbir',    'PS', 'admin',      NULL);
+  ('AD0001', 'Pentadbir Sistem',             'Pentadbir',    'PS', 'admin',           NULL);
+
+-- Herdi covers Kota Bharu on top of his home outlet; Farah covers only her own.
+-- INVENTED: no workbook says who covers what, so this is a placeholder that
+-- exists to exercise the multi-outlet path.
+INSERT INTO user_branches (user_id, branch_id) VALUES
+  ('AM0001', 'KBR');
 
 -- ----------------------------------------------------- checklist: kedai ----
 -- REAL: CHECKLIST STAFF, 7 kategori / 22 perkara, labels verbatim.
@@ -228,22 +236,51 @@ FROM (VALUES
 ) AS v(ref, branch_id, bill_no, bill_date, reason, remark, supplier_name, disposition, created_by)
 JOIN suppliers s ON s.name = v.supplier_name;
 
+-- Two aged lists, dated relative to today so the ageing states stay true
+-- whenever the seed is run: one inside the one-week grace, one past it.
+INSERT INTO returns (ref, branch_id, bill_no, bill_date, reason, remark, supplier_id, disposition, created_by)
+SELECT v.ref, v.branch_id, v.bill_no, v.bill_date, v.reason::return_reason, v.remark,
+       s.id, v.disposition::return_disposition, v.created_by
+FROM (VALUES
+  ('PR0005', 'MCG', 'BR-8611', CURRENT_DATE - 65, 'damage',  'Kotak mi segera rosak, belum dipulangkan.', 'Munchy Food Industries', 'supplier', 'ST0001'),
+  ('PR0006', 'MCG', 'BR-8502', CURRENT_DATE - 75, 'expired', 'Jus kotak tamat tempoh, masih dalam stor.',  'Life Food Industries',   'supplier', 'ST0002')
+) AS v(ref, branch_id, bill_no, bill_date, reason, remark, supplier_name, disposition, created_by)
+JOIN suppliers s ON s.name = v.supplier_name;
+
+INSERT INTO return_events (return_id, stage, occurred_on, recorded_by)
+SELECT r.id, v.stage::return_stage, v.occurred_on, v.recorded_by
+FROM (VALUES
+  ('PR0005', 'received',           CURRENT_DATE - 65, 'ST0001'),
+  ('PR0005', 'submitted_to_clerk', CURRENT_DATE - 62, 'ST0001'),
+  ('PR0005', 'segregated',         CURRENT_DATE - 60, 'ST0001'),
+  ('PR0006', 'received',           CURRENT_DATE - 75, 'ST0002'),
+  ('PR0006', 'submitted_to_clerk', CURRENT_DATE - 70, 'ST0002')
+) AS v(ref, stage, occurred_on, recorded_by)
+JOIN returns r ON r.ref = v.ref;
+
 INSERT INTO return_events (return_id, stage, occurred_on, recorded_by)
 SELECT r.id, v.stage::return_stage, v.occurred_on::date, v.recorded_by
 FROM (VALUES
   ('PR0001', 'received',        '2026-08-24', 'ST0001'),
+  -- Received Monday, handed over Tuesday: inside the Friday deadline.
+  ('PR0001', 'submitted_to_clerk', '2026-08-25', 'ST0001'),
   ('PR0001', 'segregated',      '2026-08-25', 'ST0001'),
   ('PR0001', 'supplier_called', '2026-08-26', 'KR0001'),
   ('PR0001', 'picked_up',       '2026-09-02', 'KR0001'),
   ('PR0001', 'adjusted',        '2026-09-03', 'ST0001'),
 
   ('PR0002', 'received',        '2026-09-01', 'ST0001'),
+  ('PR0002', 'submitted_to_clerk', '2026-09-03', 'ST0001'),
   ('PR0002', 'segregated',      '2026-09-02', 'ST0001'),
   ('PR0002', 'discarded',       '2026-09-04', 'ST0001'),
 
+  -- Arrived Saturday, so the deadline is the following Friday, not the one
+  -- two days earlier. Handed over Monday: on time.
   ('PR0003', 'received',        '2026-09-05', 'ST0002'),
+  ('PR0003', 'submitted_to_clerk', '2026-09-07', 'ST0002'),
   ('PR0003', 'segregated',      '2026-09-06', 'ST0002'),
 
+  -- Never handed to the kerani: this is the one that costs the week its 100%.
   ('PR0004', 'received',        '2026-09-07', 'ST0001'),
 
   ('PR0101', 'received',        '2026-09-03', 'ST0101'),
@@ -252,4 +289,3 @@ FROM (VALUES
 ) AS v(ref, stage, occurred_on, recorded_by)
 JOIN returns r ON r.ref = v.ref;
 
-COMMIT;

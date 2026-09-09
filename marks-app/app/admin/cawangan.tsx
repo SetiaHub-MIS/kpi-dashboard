@@ -40,7 +40,7 @@ export default function Cawangan() {
           const assigned = users.filter((u) => u.active && u.branchId === b.id);
           const staff = assigned.filter((u) => isMarked(u.role));
           const supervisors = assigned.filter((u) => u.role === 'supervisor');
-          const managers = assigned.filter((u) => u.role === 'manager');
+          const managers = assigned.filter((u) => u.role === 'area_manager');
 
           return (
             <Pressable
@@ -62,7 +62,7 @@ export default function Cawangan() {
               <View className="flex-row gap-4 mt-3">
                 <Stat label="Pekerja" value={staff.length} />
                 <Stat label={ROLE_LABEL.supervisor} value={supervisors.length} />
-                <Stat label="Manager" value={managers.length} />
+                <Stat label="Area Mgr" value={managers.length} />
               </View>
 
               {!b.active && (

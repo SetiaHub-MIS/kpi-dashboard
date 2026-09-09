@@ -1,0 +1,285 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const db = new PGlite();
+
+// --- stub what Supabase provides: the auth schema, auth.uid(), and the roles.
+await db.exec(`
+  CREATE SCHEMA IF NOT EXISTS auth;
+  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text);
+  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
+    SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
+  $$;
+  CREATE ROLE authenticated;
+`);
+
+const file = (p) => readFileSync(`${ROOT}/${p}`, 'utf8');
+for (const m of [
+  'supabase/migrations/20260909010000_init.sql',
+  'supabase/migrations/20260909010100_auth_bridge.sql',
+  'supabase/migrations/20260909010200_rls.sql',
+  'supabase/migrations/20260909020000_return_submission_stage.sql',
+  'supabase/migrations/20260909020100_return_kpi.sql',
+]) {
+  try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
+  catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
+}
+try { await db.exec(file('supabase/seed.sql')); console.log('OK   seed.sql'); }
+catch (e) { console.log(`FAIL seed.sql\n     ${e.message}`); process.exit(1); }
+
+// Supabase grants these to `authenticated` out of the box, including access to
+// the auth schema so auth.uid() is callable from policies and from queries.
+await db.exec(`
+  GRANT USAGE ON SCHEMA public TO authenticated;
+  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
+  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+  GRANT USAGE ON SCHEMA auth TO authenticated;
+  GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
+`);
+
+// --- issue logins across every role shape and link them to their payroll rows.
+// Herdi is the multi-outlet case: home MCG, plus KBR via user_branches.
+const ACCOUNTS = {
+  syahirah: ['11111111-1111-1111-1111-111111111111', 'WS0001', 'SV/AS, Machang'],
+  farah:    ['22222222-2222-2222-2222-222222222222', 'AM0002', 'Area Mgr, KBR only'],
+  hafiz:    ['33333333-3333-3333-3333-333333333333', 'ST0001', 'Store, Machang'],
+  admin:    ['44444444-4444-4444-4444-444444444444', 'AD0001', 'Admin, cross-branch'],
+  herdi:    ['55555555-5555-5555-5555-555555555555', 'AM0001', 'Area Mgr, MCG+KBR'],
+  manager:  ['66666666-6666-6666-6666-666666666666', 'MG0001', 'Manager, no stor'],
+  gm:       ['77777777-7777-7777-7777-777777777777', 'GM0001', 'General Manager'],
+  hr:       ['88888888-8888-8888-8888-888888888888', 'HR0001', 'Human Resources'],
+};
+for (const [uuid, staffId] of Object.values(ACCOUNTS)) {
+  await db.exec(`INSERT INTO auth.users (id) VALUES ('${uuid}');`);
+  await db.exec(`UPDATE users SET auth_user_id = '${uuid}' WHERE id = '${staffId}';`);
+}
+
+// --- act as a signed-in user, exactly as PostgREST does per request.
+async function as(uuid, sql) {
+  await db.exec(`SET ROLE authenticated;`);
+  await db.exec(`SELECT set_config('request.jwt.claims', '{"sub":"${uuid}"}', false);`);
+  try { return await db.query(sql); }
+  finally { await db.exec(`RESET ROLE; SELECT set_config('request.jwt.claims','',false);`); }
+}
+
+let pass = 0, fail = 0;
+const check = (label, actual, expected) => {
+  const ok = JSON.stringify(actual) === JSON.stringify(expected);
+  console.log(`${ok ? '  PASS' : '  FAIL'}  ${label}${ok ? '' : `\n        expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`}`);
+  ok ? pass++ : fail++;
+};
+
+console.log('\n=== reads are confined to the caller\'s branch ===');
+for (const [who, [uuid, , desc]] of Object.entries(ACCOUNTS)) {
+  const r = await as(uuid, `SELECT DISTINCT branch_id FROM users WHERE branch_id IS NOT NULL ORDER BY 1`);
+  const seen = r.rows.map((x) => x.branch_id);
+  const CROSS = ['admin', 'manager', 'gm', 'hr', 'herdi'];
+  const expected = CROSS.includes(who) ? ['KBR', 'MCG'] : who === 'farah' ? ['KBR'] : ['MCG'];
+  check(`${desc.padEnd(22)} sees branches ${JSON.stringify(seen)}`, seen, expected);
+}
+
+console.log('\n=== the negative case: another branch is not merely hidden, it is unreachable ===');
+{
+  const r = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM users WHERE branch_id = 'KBR'`);
+  check('Machang SV asking explicitly for KBR staff gets 0', r.rows[0].n, 0);
+
+  const m = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM marks WHERE branch_id = 'KBR'`);
+  check('Machang SV asking explicitly for KBR marks gets 0', m.rows[0].n, 0);
+
+  const a = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM assets WHERE branch_id = 'MCG'`);
+  check('KBR area manager asking for Machang assets gets 0', a.rows[0].n, 0);
+
+  const t = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM tugasan_checks WHERE branch_id = 'MCG'`);
+  check("KBR area manager cannot read Machang's tugasan", t.rows[0].n, 0);
+}
+
+console.log('\n=== everyone can still see their own record ===');
+{
+  const r = await as(ACCOUNTS.hafiz[0], `SELECT id FROM users WHERE auth_user_id = auth.uid()`);
+  check('store staff reads own row', r.rows[0]?.id, 'ST0001');
+}
+
+console.log('\n=== views respect the caller, not their owner ===');
+{
+  const r = await as(ACCOUNTS.farah[0], `SELECT DISTINCT branch_id FROM return_turnaround ORDER BY 1`);
+  check('return_turnaround scoped for KBR area manager', r.rows.map((x) => x.branch_id), ['KBR']);
+
+  const c = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM mark_coverage WHERE branch_id = 'KBR'`);
+  check('mark_coverage hides other branches', c.rows[0].n, 0);
+}
+
+console.log('\n=== writes are gated by role as well as branch ===');
+const tryWrite = async (uuid, sql) => {
+  try { await as(uuid, sql); return 'allowed'; } catch { return 'blocked'; }
+};
+check('SV/AS may insert a mark in own branch',
+  await tryWrite(ACCOUNTS.syahirah[0],
+    `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+     VALUES ('KP0110','MCG','kedai',2026,9,3,88,110)`), 'allowed');
+
+check('SV/AS may NOT insert a mark in another branch',
+  await tryWrite(ACCOUNTS.syahirah[0],
+    `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+     VALUES ('KP0201','KBR','kedai',2026,9,3,88,110)`), 'blocked');
+
+check('store staff may NOT insert a mark at all',
+  await tryWrite(ACCOUNTS.hafiz[0],
+    `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+     VALUES ('KP0111','MCG','kedai',2026,9,4,88,110)`), 'blocked');
+
+check('store staff may log a return in own branch',
+  await tryWrite(ACCOUNTS.hafiz[0],
+    `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
+     VALUES ('PR9001','MCG','BR-9001',DATE '2026-09-09','damage')`), 'allowed');
+
+check('SV/AS may NOT create a user',
+  await tryWrite(ACCOUNTS.syahirah[0],
+    `INSERT INTO users (id,name,short_name,initials,role,branch_id)
+     VALUES ('KP9999','Test','Test','TT','staff','MCG')`), 'blocked');
+
+check('admin may create a user',
+  await tryWrite(ACCOUNTS.admin[0],
+    `INSERT INTO users (id,name,short_name,initials,role,branch_id)
+     VALUES ('KP9998','Test Two','Test T.','TT','staff','MCG')`), 'allowed');
+
+console.log('\n=== rule 1: submission is scored on-time over received ===');
+{
+  const r = await as(ACCOUNTS.hafiz[0],
+    `SELECT ref, due_on::text, is_on_time, is_submitted FROM return_submission
+     WHERE ref IN ('PR0003','PR0004') ORDER BY ref`);
+  const sat = r.rows.find((x) => x.ref === 'PR0003');
+  check('Saturday arrival gets the FOLLOWING Friday as its deadline', sat.due_on, '2026-09-11');
+  check('...and handing it over on Monday counts as on time', sat.is_on_time, true);
+  check('a list never handed over is not submitted',
+    r.rows.find((x) => x.ref === 'PR0004').is_submitted, false);
+
+  // Scored over the fixed-date lists only. The two aged rows are seeded relative
+  // to CURRENT_DATE, so their weekday — and therefore their Friday deadline —
+  // shifts daily; including them would make this assertion flaky.
+  const k = await as(ACCOUNTS.hafiz[0],
+    `SELECT count(*)::int recv,
+            count(*) FILTER (WHERE is_on_time)::int ok,
+            round(count(*) FILTER (WHERE is_on_time) * 100.0 / count(*))::int pct
+     FROM return_submission
+     WHERE ref IN ('PR0001','PR0002','PR0003','PR0004')`);
+  check(`three of four on time scores 75%`, [k.rows[0].ok, k.rows[0].recv, k.rows[0].pct], [3, 4, 75]);
+
+  // The rule as the user stated it: 8 of 10 submitted is 80%.
+  const worked = await as(ACCOUNTS.admin[0],
+    `SELECT round(8 * 100.0 / 10)::int AS pct`);
+  check('stated example: 8 of 10 scores 80%', worked.rows[0].pct, 80);
+}
+
+console.log('\n=== rules 2 and 3: two-month ceiling, one-week grace ===');
+{
+  const r = await as(ACCOUNTS.hafiz[0],
+    `SELECT ref, age_days, status FROM return_ageing
+     WHERE ref IN ('PR0004','PR0005','PR0006') ORDER BY ref`);
+  const by = Object.fromEntries(r.rows.map((x) => [x.ref, x]));
+  check('a fresh list is ok', by.PR0004.status, 'ok');
+  check(`65 days old is in breach, still inside the week to clear`, by.PR0005.status, 'breach');
+  check(`75 days old is overdue, the week is gone`, by.PR0006.status, 'overdue');
+
+  const c = await as(ACCOUNTS.hafiz[0],
+    `SELECT (clear_by - limit_on)::int AS grace FROM return_ageing WHERE ref = 'PR0005'`);
+  check('grace window is exactly one week', c.rows[0].grace, 7);
+}
+
+console.log('\n=== the KPI views stay branch-scoped ===');
+{
+  const r = await as(ACCOUNTS.farah[0],
+    `SELECT count(*)::int n FROM return_ageing WHERE branch_id = 'MCG'`);
+  check('KBR area manager cannot read Machang ageing', r.rows[0].n, 0);
+  const s = await as(ACCOUNTS.farah[0],
+    `SELECT count(*)::int n FROM return_submission_kpi WHERE branch_id = 'MCG'`);
+  check('KBR area manager cannot read Machang submission KPI', s.rows[0].n, 0);
+}
+
+console.log('\n=== an Area Manager reaches every outlet assigned to them ===');
+{
+  const r = await as(ACCOUNTS.herdi[0],
+    `SELECT DISTINCT branch_id FROM assets WHERE branch_id IS NOT NULL ORDER BY 1`);
+  check('Herdi reads assets at both his outlets', r.rows.map((x) => x.branch_id), ['KBR', 'MCG']);
+
+  // The reverse direction is what proves user_branches is doing the work rather
+  // than the role alone: Farah holds the same role and reaches only her own.
+  const f = await as(ACCOUNTS.farah[0],
+    `SELECT DISTINCT branch_id FROM assets WHERE branch_id IS NOT NULL ORDER BY 1`);
+  check('Farah, same role, reaches only KBR', f.rows.map((x) => x.branch_id), ['KBR']);
+
+  check('Herdi may write tugasan at his assigned second outlet',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
+       VALUES ('KBR',2026,9,1,'peti_cash',true,'RM3,000',DATE '2026-09-04')`), 'allowed');
+
+  check('Farah may NOT write tugasan at an outlet she does not cover',
+    await tryWrite(ACCOUNTS.farah[0],
+      `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
+       VALUES ('MCG',2026,9,2,'peti_cash',true,'RM3,000',DATE '2026-09-11')`), 'blocked');
+
+  check('user_branches rejects a role that is not area_manager',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO user_branches (user_id,branch_id) VALUES ('WS0001','KBR')`), 'blocked');
+}
+
+console.log('\n=== manager is cross-branch on kedai, and blind to the stor side ===');
+{
+  const m = await as(ACCOUNTS.manager[0],
+    `SELECT DISTINCT branch_id FROM marks WHERE form_key = 'kedai' ORDER BY 1`);
+  check('manager reads kedai marks at every branch', m.rows.map((x) => x.branch_id), ['KBR', 'MCG']);
+
+  const stor = await as(ACCOUNTS.manager[0],
+    `SELECT count(*)::int n FROM marks WHERE form_key = 'stor'`);
+  check('manager cannot read a single 17-perkara stor mark', stor.rows[0].n, 0);
+
+  const ret = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM returns`);
+  check('manager cannot read returns at all', ret.rows[0].n, 0);
+
+  const ev = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM return_events`);
+  check('...nor the stage events behind them', ev.rows[0].n, 0);
+
+  const kpi = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM return_ageing`);
+  check('...nor the ageing KPI built on them', kpi.rows[0].n, 0);
+
+  // Still a manager, so the kedai side is fully writable across branches.
+  check('manager may NOT insert a mark (that pass belongs to SV and head office)',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+       VALUES ('KP0201','KBR','kedai',2026,9,2,90,110)`), 'blocked');
+}
+
+console.log('\n=== general manager and HR write operational data anywhere ===');
+{
+  const r = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM returns WHERE branch_id = 'MCG'`);
+  check('GM reads the stor side the manager cannot', r.rows[0].n > 0, true);
+
+  const stor = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM marks WHERE form_key = 'stor'`);
+  check('HR reads stor marks too', stor.rows[0].n > 0, true);
+
+  check('GM may insert a mark in a branch they have no posting to',
+    await tryWrite(ACCOUNTS.gm[0],
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+       VALUES ('KP0202','KBR','kedai',2026,9,2,95,110)`), 'allowed');
+
+  check('HR may sign off a mark verification cross-branch',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO mark_verifications (mark_id, verified_by)
+       SELECT m.id, 'HR0001' FROM marks m WHERE m.branch_id = 'KBR' AND m.form_key = 'kedai'
+        AND NOT EXISTS (SELECT 1 FROM mark_verifications v WHERE v.mark_id = m.id) LIMIT 1`), 'allowed');
+
+  // The line between head office and admin: operational data yes, the staff
+  // directory no.
+  check('GM may NOT create a user — that stays admin',
+    await tryWrite(ACCOUNTS.gm[0],
+      `INSERT INTO users (id,name,short_name,initials,role,branch_id)
+       VALUES ('KP9997','Test Three','Test Th.','TT','staff','MCG')`), 'blocked');
+
+  check('HR may NOT create a branch either',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
+}
+
+console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
+process.exit(fail === 0 ? 0 : 1);

@@ -18,6 +18,7 @@ export const DISPOSITION_LABEL: Record<Disposition, string> = {
 
 export type Stage =
   | 'received'
+  | 'submitted_to_clerk'
   | 'segregated'
   | 'supplier_called'
   | 'picked_up'
@@ -26,6 +27,7 @@ export type Stage =
 
 export const STAGE_LABEL: Record<Stage, string> = {
   received: 'Terima bil pulangan',
+  submitted_to_clerk: 'Hantar senarai ke kerani',
   segregated: 'Asing & tentukan tindakan',
   supplier_called: 'Hubungi pembekal',
   picked_up: 'Pembekal ambil barang',
@@ -38,6 +40,7 @@ export type StageOwner = 'store' | 'clerk';
 /** Which role is expected to record each stage. */
 export const STAGE_OWNER: Record<Stage, StageOwner> = {
   received: 'store',
+  submitted_to_clerk: 'store',
   segregated: 'store',
   supplier_called: 'clerk',
   picked_up: 'clerk',
@@ -45,9 +48,26 @@ export const STAGE_OWNER: Record<Stage, StageOwner> = {
   adjusted: 'store',
 };
 
+/** "Not over 2 months", and the week allowed to clear it once it is. */
+export const AGE_LIMIT_DAYS = 60;
+export const GRACE_DAYS = 7;
+
+/**
+ * The first Friday on or after a list arrives. A Saturday arrival rolls into
+ * the following week's batch rather than starting life already late.
+ * getUTCDay: Sunday 0 … Friday 5.
+ */
+export function dueOn(receivedIso: string): string {
+  const d = new Date(`${receivedIso}T00:00:00Z`);
+  const dow = d.getUTCDay();
+  const untilFriday = (5 - dow + 7) % 7;
+  d.setUTCDate(d.getUTCDate() + untilFriday);
+  return d.toISOString().slice(0, 10);
+}
+
 /**
  * Which stages this account may stamp. Only the two store roles act on returns;
- * everyone else (admin, manager) reads the record without being able to advance it.
+ * everyone else (admin, head office) reads the record without being able to advance it.
  */
 export function ownerForRole(role: string | undefined): StageOwner | null {
   if (role === 'clerk') return 'clerk';
@@ -78,12 +98,12 @@ export type ReturnRecord = {
  */
 export function stagesFor(disposition: Disposition | null): Stage[] {
   if (disposition === 'supplier') {
-    return ['received', 'segregated', 'supplier_called', 'picked_up', 'adjusted'];
+    return ['received', 'submitted_to_clerk', 'segregated', 'supplier_called', 'picked_up', 'adjusted'];
   }
   if (disposition === 'discard') {
-    return ['received', 'segregated', 'discarded', 'adjusted'];
+    return ['received', 'submitted_to_clerk', 'segregated', 'discarded', 'adjusted'];
   }
-  return ['received', 'segregated'];
+  return ['received', 'submitted_to_clerk', 'segregated'];
 }
 
 /** The first stage not yet recorded, or null once the record is cleared. */
@@ -116,6 +136,121 @@ export const fmtDate = (iso: string) => {
   const [y, m, d] = iso.split('-');
   return `${Number(d)}/${Number(m)}/${y}`;
 };
+
+export type AgeingStatus = 'cleared' | 'ok' | 'breach' | 'overdue';
+
+export const AGEING_LABEL: Record<AgeingStatus, string> = {
+  cleared: 'Selesai',
+  ok: 'Dalam tempoh',
+  breach: 'Lebih 2 bulan',
+  overdue: 'Lewat tindakan',
+};
+
+/**
+ * Rules 2 and 3 together. Past two months is a breach with one week to clear;
+ * past that week it is overdue and the KPI is missed outright.
+ */
+export function ageingStatus(record: ReturnRecord, today = TODAY_ISO): AgeingStatus {
+  if (isCleared(record)) return 'cleared';
+  const age = turnaroundDays(record, today);
+  if (age <= AGE_LIMIT_DAYS) return 'ok';
+  if (age <= AGE_LIMIT_DAYS + GRACE_DAYS) return 'breach';
+  return 'overdue';
+}
+
+/** The date a breached list must be cleared by, or null while still in tempoh. */
+export function clearBy(record: ReturnRecord): string | null {
+  const received = record.events.received;
+  if (!received) return null;
+  const d = new Date(`${received}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + AGE_LIMIT_DAYS + GRACE_DAYS);
+  return d.toISOString().slice(0, 10);
+}
+
+export type SubmissionStats = {
+  received: number;
+  onTime: number;
+  late: number;
+  missing: number;
+  pct: number;
+};
+
+/**
+ * Rule 1. Scored on-time over received, so a list handed over late counts
+ * against the week it arrived in — miss 2 of 10 and the week scores 80%.
+ */
+export function submissionStats(records: ReturnRecord[]): SubmissionStats {
+  const withReceipt = records.filter((r) => r.events.received);
+  let onTime = 0;
+  let late = 0;
+  let missing = 0;
+
+  withReceipt.forEach((r) => {
+    const submitted = r.events.submitted_to_clerk;
+    if (!submitted) missing += 1;
+    else if (submitted <= dueOn(r.events.received!)) onTime += 1;
+    else late += 1;
+  });
+
+  return {
+    received: withReceipt.length,
+    onTime,
+    late,
+    missing,
+    pct: withReceipt.length ? Math.round((onTime / withReceipt.length) * 100) : 100,
+  };
+}
+
+const csvCell = (v: string | number | null | undefined) => {
+  const s = v == null ? '' : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+/**
+ * Rule 4. The stock system offers no API, so the list leaves as CSV and the
+ * comparison is done by eye. Column order matches the vendor export so the two
+ * can sit side by side.
+ */
+export function toCsv(records: ReturnRecord[], today = TODAY_ISO): string {
+  const header = [
+    'ref', 'bill_no', 'bill_date', 'branch', 'reason', 'supplier',
+    'disposition', 'received_on', 'submitted_on', 'due_on', 'submission',
+    'age_days', 'status', 'clear_by', 'cleared_on', 'remark',
+  ];
+
+  const rows = records.map((r) => {
+    const received = r.events.received;
+    const submitted = r.events.submitted_to_clerk;
+    const submission = !received
+      ? ''
+      : !submitted
+        ? 'MISSING'
+        : submitted <= dueOn(received)
+          ? 'ON_TIME'
+          : 'LATE';
+
+    return [
+      r.id,
+      r.billNo,
+      r.billDate,
+      r.branchId,
+      REASON_LABEL[r.reason],
+      r.supplier,
+      r.disposition ? DISPOSITION_LABEL[r.disposition] : '',
+      received ?? '',
+      submitted ?? '',
+      received ? dueOn(received) : '',
+      submission,
+      turnaroundDays(r, today),
+      AGEING_LABEL[ageingStatus(r, today)],
+      clearBy(r) ?? '',
+      r.events.adjusted ?? '',
+      r.remark,
+    ].map(csvCell).join(',');
+  });
+
+  return [header.join(','), ...rows].join('\n');
+}
 
 /** Ageing bands for an open record — drives the colour on the list. */
 export function ageBand(days: number): 'ok' | 'warn' | 'late' {
@@ -179,6 +314,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
     disposition: 'supplier',
     events: {
       received: '2026-08-24',
+      submitted_to_clerk: '2026-08-25',
       segregated: '2026-08-25',
       supplier_called: '2026-08-26',
       picked_up: '2026-09-02',
@@ -197,6 +333,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
     disposition: 'discard',
     events: {
       received: '2026-09-01',
+      submitted_to_clerk: '2026-09-03',
       segregated: '2026-09-02',
       discarded: '2026-09-04',
     },
@@ -213,6 +350,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
     disposition: 'supplier',
     events: {
       received: '2026-09-05',
+      submitted_to_clerk: '2026-09-07',
       segregated: '2026-09-06',
     },
   },
@@ -230,6 +368,39 @@ export const SEED_RETURNS: ReturnRecord[] = [
       received: '2026-09-07',
     },
   },
+  // 65 days old: past two months, still inside the week allowed to clear it.
+  {
+    id: 'PR0005',
+    branchId: 'MCG',
+    outlet: 'Kedai Machang',
+    billNo: 'BR-8611',
+    billDate: '2026-07-05',
+    reason: 'damage',
+    remark: 'Kotak mi segera rosak, belum dipulangkan.',
+    supplier: 'Munchy Food Industries',
+    disposition: 'supplier',
+    events: {
+      received: '2026-07-05',
+      submitted_to_clerk: '2026-07-10',
+      segregated: '2026-07-08',
+    },
+  },
+  // 75 days old: the week is gone.
+  {
+    id: 'PR0006',
+    branchId: 'MCG',
+    outlet: 'Kedai Machang',
+    billNo: 'BR-8502',
+    billDate: '2026-06-25',
+    reason: 'expired',
+    remark: 'Jus kotak tamat tempoh, masih dalam stor.',
+    supplier: 'Life Food Industries',
+    disposition: 'supplier',
+    events: {
+      received: '2026-06-25',
+      submitted_to_clerk: '2026-07-01',
+    },
+  },
   {
     id: 'PR0101',
     branchId: 'KBR',
@@ -242,6 +413,7 @@ export const SEED_RETURNS: ReturnRecord[] = [
     disposition: 'supplier',
     events: {
       received: '2026-09-03',
+      submitted_to_clerk: '2026-09-04',
       segregated: '2026-09-04',
       supplier_called: '2026-09-04',
     },

@@ -1,5 +1,14 @@
 import { create } from 'zustand';
-import { Role, SEED_USERS, User, initialsOf, isMarked, shortOf } from '@/data/users';
+import {
+  Role,
+  SEED_USERS,
+  User,
+  canSeeBranch,
+  initialsOf,
+  isMarked,
+  seesStoreOps,
+  shortOf,
+} from '@/data/users';
 
 export type RoleChange = {
   id: string;
@@ -73,9 +82,22 @@ export const byRole = (users: User[], role: Role): User[] =>
 export const staffOf = (users: User[]): User[] =>
   users.filter((u) => u.active && isMarked(u.role));
 
-/** The marked staff a supervisor or manager at this branch is allowed to see. */
+/** The marked staff a supervisor or Area Manager at this branch is allowed to see. */
 export const staffOfBranch = (users: User[], branchId: string | null): User[] =>
   inBranch(staffOf(users), branchId);
+
+/**
+ * The marked staff a given account may see. Branch scoping comes from
+ * canSeeBranch, so an Area Manager gets every outlet assigned to them and head
+ * office gets all of them; the stor exclusion drops pekerja stor for the
+ * cross-branch manager. Mirrors app_can_see_mark() in the RLS policies.
+ */
+export const visibleStaff = (users: User[], viewer: User | undefined): User[] =>
+  staffOf(users).filter(
+    (u) =>
+      canSeeBranch(viewer, u.branchId) &&
+      (u.role !== 'store' || (viewer != null && seesStoreOps(viewer.role)))
+  );
 
 export const primaryOf = (users: User[], role: Role): User | undefined => byRole(users, role)[0];
 

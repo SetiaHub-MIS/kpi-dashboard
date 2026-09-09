@@ -10,17 +10,22 @@
 --   * Branch scoping is NOT enforced here. See ERD.md — it belongs in RLS or in
 --     the API layer, not in the client.
 
-BEGIN;
-
 -- ---------------------------------------------------------------- enums ----
 
+-- Six of these are posted to an outlet; four see every branch. The split that
+-- matters most is 'area_manager' vs 'manager': the first is the outlet role
+-- that was called 'manager' up to this point, the second is a new cross-branch
+-- role that never touches the stor operation.
 CREATE TYPE user_role AS ENUM (
-  'staff',       -- pekerja kedai, marked on the 22-perkara form
-  'store',       -- pekerja stor, marked on the 17-perkara form
-  'clerk',       -- kerani stor, owns the supplier steps of a return
-  'supervisor',  -- SV/AS, marks staff at one branch
-  'manager',     -- Area Manager, one outlet
-  'admin'        -- cross-branch
+  'staff',            -- pekerja kedai, marked on the 22-perkara form
+  'store',            -- pekerja stor, marked on the 17-perkara form
+  'clerk',            -- kerani stor, owns the supplier steps of a return
+  'supervisor',       -- SV/AS, marks staff at one branch
+  'area_manager',     -- Area Manager, one or more assigned outlets
+  'manager',          -- cross-branch, but blind to returns and stor marks
+  'general_manager',  -- cross-branch, marks analytics, KPI and tugasan
+  'human_resources',  -- cross-branch, marks analytics, KPI and tugasan
+  'admin'             -- cross-branch, administration
 );
 
 CREATE TYPE return_reason AS ENUM ('damage', 'expired');
@@ -68,6 +73,37 @@ CREATE TABLE users (
 COMMENT ON COLUMN users.id IS 'Payroll number (KP/MY/ST/KR/WS/AM/AD series). Permanent — keeps mark history attached across role and branch changes.';
 
 CREATE INDEX users_branch_role_idx ON users (branch_id, role) WHERE active;
+
+-- An Area Manager covers one or more outlets, which a single branch_id cannot
+-- express. users.branch_id stays their home posting; this table lists the rest.
+-- Rows for any other role are meaningless and are rejected by the trigger below.
+CREATE TABLE user_branches (
+  user_id      text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  branch_id    text NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
+  assigned_on  date NOT NULL DEFAULT CURRENT_DATE,
+  PRIMARY KEY (user_id, branch_id)
+);
+
+CREATE INDEX user_branches_branch_idx ON user_branches (branch_id);
+
+COMMENT ON TABLE user_branches IS
+  'Extra outlets an Area Manager covers, beyond users.branch_id. Empty for every other role.';
+
+CREATE FUNCTION user_branches_area_manager_only()
+  RETURNS trigger
+  LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF (SELECT role FROM users WHERE id = NEW.user_id) <> 'area_manager' THEN
+    RAISE EXCEPTION 'user_branches is for area_manager only (% is not)', NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER user_branches_role_check
+  BEFORE INSERT OR UPDATE ON user_branches
+  FOR EACH ROW EXECUTE FUNCTION user_branches_area_manager_only();
 
 -- Audit of promotions, demotions and lateral transfers.
 CREATE TABLE role_changes (
@@ -351,4 +387,3 @@ LEFT JOIN marks m
  AND m.week_no = w.week_no
 WHERE u.active AND u.role IN ('staff', 'store');
 
-COMMIT;

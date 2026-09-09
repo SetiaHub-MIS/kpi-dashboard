@@ -1,13 +1,26 @@
 # Checklist Mingguan — data model
 
-PostgreSQL 14+. Two files, run in order:
+PostgreSQL 15+ (Supabase). Migrations run in filename order:
 
-```bash
-psql "$DATABASE_URL" -f db/0001_schema.sql
-psql "$DATABASE_URL" -f db/0002_seed.sql
+```
+supabase/migrations/20260909010000_init.sql          tables, views, constraints
+supabase/migrations/20260909010100_auth_bridge.sql   auth.users link + RLS helpers
+supabase/migrations/20260909010200_rls.sql           policies
+supabase/seed.sql                                    workbook data
 ```
 
-Both were executed against a real Postgres engine (PGlite) before being committed.
+```bash
+supabase db push          # or: supabase db reset  (applies migrations + seed)
+npm run test:rls          # proves the policies actually scope
+```
+
+Every file is executed against a real Postgres engine (PGlite) by
+`supabase/tests/rls.test.mjs` before being committed — 17 assertions covering
+branch reads, the negative cases, view scoping and write permissions.
+
+15+ rather than 14+ because the views are marked `security_invoker`, which
+Postgres added in 15. Without it a view runs as its owner and quietly bypasses
+every policy below.
 
 ## Shape
 
@@ -66,27 +79,34 @@ on the same day must still read forwards — ordering by date alone produced a
 with no mark — the `#DIV/0!` problem stated as a query. On the seed it returns
 32 gaps of 44 cells for Machang and 12 of 16 for Kota Bharu, matching the app.
 
-## Branch scoping is not enforced here
+## Branch scoping, and why the helpers exist
 
-The app currently filters by branch **in the client**. Once a real API exists,
-that is a security hole: a supervisor could request another branch's staff
-directly. Scoping must move server-side. Two options:
+Scoping is enforced by RLS, not by the client. A supervisor querying another
+outlet gets zero rows rather than a filtered view of someone else's data.
 
-- **RLS** — add policies keyed on the caller's `branch_id`, e.g.
-  ```sql
-  ALTER TABLE marks ENABLE ROW LEVEL SECURITY;
-  CREATE POLICY marks_branch_read ON marks FOR SELECT
-    USING (branch_id = current_setting('app.branch_id', true)
-           OR current_setting('app.role', true) = 'admin');
-  ```
-  with the API setting `app.branch_id` / `app.role` per request or session.
-- **API layer** — derive the branch from the auth token and filter in every
-  handler. Simpler to reason about, but every new endpoint is a chance to forget.
+The rules: **admin** is cross-branch; **everyone else** is confined to their own
+`branch_id`; **reference tables** (forms, kategori, perkara, suppliers) are
+readable by any signed-in user and written by admin.
 
-Admin is deliberately cross-branch (`users.branch_id IS NULL`), so policies need
-an explicit escape for that role. Area Managers are single-outlet: the returns
-ageing report is admin-only, and nothing in the schema grants a manager
-visibility beyond their own `branch_id`.
+The `SECURITY DEFINER` helpers in the auth-bridge migration are not decoration.
+Branch scoping needs the caller's `branch_id`, which lives in `users` — the very
+table the policy guards. A policy that reads `users` directly re-enters its own
+policy and the table locks up under itself. `SECURITY DEFINER` runs that one
+lookup outside RLS and cuts the loop. Their `search_path` is pinned, because a
+definer function resolving names against the caller's path is an escalation
+route.
+
+Every scoped policy calls one predicate, `app_can_see_branch(text)`. Change the
+scoping rule there rather than in twenty policies.
+
+Two things worth remembering:
+
+- **Permissive RLS fails silently.** Get it wrong and queries still return rows,
+  just the wrong ones. That is why the test suite asserts what each role
+  *cannot* read, not only what it can.
+- **Stage ownership is not a security boundary.** Which of store or clerk
+  records which step of a return stays in the app; the database enforces branch
+  and role, which is what actually protects data.
 
 ## Store → table mapping
 

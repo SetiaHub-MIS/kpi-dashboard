@@ -4,14 +4,14 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { monthStats, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
-import { staffOfBranch, useUsers } from '@/store/useUsers';
+import { useUsers, visibleStaff } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 export default function Gaps() {
   const submitted = useMarks((s) => s.submitted);
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
-  const crew = staffOfBranch(users, me?.branchId ?? null);
+  const crew = visibleStaff(users, me);
   const stats = monthStats(crew, submitted);
 
   const rows = crew.map((p) => {

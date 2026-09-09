@@ -6,9 +6,9 @@ import { Screen } from '@/components/Screen';
 import { FORM, MONTHS, STOR_FORM, WEEK_COLS } from '@/data/checklist';
 import { assetsOfBranch } from '@/data/assets';
 import { useBranchLabel } from '@/store/useBranches';
-import { ROLE_LABEL } from '@/data/users';
+import { ROLE_LABEL, branchesOf } from '@/data/users';
 import { currentUser, useSession } from '@/store/useSession';
-import { staffOfBranch, useUsers } from '@/store/useUsers';
+import { useUsers, visibleStaff } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
 import {
   isVerified,
@@ -28,8 +28,13 @@ export default function ManagerHome() {
   const users = useUsers((s) => s.users);
   const manager = currentUser(users, useSession((s) => s.currentUserId));
   const branchId = manager?.branchId ?? null;
-  const crew = staffOfBranch(users, branchId);
+  const crew = visibleStaff(users, manager);
   const branchLabel = useBranchLabel();
+  // An Area Manager can cover more than one outlet, so the header names them
+  // all rather than only the home posting.
+  const covered = manager ? branchesOf(manager) : [];
+  const scopeLabel =
+    covered.length > 1 ? covered.map(branchLabel).join(' · ') : branchLabel(branchId);
 
   const stats = monthStats(crew, submitted);
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
@@ -52,7 +57,8 @@ export default function ManagerHome() {
   return (
     <Screen>
       <MonoLabel>
-        {manager?.name ?? 'Tiada manager'} · {ROLE_LABEL.manager} · {branchLabel(branchId)}
+        {manager?.name ?? 'Tiada Area Manager'} ·{' '}
+          {manager ? ROLE_LABEL[manager.role] : ROLE_LABEL.area_manager} · {scopeLabel}
       </MonoLabel>
 
       <View className="flex-row items-center justify-between mt-2">

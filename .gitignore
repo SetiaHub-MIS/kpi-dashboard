@@ -1,0 +1,8 @@
+# Database tooling deps (the Expo app has its own .gitignore)
+node_modules/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
+.env
+.env.local

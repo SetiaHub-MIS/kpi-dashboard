@@ -1,0 +1,12 @@
+{
+  "name": "kpi-dashboard-db",
+  "private": true,
+  "type": "module",
+  "description": "Database tooling for Checklist Mingguan. The Expo app lives in marks-app/.",
+  "scripts": {
+    "test:rls": "node supabase/tests/rls.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.11"
+  }
+}

@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { BackLink } from '@/components/BackLink';
@@ -23,10 +23,22 @@ export default function NewReturn() {
   const records = useReturns((s) => s.records);
   const addReturn = useReturns((s) => s.addReturn);
 
-  const [billNo, setBillNo] = useState('');
-  const [billDate, setBillDate] = useState(TODAY_ISO);
-  const [reason, setReason] = useState<ReturnReason>('damage');
-  const [supplier, setSupplier] = useState('');
+  // Prefilled when arriving from the stock-system comparison; blank otherwise.
+  // Nothing is saved until the form is submitted, so the figures are still confirmed by a person.
+  const prefill = useLocalSearchParams<{
+    billNo?: string;
+    billDate?: string;
+    supplier?: string;
+    reason?: string;
+  }>();
+  const fromRecon = !!prefill.billNo;
+
+  const [billNo, setBillNo] = useState(prefill.billNo ?? '');
+  const [billDate, setBillDate] = useState(prefill.billDate || TODAY_ISO);
+  const [reason, setReason] = useState<ReturnReason>(
+    prefill.reason === 'expired' ? 'expired' : 'damage'
+  );
+  const [supplier, setSupplier] = useState(prefill.supplier ?? '');
   const [remark, setRemark] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -60,6 +72,13 @@ export default function NewReturn() {
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
           Tarikh terima direkod sebagai hari ini — dari sini masa terima → clear mula dikira.
         </Text>
+        {fromRecon && (
+          <Text className="font-sans text-[12.5px] leading-[19px] mt-2" style={{ color: C.warn }}>
+            Butiran diisi dari export sistem stok
+            {prefill.reason ? '' : ', kecuali sebab — jenis bil itu bukan rosak atau luput, jadi pilih sendiri'}
+            . Semak sebelum rekod.
+          </Text>
+        )}
 
         <Card className="p-[15px] mt-4">
           <MonoLabel>No. bil</MonoLabel>

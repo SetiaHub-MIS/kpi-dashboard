@@ -1,27 +1,72 @@
-export type Role = 'staff' | 'store' | 'clerk' | 'supervisor' | 'manager' | 'admin';
+export type Role =
+  | 'staff'
+  | 'store'
+  | 'clerk'
+  | 'supervisor'
+  | 'area_manager'
+  | 'manager'
+  | 'general_manager'
+  | 'human_resources'
+  | 'admin';
 
 /**
  * Low to high. Pekerja kedai and pekerja stor sit on the same rung — they are
  * peers marked on different forms, so the ladder is not a straight line and
  * promotion/demotion is derived from ROLE_LEVEL rather than array order.
  */
-export const ROLE_LADDER: Role[] = ['staff', 'store', 'clerk', 'supervisor', 'manager', 'admin'];
+export const ROLE_LADDER: Role[] = [
+  'staff',
+  'store',
+  'clerk',
+  'supervisor',
+  'area_manager',
+  'manager',
+  'general_manager',
+  'human_resources',
+  'admin',
+];
 
 export const ROLE_LEVEL: Record<Role, number> = {
   staff: 0,
   store: 0,
   clerk: 0,
   supervisor: 1,
-  manager: 2,
-  admin: 3,
+  area_manager: 2,
+  manager: 3,
+  general_manager: 4,
+  human_resources: 4,
+  admin: 5,
 };
+
+/**
+ * Roles posted to head office rather than an outlet. Their branchId is null and
+ * they read every branch, so anything that counts holders "per kedai" has to
+ * count these globally instead.
+ */
+export const CROSS_BRANCH_ROLES: Role[] = [
+  'manager',
+  'general_manager',
+  'human_resources',
+  'admin',
+];
+
+export const isCrossBranch = (role: Role) => CROSS_BRANCH_ROLES.includes(role);
+
+/**
+ * The stor operation — returns and the 17-perkara checklist. Every role reaches
+ * it except the cross-branch manager, whose remit stops at the kedai side.
+ */
+export const seesStoreOps = (role: Role) => role !== 'manager';
 
 export const ROLE_LABEL: Record<Role, string> = {
   staff: 'Pekerja Kedai',
   store: 'Pekerja Stor',
   clerk: 'Kerani Stor',
   supervisor: 'SV / AS',
-  manager: 'Area Manager',
+  area_manager: 'Area Manager',
+  manager: 'Manager',
+  general_manager: 'General Manager',
+  human_resources: 'Human Resources',
   admin: 'Admin',
 };
 
@@ -30,7 +75,10 @@ export const ROLE_BLURB: Record<Role, string> = {
   store: 'Dinilai mingguan atas 17 perkara checklist stor.',
   clerk: 'Uruskan panggilan pembekal dan pungutan barang pulangan.',
   supervisor: 'Menilai pekerja kedai dan stor setiap minggu.',
-  manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
+  area_manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
+  manager: 'Semua cawangan bahagian kedai. Tiada akses pulangan atau markah stor.',
+  general_manager: 'Semua cawangan — analitik markah, KPI dan tugasan.',
+  human_resources: 'Semua cawangan — analitik markah, KPI dan tugasan.',
   admin: 'Urus akaun, peranan dan kenaikan pangkat.',
 };
 
@@ -41,15 +89,18 @@ export const isMarked = (role: Role) => MARKED_ROLES.includes(role);
 
 /**
  * ID series follow the source workbooks: KP/MY are kedai staff numbers and WS
- * are supervisor numbers. AM/AD are new — the workbooks never numbered the
- * Area Manager or an admin.
+ * are supervisor numbers. AM/MG/GM/HR/AD are new — the workbooks never numbered
+ * the Area Manager, head office or an admin.
  */
 export const ROLE_PREFIX: Record<Role, string> = {
   staff: 'KP',
   store: 'ST',
   clerk: 'KR',
   supervisor: 'WS',
-  manager: 'AM',
+  area_manager: 'AM',
+  manager: 'MG',
+  general_manager: 'GM',
+  human_resources: 'HR',
   admin: 'AD',
 };
 
@@ -62,6 +113,11 @@ export type User = {
   role: Role;
   /** Which kedai this account belongs to. null = cross-branch (admin/HQ). */
   branchId: string | null;
+  /**
+   * Extra outlets an Area Manager covers, on top of branchId. Meaningless for
+   * every other role — mirrors the user_branches table.
+   */
+  branchIds?: string[];
   active: boolean;
   /** Staff-checklist history: % per week, null = belum dinilai. */
   w: (number | null)[];
@@ -92,7 +148,7 @@ export const SEED_USERS: User[] = [
   { id: 'KR0001', name: 'Faridah binti Hassan', short: 'Faridah', init: 'FH', role: 'clerk', branchId: 'MCG', active: true, ...noMarks },
 
   { id: 'WS0001', name: 'Nur Syahirah', short: 'Nur Syahirah', init: 'NS', role: 'supervisor', branchId: 'MCG', active: true, ...noMarks },
-  { id: 'AM0001', name: 'Herdi', short: 'Herdi', init: 'H', role: 'manager', branchId: 'MCG', active: true, ...noMarks },
+  { id: 'AM0001', name: 'Herdi', short: 'Herdi', init: 'H', role: 'area_manager', branchId: 'MCG', branchIds: ['KBR'], active: true, ...noMarks },
 
   // Kedai Kota Bharu — invented so branch scoping can be exercised.
   { id: 'KP0201', name: 'Aina Sofea binti Roslan', short: 'Aina S.', init: 'AR', role: 'staff', branchId: 'KBR', active: true, w: [88, 85, null, null], perkara: [100, 88, 84, 88, 84, 88, 80] },
@@ -103,13 +159,36 @@ export const SEED_USERS: User[] = [
   { id: 'KR0101', name: 'Chong Mei Ling', short: 'Mei Ling', init: 'CM', role: 'clerk', branchId: 'KBR', active: true, ...noMarks },
 
   { id: 'WS0012', name: 'Wan Nurul Nabilah Haizum', short: 'Wan Nurul', init: 'WN', role: 'supervisor', branchId: 'KBR', active: true, ...noMarks },
-  { id: 'AM0002', name: 'Farah Adilah', short: 'Farah', init: 'FA', role: 'manager', branchId: 'KBR', active: true, ...noMarks },
+  { id: 'AM0002', name: 'Farah Adilah', short: 'Farah', init: 'FA', role: 'area_manager', branchId: 'KBR', active: true, ...noMarks },
+
+  // INVENTED: head office. No workbook names these people; they exist so the
+  // four cross-branch roles can be signed into and tested.
+  { id: 'MG0001', name: 'Zulkarnain bin Ahmad', short: 'Zulkarnain', init: 'ZA', role: 'manager', branchId: null, active: true, ...noMarks },
+  { id: 'GM0001', name: 'Tan Chee Keong', short: 'Chee Keong', init: 'TC', role: 'general_manager', branchId: null, active: true, ...noMarks },
+  { id: 'HR0001', name: 'Siti Norhaliza binti Yusof', short: 'Siti N.', init: 'SN', role: 'human_resources', branchId: null, active: true, ...noMarks },
 
   { id: 'AD0001', name: 'Pentadbir Sistem', short: 'Pentadbir', init: 'PS', role: 'admin', branchId: null, active: true, ...noMarks },
 ];
 
 /** Roles the kedai cannot be left without — blocks demoting the last holder. */
-const REQUIRED_ROLES: Role[] = ['manager', 'admin'];
+const REQUIRED_ROLES: Role[] = ['area_manager', 'admin'];
+
+/** Every outlet a user reaches: their posting plus any extra Area Manager ones. */
+export function branchesOf(user: User): string[] {
+  if (user.branchId == null) return [];
+  return [user.branchId, ...(user.branchIds ?? [])];
+}
+
+/**
+ * Whether this account may act on a branch. Head office reaches everything; an
+ * Area Manager reaches the outlets assigned to them; everyone else, their own.
+ */
+export function canSeeBranch(user: User | undefined, branchId: string | null): boolean {
+  if (!user) return false;
+  if (isCrossBranch(user.role)) return true;
+  if (branchId == null) return false;
+  return branchesOf(user).includes(branchId);
+}
 
 export function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -150,8 +229,8 @@ export const transfersFor = (role: Role): Role[] =>
 
 /**
  * Remaining holders of a user's role who would still cover their post.
- * Managers are counted per branch — losing the only manager of one kedai
- * strands that kedai even when other branches have one. Admin is cross-branch.
+ * Area Managers are counted per branch — losing the only one at a kedai strands
+ * that kedai even when other branches have one. Head office is counted globally.
  */
 function remainingHolders(users: User[], user: User): User[] {
   return users.filter(
@@ -159,14 +238,14 @@ function remainingHolders(users: User[], user: User): User[] {
       u.active &&
       u.role === user.role &&
       u.id !== user.id &&
-      (user.role === 'admin' || u.branchId === user.branchId)
+      (isCrossBranch(user.role) || u.branchId === user.branchId)
   );
 }
 
 function guard(users: User[], user: User, action: string): string | null {
   if (!REQUIRED_ROLES.includes(user.role)) return null;
   if (remainingHolders(users, user).length > 0) return null;
-  const where = user.role === 'admin' || !user.branchId ? '' : ` ${user.branchId}`;
+  const where = isCrossBranch(user.role) || !user.branchId ? '' : ` ${user.branchId}`;
   return `${ROLE_LABEL[user.role]}${where} terakhir — lantik pengganti dahulu sebelum ${action}.`;
 }
 

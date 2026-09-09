@@ -11,11 +11,24 @@ import { byRole, findUser, inBranch, useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 const BRANCH_ROLES: { role: Role; href: Href }[] = [
-  { role: 'manager', href: '/manager' },
+  { role: 'area_manager', href: '/manager' },
   { role: 'supervisor', href: '/supervisor' },
   { role: 'staff', href: '/staff' },
   { role: 'store', href: '/pulangan' },
   { role: 'clerk', href: '/pulangan' },
+];
+
+/**
+ * Head office. These four hold no branch, so they are listed apart from the
+ * outlet roles. Admin gets the administration console; the other three land on
+ * the marks dashboard, which reads cross-branch when the account has no branch
+ * of its own. None of them has a screen designed for them yet.
+ */
+const HQ_ROLES: { role: Role; href: Href }[] = [
+  { role: 'manager', href: '/manager' },
+  { role: 'general_manager', href: '/manager' },
+  { role: 'human_resources', href: '/manager' },
+  { role: 'admin', href: '/admin' },
 ];
 
 export default function RolePicker() {
@@ -26,7 +39,7 @@ export default function RolePicker() {
   const [selected, setSelected] = useState<string | null>(null);
   const branchId = selected ?? branches[0]?.id ?? null;
 
-  const admin = byRole(users, 'admin')[0];
+  const hq = HQ_ROLES.map((r) => ({ ...r, holder: byRole(users, r.role)[0] }));
 
   const enter = (userId: string | undefined, href: Href) => {
     if (!userId) return;
@@ -112,19 +125,29 @@ export default function RolePicker() {
           })}
         </View>
 
-        <Pressable
-          onPress={() => enter(admin?.id, '/admin')}
-          accessibilityRole="button"
-          className="bg-card border border-line rounded-[14px] p-[18px] mt-4 active:opacity-70"
-        >
-          <MonoLabel>{ROLE_LABEL.admin.toUpperCase()} · SEMUA CAWANGAN</MonoLabel>
-          <Text className="font-sans-semi text-[16px] text-ink mt-2">
-            {admin ? `${admin.name} · ${admin.id}` : 'Tiada admin'}
-          </Text>
-          <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-            {ROLE_BLURB.admin}
-          </Text>
-        </Pressable>
+        <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">
+          Ibu pejabat · semua cawangan
+        </Text>
+        <View className="gap-2.5">
+          {hq.map(({ role, href, holder }) => (
+            <Pressable
+              key={role}
+              onPress={() => enter(holder?.id, href)}
+              disabled={!holder}
+              accessibilityRole="button"
+              className="bg-card border border-line rounded-[14px] p-[18px] active:opacity-70"
+              style={{ opacity: holder ? 1 : 0.5 }}
+            >
+              <MonoLabel>{ROLE_LABEL[role].toUpperCase()}</MonoLabel>
+              <Text className="font-sans-semi text-[16px] text-ink mt-2">
+                {holder ? `${holder.name} · ${holder.id}` : 'Tiada pemegang'}
+              </Text>
+              <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
+                {ROLE_BLURB[role]}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
