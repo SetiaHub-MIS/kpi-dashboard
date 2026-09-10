@@ -17,6 +17,10 @@ export default function ManagerLayout() {
         options={{ title: 'Aset kedai', tabBarIcon: dotIcon('circle') }}
       />
       <Tabs.Screen
+        name="sv"
+        options={{ title: 'Checklist SV', tabBarIcon: dotIcon('circle') }}
+      />
+      <Tabs.Screen
         name="tugasan"
         options={{ title: 'Tugasan saya', tabBarIcon: dotIcon('circle') }}
       />

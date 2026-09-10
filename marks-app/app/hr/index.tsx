@@ -4,6 +4,7 @@ import { OutletReportView } from '@/components/OutletReportView';
 import { Screen } from '@/components/Screen';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
+import { SignOutButton } from '@/components/SignOutButton';
 
 export default function HrLaporan() {
   const users = useUsers((s) => s.users);
@@ -12,7 +13,10 @@ export default function HrLaporan() {
   return (
     <Screen>
       {me ? (
-        <OutletReportView me={me} />
+        <>
+          <OutletReportView me={me} />
+          <SignOutButton />
+        </>
       ) : (
         <Card className="p-4 mt-4">
           <Text className="font-sans-med text-[13px] text-ink-3">

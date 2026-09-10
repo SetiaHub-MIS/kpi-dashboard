@@ -12,6 +12,10 @@ export default function PulanganLayout() {
         name="selesai"
         options={{ title: 'Selesai', tabBarIcon: dotIcon('circle') }}
       />
+      <Tabs.Screen
+        name="saya"
+        options={{ title: 'KPI saya', tabBarIcon: dotIcon('circle') }}
+      />
     </Tabs>
   );
 }

@@ -52,12 +52,17 @@ INSERT INTO branches (id, name, short_name) VALUES
   ('QPJ', 'Kedai Miri', 'Miri'),
   ('TKM', 'Kedai Kemaman', 'Kemaman'),
   ('VBC', 'Kedai Batu Caves', 'Batu Caves'),
-  ('VTR', 'Kedai Tun Razak', 'Tun Razak');
+  ('VTR', 'Kedai Tun Razak', 'Tun Razak')
+-- 20260909030400_real_branches inserts these too, for databases that already
+-- existed when the real list arrived. On a fresh one it runs first, so the seed
+-- yields rather than colliding.
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO scoring_rules (branch_id, pass_threshold, scale_max, verify_by_manager) VALUES
   ('HQ',  80, 5, true),
   ('DMC', 80, 5, true),
-  ('DKB', 80, 5, true);
+  ('DKB', 80, 5, true)
+ON CONFLICT (branch_id) DO NOTHING;
 
 -- ---------------------------------------------------------------- users ----
 

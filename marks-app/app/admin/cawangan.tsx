@@ -6,6 +6,7 @@ import { ROLE_LABEL, isMarked } from '@/data/users';
 import { useBranches } from '@/store/useBranches';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
+import { SignOutButton } from '@/components/SignOutButton';
 
 export default function Cawangan() {
   const branches = useBranches((s) => s.branches);
@@ -89,6 +90,8 @@ export default function Cawangan() {
           </Text>
         </Card>
       )}
+
+      <SignOutButton />
     </Screen>
   );
 }

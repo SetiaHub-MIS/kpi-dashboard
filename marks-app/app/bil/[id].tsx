@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
+import { ReturnPhotos } from '@/components/ReturnPhotos';
 import { Screen } from '@/components/Screen';
 import {
   DISPOSITION_LABEL,
@@ -45,6 +46,8 @@ export default function ReturnDetail() {
   }
 
   const myOwner = ownerForRole(me?.role);
+  // null until this bill has reached Postgres; photos hang off the row id.
+  const photoReturnId = useReturns((s) => s.ids)[record?.id ?? ''] ?? null;
   const stage = nextStage(record);
   const cleared = isCleared(record);
   const stages = stagesFor(record.disposition);
@@ -61,7 +64,7 @@ export default function ReturnDetail() {
       );
       return;
     }
-    recordStage(record.id, stage, TODAY_ISO);
+    recordStage(record.id, stage, TODAY_ISO, me?.id);
   };
 
   return (
@@ -115,6 +118,18 @@ export default function ReturnDetail() {
         </Text>
       </Card>
 
+      {/* Damage only: an expired-stock return is a date on a label, and a photo
+          of it proves nothing worth storing. */}
+      {record.reason === 'damage' && (
+        <ReturnPhotos
+          returnId={photoReturnId}
+          ref={record.id}
+          branchId={record.branchId}
+          canEdit={myOwner != null}
+          uploadedBy={me?.id}
+        />
+      )}
+
       {record.disposition == null ? (
         <Card className="p-[15px] mt-2.5">
           <MonoLabel>Asingkan — tentukan tindakan</MonoLabel>
@@ -130,7 +145,7 @@ export default function ReturnDetail() {
                     Alert.alert('Bukan tindakan anda', 'Pengasingan direkod oleh Pekerja Stor.');
                     return;
                   }
-                  segregate(record.id, d, TODAY_ISO);
+                  segregate(record.id, d, TODAY_ISO, me?.id);
                 }}
                 accessibilityRole="button"
                 className="flex-1 py-3 rounded-[10px] items-center border"

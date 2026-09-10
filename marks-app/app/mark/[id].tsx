@@ -15,7 +15,7 @@ import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { NOTE_CHIPS } from '@/data/assets';
-import { ACTIVE_WEEK, FORM_LABEL, countLines, lineKey } from '@/data/checklist';
+import { ACTIVE_WEEK, FORM_LABEL, allowsNa, countLines, lineKey } from '@/data/checklist';
 import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { draftTotals, formForRole, formKeyForRole, useMarks } from '@/store/useMarks';
@@ -49,6 +49,9 @@ export default function MarkPerson() {
   }, [draft.personId, person, startMarking, formKey]);
 
   const totals = draftTotals({ draft, scaleMax });
+  // Only the SV form has perkara that may not apply. The workbook shows two of
+  // them blank all year, with the maximum moving to match.
+  const naAllowed = allowsNa(formKey);
 
   if (!person) {
     return (
@@ -112,6 +115,7 @@ export default function MarkPerson() {
             <Text className="font-sans-semi text-[17px] text-ink">{person.name}</Text>
             <Text className="font-mono text-[11px] text-ink-5 mt-1">
               {person.id} · Minggu {ACTIVE_WEEK + 1} · skala 1–{scaleMax}
+              {naAllowed ? ' · N/A dibenarkan' : ''}
             </Text>
             <Text className="font-sans-med text-[11.5px] text-ink-4 mt-1">
               {FORM_LABEL[formKey]} · {lineCount} perkara
@@ -122,12 +126,16 @@ export default function MarkPerson() {
         <View className="gap-2 mt-4">
           {form.map((k) => {
             const open = draft.openKat === k.no;
-            const vals = k.lines
+            const answers = k.lines
               .map((_, i) => draft.scores[lineKey(k.no, i)])
-              .filter((v): v is number => v != null);
-            const done = vals.length === k.lines.length;
+              .filter((v) => v != null);
+            // N/A counts as answered but contributes to neither side of the
+            // percentage: a kategori where one line does not apply is scored
+            // out of the lines that do.
+            const vals = answers.filter((v): v is number => v !== 'na');
+            const done = answers.length === k.lines.length;
             const katPct = vals.length
-              ? Math.round((vals.reduce((a, b) => a + b, 0) / (k.lines.length * scaleMax)) * 100)
+              ? Math.round((vals.reduce((a, b) => a + b, 0) / (vals.length * scaleMax)) * 100)
               : null;
 
             return (
@@ -161,11 +169,11 @@ export default function MarkPerson() {
                       color: done && katPct != null ? pctColor(katPct, passThreshold) : C.ink6,
                     }}
                   >
-                    {katPct == null
+                    {answers.length === 0
                       ? `0/${k.lines.length}`
                       : done
-                        ? `${katPct}%`
-                        : `${vals.length}/${k.lines.length}`}
+                        ? (katPct == null ? 'N/A' : `${katPct}%`)
+                        : `${answers.length}/${k.lines.length}`}
                   </Text>
                 </Pressable>
 
@@ -203,6 +211,25 @@ export default function MarkPerson() {
                                 </Pressable>
                               );
                             })}
+                            {naAllowed && (
+                              <Pressable
+                                onPress={() => setScore(key, 'na')}
+                                accessibilityRole="button"
+                                accessibilityLabel={`${label}: tidak berkenaan`}
+                                className="px-2.5 py-2.5 rounded-lg items-center border"
+                                style={{
+                                  borderColor: picked === 'na' ? 'transparent' : C.line,
+                                  backgroundColor: picked === 'na' ? C.ink5 : C.card,
+                                }}
+                              >
+                                <Text
+                                  className="font-mono-semi text-[12.5px]"
+                                  style={{ color: picked === 'na' ? '#fff' : C.ink5 }}
+                                >
+                                  N/A
+                                </Text>
+                              </Pressable>
+                            )}
                           </View>
                         </View>
                       );

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
+import { QueueBanner } from '@/components/QueueBanner';
 import { ReturnRow } from '@/components/ReturnRow';
 import { Screen } from '@/components/Screen';
 import { ROLE_LABEL } from '@/data/users';
@@ -63,6 +64,8 @@ export default function PulanganAktif() {
           </Pressable>
         )}
       </View>
+
+      <QueueBanner />
 
       <View className="flex-row gap-2.5 mt-4">
         <Card className="flex-1 p-[15px]">

@@ -10,6 +10,7 @@ import { ROLE_LABEL } from '@/data/users';
 import { useMarks } from '@/store/useMarks';
 import { findUser, primaryOf, useUsers } from '@/store/useUsers';
 import { pctColor } from '@/theme/scoring';
+import { SignOutButton } from '@/components/SignOutButton';
 
 export default function Profil() {
   const passThreshold = useMarks((s) => s.passThreshold);
@@ -60,13 +61,7 @@ export default function Profil() {
         </View>
       </Card>
 
-      <Pressable
-        onPress={() => router.replace('/')}
-        accessibilityRole="button"
-        className="mt-2.5 py-3.5 rounded-xl border border-[#D6D6D2] bg-card items-center active:opacity-70"
-      >
-        <Text className="font-sans-semi text-sm text-ink-2">Tukar peranan</Text>
-      </Pressable>
+      <SignOutButton />
     </Screen>
   );
 }

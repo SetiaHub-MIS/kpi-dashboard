@@ -92,10 +92,39 @@ export const ROLE_BLURB: Record<Role, string> = {
   admin: 'Pentadbiran sahaja — akaun, peranan, cawangan. Tiada akses pulangan.',
 };
 
-/** Roles that get marked on a weekly checklist. */
-export const MARKED_ROLES: Role[] = ['staff', 'store'];
+/**
+ * Roles that get marked on a weekly checklist.
+ *
+ * Kerani stor are deliberately absent, and that is not the same as unmeasured:
+ * they are graded on the returns they move — see `stageKpi` — because their
+ * brief only ever described returns duties and a checklist would have meant
+ * inventing work to grade them on.
+ */
+export const MARKED_ROLES: Role[] = ['staff', 'store', 'supervisor'];
+
+/** Roles measured on the returns chain rather than, or as well as, a checklist. */
+export const RETURNS_KPI_ROLES: Role[] = ['store', 'clerk'];
+
+export const hasReturnsKpi = (role: Role) => RETURNS_KPI_ROLES.includes(role);
 
 export const isMarked = (role: Role) => MARKED_ROLES.includes(role);
+
+/**
+ * Who marks whom. Marking is not a flat list of the measurable — it is a
+ * relation, and reading it as a list is what let a supervisor appear in their
+ * own marking queue once supervisors became measurable.
+ *
+ * The SV/AS row comes from the workbook: the NAMA above every supervisor's week
+ * reads HERDI, the Area Manager.
+ */
+export const MARKS_ROLES: Partial<Record<Role, Role[]>> = {
+  supervisor: ['staff', 'store'],
+  area_manager: ['supervisor'],
+};
+
+/** The roles this account is responsible for marking. Empty for most. */
+export const marksRoles = (role: Role | undefined): Role[] =>
+  role ? (MARKS_ROLES[role] ?? []) : [];
 
 /**
  * ID series follow the source workbooks: KP/MY are kedai staff numbers and WS

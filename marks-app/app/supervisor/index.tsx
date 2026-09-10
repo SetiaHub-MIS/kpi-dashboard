@@ -10,7 +10,7 @@ import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL, User } from '@/data/users';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
-import { staffOfBranch, useUsers } from '@/store/useUsers';
+import { markingQueue, useUsers } from '@/store/useUsers';
 import { pctBg, pctColor } from '@/theme/scoring';
 
 export default function SupervisorQueue() {
@@ -21,7 +21,9 @@ export default function SupervisorQueue() {
 
   const supervisor = currentUser(users, useSession((s) => s.currentUserId));
   const branchId = supervisor?.branchId ?? null;
-  const crew = staffOfBranch(users, branchId);
+  // Who this SV/AS marks — not everyone measurable at the branch, which
+  // would now include themselves and their peers.
+  const crew = markingQueue(users, supervisor);
   const branchLabel = useBranchLabel();
   const pending = crew.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
 

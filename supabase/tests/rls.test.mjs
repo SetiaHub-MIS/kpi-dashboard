@@ -8,7 +8,20 @@ const db = new PGlite();
 // --- stub what Supabase provides: the auth schema, auth.uid(), and the roles.
 await db.exec(`
   CREATE SCHEMA IF NOT EXISTS auth;
+  CREATE SCHEMA IF NOT EXISTS storage;
   CREATE TABLE auth.users (id uuid PRIMARY KEY, email text);
+  -- Enough of Supabase Storage to hold the bucket and its policies.
+  CREATE TABLE storage.buckets (
+    id text PRIMARY KEY, name text, public boolean,
+    file_size_limit bigint, allowed_mime_types text[]
+  );
+  CREATE TABLE storage.objects (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    bucket_id text, name text, owner uuid
+  );
+  ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+  CREATE FUNCTION storage.foldername(name text) RETURNS text[]
+    LANGUAGE sql IMMUTABLE AS $$ SELECT string_to_array(name, '/') $$;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
@@ -26,6 +39,10 @@ for (const m of [
   'supabase/migrations/20260909030100_returns_leave_admin.sql',
   'supabase/migrations/20260909030200_central_store_at_hq.sql',
   'supabase/migrations/20260909030300_grants.sql',
+  'supabase/migrations/20260909030400_real_branches.sql',
+  'supabase/migrations/20260910010000_sv_checklist.sql',
+  'supabase/migrations/20260910010100_who_may_score.sql',
+  'supabase/migrations/20260910020000_return_photos.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -44,6 +61,9 @@ catch (e) { console.log(`FAIL seed.sql\n     ${e.message}`); process.exit(1); }
 await db.exec(`
   GRANT USAGE ON SCHEMA auth TO authenticated;
   GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
+  GRANT USAGE ON SCHEMA storage TO authenticated;
+  GRANT SELECT, INSERT, DELETE ON storage.objects TO authenticated;
+  GRANT SELECT ON storage.buckets TO authenticated;
 `);
 
 // --- issue logins across every role shape and link them to their payroll rows.
@@ -298,6 +318,68 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
       `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
 }
 
+console.log('');
+console.log('=== the SV/AS form exists and the Area Manager may score it ===');
+{
+  const form = await as(ACCOUNTS.herdi[0],
+    `SELECT f.key, f.applies_to,
+            (SELECT count(*)::int FROM checklist_categories c WHERE c.form_key = f.key) AS kategori,
+            (SELECT count(*)::int FROM checklist_lines l
+               JOIN checklist_categories c ON c.id = l.category_id
+              WHERE c.form_key = f.key) AS lines
+       FROM checklist_forms f WHERE f.key = 'sv'`);
+  check('the sv form is registered against the supervisor role',
+    [form.rows[0]?.applies_to, form.rows[0]?.kategori, form.rows[0]?.lines],
+    ['supervisor', 14, 19]);
+
+  // The workbook's NAMA row above every SV week reads HERDI, so the Area
+  // Manager is the scorer — a policy that allowed only supervisors refused the
+  // one person who actually does it.
+  check('an Area Manager may score a supervisor at their own outlet',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score,scored_by)
+       VALUES ('WS0001','DMC','sv',2026,9,3,68,85,'AM0001')`), 'allowed');
+
+  // 85 is 17 x 5: two perkara are N/A all year, and the maximum moves with them
+  // rather than the blanks being counted as zero.
+  const m = await as(ACCOUNTS.herdi[0],
+    `SELECT total_score, max_score, pct FROM marks
+      WHERE user_id='WS0001' AND period_month=9 AND week_no=3`);
+  check('a week with two N/A perkara is scored out of 85, not 95',
+    [m.rows[0].total_score, m.rows[0].max_score, m.rows[0].pct], [68, 85, 80]);
+
+  check('an Area Manager may NOT score a supervisor at an outlet they do not cover',
+    await tryWrite(ACCOUNTS.farah[0],
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score,scored_by)
+       VALUES ('WS0001','DMC','sv',2026,9,4,68,85,'AM0002')`), 'blocked');
+
+  const seen = await as(ACCOUNTS.syahirah[0],
+    `SELECT count(*)::int n FROM marks WHERE user_id='WS0001' AND form_key='sv'`);
+  check('the supervisor can read their own sv mark', seen.rows[0].n, 1);
+}
+
+  // The bug this section exists for: marks_insert allowed the Area Manager and
+  // mark_lines_write did not, so a mark landed with no per-perkara detail.
+  const markId = await as(ACCOUNTS.herdi[0],
+    `SELECT id FROM marks WHERE user_id='WS0001' AND period_month=9 AND week_no=3`);
+  const lineId = await as(ACCOUNTS.herdi[0],
+    `SELECT l.id FROM checklist_lines l
+       JOIN checklist_categories c ON c.id = l.category_id
+      WHERE c.form_key='sv' LIMIT 1`);
+
+  check('an Area Manager may write the lines behind a mark they made',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `INSERT INTO mark_lines (mark_id, line_id, score)
+       VALUES (${markId.rows[0].id}, ${lineId.rows[0].id}, 4)`), 'allowed');
+
+  check('a supervisor may still write lines on the marks they make',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO mark_lines (mark_id, line_id, score)
+       SELECT m.id, ${lineId.rows[0].id}, 4 FROM marks m
+        WHERE m.user_id='KP0110' AND m.form_key='kedai' LIMIT 1`), 'allowed');
+
+
+
 console.log('\n=== the central store reaches every outlet\'s returns ===');
 {
   // The store team is posted to HQ, but returns carry the outlet the goods came
@@ -383,6 +465,57 @@ console.log('\n=== the tugasan self-check stays with the Area Manager ===');
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
        VALUES ('DMC',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'allowed');
 }
+
+console.log('');
+console.log('=== photo evidence is bounded, and scoped like the bill it belongs to ===');
+{
+  const dmc = await as(ACCOUNTS.hafiz[0], `SELECT id FROM returns WHERE branch_id='DMC' LIMIT 1`);
+  const kbr = await as(ACCOUNTS.hafiz[0], `SELECT id FROM returns WHERE branch_id='DKB' LIMIT 1`);
+  const rid = dmc.rows[0].id;
+
+  const bucket = await as(ACCOUNTS.hafiz[0],
+    `SELECT public, file_size_limit FROM storage.buckets WHERE id='return-photos'`);
+  check('the bucket is private and refuses anything over 1 MB',
+    [bucket.rows[0]?.public, Number(bucket.rows[0]?.file_size_limit)], [false, 1048576]);
+
+  check('the stor team may attach a photo',
+    await tryWrite(ACCOUNTS.hafiz[0],
+      `INSERT INTO return_photos (return_id, storage_path, uploaded_by)
+       VALUES (${rid}, 'DMC/PR0001/a.jpg', 'ST0001')`), 'allowed');
+
+  check('...and a second',
+    await tryWrite(ACCOUNTS.hafiz[0],
+      `INSERT INTO return_photos (return_id, storage_path, uploaded_by)
+       VALUES (${rid}, 'DMC/PR0001/b.jpg', 'ST0001')`), 'allowed');
+
+  // The storage bill is what pays for a third.
+  check('but not a third — two per bill is the cap',
+    await tryWrite(ACCOUNTS.hafiz[0],
+      `INSERT INTO return_photos (return_id, storage_path, uploaded_by)
+       VALUES (${rid}, 'DMC/PR0001/c.jpg', 'ST0001')`), 'blocked');
+
+  // Same predicates as the bill itself: manager and admin are shut out of
+  // returns, so they are shut out of the evidence too.
+  const mgr = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM return_photos`);
+  check('the cross-branch manager cannot see return photos', mgr.rows[0].n, 0);
+  const adm = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM return_photos`);
+  check('nor can admin', adm.rows[0].n, 0);
+  const hr = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_photos`);
+  check('HR can, because HR runs the returns side', hr.rows[0].n, 2);
+
+  // An Area Manager sees the outlets they cover and no others.
+  const farah = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM return_photos`);
+  check('an Area Manager sees photos only for the outlets they cover', farah.rows[0].n, 0);
+
+  // Retention: the evidence goes 30 days after the bill clears.
+  const before = await as(ACCOUNTS.hafiz[0], `SELECT count(*)::int n FROM return_photos`);
+  const purged = await as(ACCOUNTS.admin[0], `SELECT purge_cleared_return_photos(30) AS n`);
+  const after = await as(ACCOUNTS.hafiz[0], `SELECT count(*)::int n FROM return_photos`);
+  check('an open bill keeps its photos', [before.rows[0].n, after.rows[0].n], [2, 2]);
+  check('...and nothing was purged, because nothing has cleared long enough',
+    purged.rows[0].n, 0);
+}
+
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

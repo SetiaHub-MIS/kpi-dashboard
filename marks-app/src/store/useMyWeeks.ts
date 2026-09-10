@@ -18,12 +18,15 @@ type MyWeeksStore = {
   /** The account the current list belongs to, so a switch reloads. */
   forUserId: string | null;
   load: (userId: string, scaleMax: number) => Promise<void>;
+  reset: () => void;
 };
 
 export const useMyWeeks = create<MyWeeksStore>((set, get) => ({
   weeks: [],
   loading: false,
   forUserId: null,
+
+  reset: () => set({ weeks: [], loading: false, forUserId: null }),
 
   load: async (userId, scaleMax) => {
     if (!isSupabaseConfigured) return;

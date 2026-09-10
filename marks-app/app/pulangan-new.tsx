@@ -76,6 +76,7 @@ export default function NewReturn() {
       remark,
       supplier,
       receivedOn: TODAY_ISO,
+      by: me?.id,
     });
     router.replace(`/bil/${id}`);
   };

@@ -16,6 +16,7 @@ import {
   useTugasan,
 } from '@/store/useTugasan';
 import { C } from '@/theme/scoring';
+import { SignOutButton } from '@/components/SignOutButton';
 
 
 
@@ -213,6 +214,8 @@ export default function Tugasan() {
           kekal kosong sehingga disahkan — sama seperti lajur MANAGER pada checklist lain.
         </Text>
       </Card>
+
+      <SignOutButton />
     </Screen>
   );
 }

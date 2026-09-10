@@ -9,15 +9,16 @@ import {
   lineKey,
 } from '@/data/checklist';
 import { Period, currentPeriod } from '@/data/period';
+import { Answer, Totals, scoredOnly, totalsOf } from '@/data/scoring';
 import { Role, User } from '@/data/users';
 import { isRetryable } from '@/data/queue';
 import { submitMark, verifyMark } from '@/lib/marks';
 import { useQueue } from '@/store/useQueue';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
-/** Kedai and stor are scored on different forms, so every total is form-relative. */
+/** Each marked role has its own form, so every total is form-relative. */
 export const formKeyForRole = (role: Role): FormKey =>
-  role === 'store' ? 'stor' : 'kedai';
+  role === 'store' ? 'stor' : role === 'supervisor' ? 'sv' : 'kedai';
 
 export const formForRole = (role: Role): Kategori[] => FORMS[formKeyForRole(role)];
 
@@ -25,7 +26,8 @@ type Draft = {
   personId: string | null;
   /** Which checklist this draft is being scored against. */
   formKey: FormKey;
-  scores: Record<string, number>;
+  /** A line is a score, or 'na' where the form allows a line not to apply. */
+  scores: Record<string, Answer>;
   /** Which quick-chip is active, if the catatan came from one. */
   noteChip: string | null;
   noteText: string;
@@ -79,7 +81,7 @@ type MarksState = {
   nextMonth: () => void;
   startMarking: (personId: string, formKey: FormKey) => void;
   toggleKat: (no: number) => void;
-  setScore: (key: string, value: number) => void;
+  setScore: (key: string, value: Answer) => void;
   fillKategori: (katNo: number) => void;
   pickNoteChip: (chip: { key: string; text: string }) => void;
   setNoteText: (text: string) => void;
@@ -88,6 +90,9 @@ type MarksState = {
   noteMarkIds: (ids: Record<string, number>) => void;
   noteVerified: (flags: Record<string, boolean>) => void;
   noteWeekNotes: (notes: Record<string, string>) => void;
+  clearSaveError: () => void;
+  /** Drops everything loaded for the signed-in account. */
+  reset: () => void;
   setRule: (rule: Partial<Pick<MarksState, 'passThreshold' | 'scaleMax' | 'verifyByManager'>>) => void;
 };
 
@@ -124,7 +129,7 @@ export const useMarks = create<MarksState>((set, get) => ({
       const form = FORMS[s.draft.formKey];
       const kat = form.find((k) => k.no === katNo);
       if (!kat) return s;
-      const scores = { ...s.draft.scores };
+      const scores: Record<string, Answer> = { ...s.draft.scores };
       kat.lines.forEach((_, i) => {
         scores[lineKey(katNo, i)] = s.scaleMax - 1;
       });
@@ -178,7 +183,7 @@ export const useMarks = create<MarksState>((set, get) => ({
       formKey,
       period: ctx.period ?? currentPeriod(),
       weekNo: ACTIVE_WEEK + 1,
-      scores: s.draft.scores,
+      scores: scoredOnly(s.draft.scores),
       maxScore: t.max,
       note,
       scoredBy: ctx.scoredBy,
@@ -227,29 +232,27 @@ export const useMarks = create<MarksState>((set, get) => ({
   noteWeekNotes: (notes) =>
     set((s) => ({ submittedNotes: { ...notes, ...s.submittedNotes } })),
 
+  clearSaveError: () => set({ saveError: null }),
+
+  reset: () =>
+    set({
+      submitted: {},
+      submittedNotes: {},
+      verified: {},
+      markIds: {},
+      saveError: null,
+      draft: emptyDraft,
+    }),
+
   setRule: (rule) => set(rule),
 }));
 
-export type Totals = {
-  total: number;
-  filled: number;
-  complete: boolean;
-  max: number;
-  pct: number;
-};
-
+/**
+ * A week's total. The arithmetic lives in `@/data/scoring` so the N/A rule can
+ * be tested without a store around it.
+ */
 export function draftTotals(s: Pick<MarksState, 'draft' | 'scaleMax'>): Totals {
-  const keys = Object.keys(s.draft.scores);
-  const total = keys.reduce((n, k) => n + s.draft.scores[k], 0);
-  const lineCount = countLines(FORMS[s.draft.formKey]);
-  const max = lineCount * s.scaleMax;
-  return {
-    total,
-    filled: keys.length,
-    complete: keys.length === lineCount,
-    max,
-    pct: keys.length ? Math.round((total / max) * 100) : 0,
-  };
+  return totalsOf(s.draft.scores, countLines(FORMS[s.draft.formKey]), s.scaleMax);
 }
 
 /**

@@ -3,12 +3,12 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
-import { FORM, MONTHS, STOR_FORM, WEEK_COLS } from '@/data/checklist';
+import { ACTIVE_WEEK, FORM, MONTHS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
 import { assetsOfBranch } from '@/data/assets';
 import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL, branchesOf } from '@/data/users';
 import { currentUser, useSession } from '@/store/useSession';
-import { useUsers, visibleStaff } from '@/store/useUsers';
+import { markingQueue, useUsers, visibleStaff } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
 import {
   isVerified,
@@ -40,12 +40,18 @@ export default function ManagerHome() {
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
   const openAssets = assetsOfBranch(branchId).filter((a) => a.open);
 
-  // Kedai and stor are scored on different forms, so their kategori averages
-  // are reported side by side rather than blended into one meaningless number.
+  // Each role is scored on its own form, so their kategori averages are
+  // reported side by side rather than blended into one meaningless number.
   const cohorts = [
     { key: 'kedai' as const, label: 'Pekerja Kedai', form: FORM, people: crew.filter((p) => p.role === 'staff') },
     { key: 'stor' as const, label: 'Pekerja Stor', form: STOR_FORM, people: crew.filter((p) => p.role === 'store') },
+    { key: 'sv' as const, label: 'SV / AS', form: SV_FORM, people: crew.filter((p) => p.role === 'supervisor') },
   ].filter((c) => c.people.length > 0);
+
+  // The Area Manager's own marking round: the supervisors at the outlets they
+  // cover. The workbook has them doing this, and nobody else could.
+  const myQueue = markingQueue(users, manager);
+  const svPending = myQueue.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
 
   const tugasanEntriesByMonth = useTugasan((s) => s.entriesByMonth);
   const tugasanTotal = WEEK_COLS.length * TUGASAN_ITEMS.length;
@@ -210,6 +216,22 @@ export default function ManagerHome() {
           </Card>
         );
       })}
+
+      {myQueue.length > 0 && (
+        <Pressable
+          onPress={() => router.push('/manager/sv')}
+          accessibilityRole="button"
+          className="mt-2.5 py-3 rounded-xl border items-center active:opacity-70"
+          style={{
+            borderColor: svPending.length > 0 ? C.warnLine : C.line,
+            backgroundColor: svPending.length > 0 ? C.warnCard : C.card,
+          }}
+        >
+          <Text className="font-sans-semi text-[13px] text-ink-2">
+            Checklist SV/AS: {svPending.length}/{myQueue.length} belum dinilai →
+          </Text>
+        </Pressable>
+      )}
 
       {openAssets.length > 0 && (
         <Pressable

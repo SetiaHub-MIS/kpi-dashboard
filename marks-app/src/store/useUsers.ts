@@ -6,6 +6,7 @@ import {
   canSeeBranch,
   initialsOf,
   isMarked,
+  marksRoles,
   seesStoreOps,
   shortOf,
 } from '@/data/users';
@@ -102,6 +103,26 @@ export const visibleStaff = (users: User[], viewer: User | undefined): User[] =>
       canSeeBranch(viewer, u.branchId) &&
       (u.role !== 'store' || (viewer != null && seesStoreOps(viewer.role)))
   );
+
+/**
+ * The people this account is responsible for marking.
+ *
+ * Driven by the marking relation rather than by "who is measurable": once
+ * supervisors became measurable, a flat list put every SV/AS in their own
+ * marking queue alongside their crew. Self is excluded for the same reason —
+ * nobody scores their own checklist.
+ */
+export const markingQueue = (users: User[], viewer: User | undefined): User[] => {
+  const roles = marksRoles(viewer?.role);
+  if (roles.length === 0) return [];
+  return users.filter(
+    (u) =>
+      u.active &&
+      u.id !== viewer?.id &&
+      roles.includes(u.role) &&
+      canSeeBranch(viewer, u.branchId)
+  );
+};
 
 export const primaryOf = (users: User[], role: Role): User | undefined => byRole(users, role)[0];
 

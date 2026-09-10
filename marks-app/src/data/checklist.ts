@@ -103,17 +103,67 @@ export const STOR_FORM: Kategori[] = [
   },
 ];
 
-export type FormKey = 'kedai' | 'stor';
+/**
+ * REAL: WS-SUPV-2026.xlsx, sheet `CHECKLIST SV`, labels verbatim — typo in
+ * kategori 7 included, because it is what the form says.
+ *
+ * Titled "Checklist Mingguan (SA/CA/PT/TJH)" on the sheet. 14 kategori and 19
+ * scoreable lines, but only 17 are scored in practice: PERIKSA METER SUBLOT and
+ * LAIN-LAIN sit blank all year, and the workbook's own denominator is 85 — that
+ * is 17 x 5, not 19 x 5. So a blank is not a zero here; it is excluded from the
+ * total. That is why this form needs N/A and the other two do not.
+ */
+export const SV_FORM: Kategori[] = [
+  { no: 1, name: 'KEDATANGAN', lines: ['KEDATANGAN'] },
+  { no: 2, name: 'DISPLIN', lines: ['DISPLIN'] },
+  { no: 3, name: 'KEBERSIHAN KEDAI', lines: ['KEBERSIHAN KEDAI'] },
+  { no: 4, name: 'KEKEMASAN KEDAI', lines: ['KEKEMASAN KEDAI'] },
+  { no: 5, name: 'KEROSAKAN ASET KEDAI', lines: ['KEROSAKAN ASET KEDAI'] },
+  { no: 6, name: 'KEBOCORAN AIR', lines: ['KEBOCORAN AIR'] },
+  { no: 7, name: 'KEAADAAN KEDAI', lines: ['KEAADAAN KEDAI'] },
+  { no: 8, name: 'BARANG RETURN & TARIKH LUPUT', lines: ['BARANG RETURN & TARIKH LUPUT'] },
+  { no: 9, name: 'STOK', lines: ['A) DISPLAY', 'B) LEBIHAN BARANG'] },
+  { no: 10, name: 'JADUAL PEKERJA', lines: ['A) KEDATANGAN', 'B) JADUAL KEBERSIHAN'] },
+  { no: 11, name: 'PERIKSA METER SUBLOT', lines: ['PERIKSA METER SUBLOT'] },
+  {
+    no: 12,
+    name: 'DISPLAY BARANG PROMOSI DI TEMPAT VVIP',
+    lines: ['DISPLAY BARANG PROMOSI DI TEMPAT VVIP'],
+  },
+  {
+    no: 13,
+    name: 'AMBIL PERHATIAN PESANAN DALAM GROUP',
+    lines: ['AMBIL PERHATIAN PESANAN DALAM GROUP'],
+  },
+  {
+    no: 14,
+    name: 'KETELITIAN & TANGGUNGJAWAB TERHADAP KERJA',
+    lines: ['A) SALES REPORT', 'B) INVOICE', 'C) BORANG HR', 'D) LAIN-LAIN'],
+  },
+];
+
+export type FormKey = 'kedai' | 'stor' | 'sv';
 
 export const FORMS: Record<FormKey, Kategori[]> = {
   kedai: FORM,
   stor: STOR_FORM,
+  sv: SV_FORM,
 };
 
 export const FORM_LABEL: Record<FormKey, string> = {
   kedai: 'Checklist Pekerja Kedai',
   stor: 'Checklist Pekerja Stor',
+  sv: 'Checklist SV/AS',
 };
+
+/**
+ * Forms where a line may legitimately not apply, and is left out of the total
+ * rather than scored zero. Only the SV form works this way — the workbook shows
+ * it, and the other two score every line every week.
+ */
+export const FORMS_ALLOWING_NA: FormKey[] = ['sv'];
+
+export const allowsNa = (formKey: FormKey) => FORMS_ALLOWING_NA.includes(formKey);
 
 export const countLines = (form: Kategori[]) =>
   form.reduce((n, k) => n + k.lines.length, 0);

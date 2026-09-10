@@ -7,6 +7,7 @@ import { useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { staffOfBranch, useUsers } from '@/store/useUsers';
 import { C, pctBg, pctColor } from '@/theme/scoring';
+import { SignOutButton } from '@/components/SignOutButton';
 
 export default function Pekerja() {
   const submitted = useMarks((s) => s.submitted);
@@ -69,6 +70,8 @@ export default function Pekerja() {
           );
         })}
       </View>
+
+      <SignOutButton />
     </Screen>
   );
 }
