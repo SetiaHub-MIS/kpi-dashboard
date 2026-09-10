@@ -1,8 +1,16 @@
 # Database tooling deps (the Expo app has its own .gitignore)
 node_modules/
 
-# Supabase CLI local state
-supabase/.branches/
-supabase/.temp/
+# Supabase CLI local state. Unanchored on purpose: running the CLI from the
+# wrong directory creates a second supabase/.temp/ wherever you happened to be
+# (marks-app/ is the easy mistake), and an anchored rule only catches the one
+# at the root.
+**/supabase/.branches/
+**/supabase/.temp/
+
+# Metro's cache. marks-app/.gitignore covers the app's own copy; this catches
+# the one a dev server started from the repo root leaves here.
+.expo/
+
 .env
 .env.local
