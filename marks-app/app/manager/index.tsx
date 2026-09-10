@@ -32,7 +32,17 @@ export default function ManagerHome() {
     if (exporting) return;
     setExporting(true);
     try {
-      await exportMonthXlsx(PERIODS[monthIdx]);
+      const result = await exportMonthXlsx(PERIODS[monthIdx]);
+      // The OS share sheet is its own confirmation. Without it — no app on
+      // this phone registered to receive a share — silence would look
+      // exactly like nothing having happened at all, so this says so
+      // explicitly and names where the file actually landed.
+      if (!result.shared) {
+        Alert.alert(
+          'Fail sedia, tiada cara berkongsi',
+          `${result.filename} berjaya dijana dan disimpan pada telefon, tetapi tiada aplikasi didapati untuk berkongsinya.\n\n${result.uri}`
+        );
+      }
     } catch (e: any) {
       Alert.alert('Eksport gagal', e?.message ?? 'Cuba lagi sebentar.');
     } finally {
