@@ -6,8 +6,9 @@ import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { closeBranchBlocker, findBranch } from '@/data/branches';
-import { ROLE_LABEL } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
@@ -17,6 +18,8 @@ export default function BranchDetail() {
   const renameBranch = useBranches((s) => s.renameBranch);
   const setBranchActive = useBranches((s) => s.setBranchActive);
   const users = useUsers((s) => s.users);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const branch = findBranch(branches, id);
   const [name, setName] = useState(branch?.name ?? '');
@@ -25,9 +28,9 @@ export default function BranchDetail() {
   if (!branch) {
     return (
       <Screen>
-        <BackLink label="Cawangan" />
+        <BackLink label={t('tab_cawangan')} />
         <Text className="font-sans-semi text-[19px] text-ink mt-4">
-          Cawangan tidak dijumpai
+          {t('cawangan_tak_dijumpai')}
         </Text>
       </Screen>
     );
@@ -40,7 +43,7 @@ export default function BranchDetail() {
     if (branch.active) {
       const blocked = closeBranchBlocker(assigned.length);
       if (blocked) {
-        Alert.alert('Tidak boleh tutup cawangan', blocked);
+        Alert.alert(t('tak_boleh_tutup_cawangan'), blocked);
         return;
       }
     }
@@ -49,7 +52,7 @@ export default function BranchDetail() {
 
   return (
     <Screen>
-      <BackLink label="Cawangan" />
+      <BackLink label={t('tab_cawangan')} />
 
       <View className="flex-row items-center gap-2.5 mt-4">
         <Text className="flex-1 font-sans-semi text-[20px] text-ink">{branch.name}</Text>
@@ -59,7 +62,7 @@ export default function BranchDetail() {
       </View>
 
       <Card className="p-[15px] mt-4">
-        <MonoLabel>Nama kedai</MonoLabel>
+        <MonoLabel>{t('nama_kedai')}</MonoLabel>
         <TextInput
           value={name}
           onChangeText={setName}
@@ -68,7 +71,7 @@ export default function BranchDetail() {
           className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
         />
         <View className="mt-3">
-          <MonoLabel>Nama pendek</MonoLabel>
+          <MonoLabel>{t('nama_pendek')}</MonoLabel>
           <TextInput
             value={short}
             onChangeText={setShort}
@@ -88,16 +91,16 @@ export default function BranchDetail() {
             className="font-sans-semi text-[12.5px]"
             style={{ color: dirty && name.trim() ? '#fff' : C.ink6 }}
           >
-            Simpan nama
+            {t('simpan_nama')}
           </Text>
         </Pressable>
       </Card>
 
       <Card className="p-[15px] mt-2.5">
-        <MonoLabel>Akaun di cawangan ini · {assigned.length}</MonoLabel>
+        <MonoLabel>{t('akaun_di_cawangan', { count: assigned.length })}</MonoLabel>
         {assigned.length === 0 ? (
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
-            Belum ada akaun dipos ke sini.
+            {t('belum_ada_akaun_pos')}
           </Text>
         ) : (
           <View className="gap-2 mt-3">
@@ -116,7 +119,7 @@ export default function BranchDetail() {
                   {u.name}
                 </Text>
                 <Text className="font-mono text-[10px] text-ink-6">
-                  {ROLE_LABEL[u.role]}
+                  {roleLabel(u.role, locale)}
                 </Text>
               </Pressable>
             ))}
@@ -134,7 +137,7 @@ export default function BranchDetail() {
           className="font-sans-semi text-sm"
           style={{ color: branch.active ? C.fail : C.pass }}
         >
-          {branch.active ? 'Tutup cawangan' : 'Buka semula cawangan'}
+          {branch.active ? t('tutup_cawangan') : t('buka_semula_cawangan')}
         </Text>
       </Pressable>
     </Screen>

@@ -3,19 +3,23 @@ import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { ROLE_BLURB, ROLE_LABEL, ROLE_LADDER } from '@/data/users';
+import { ROLE_LADDER } from '@/data/users';
+import { roleBlurb, roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 export default function Peranan() {
   const users = useUsers((s) => s.users);
   const history = useUsers((s) => s.history);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Peranan</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('tab_peranan')}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        Siapa memegang apa. Area Manager dan Admin tidak boleh dikosongkan.
+        {t('peranan_intro')}
       </Text>
 
       <View className="gap-2.5 mt-[18px]">
@@ -24,13 +28,13 @@ export default function Peranan() {
           return (
             <Card key={r} className="p-[15px]">
               <View className="flex-row items-baseline justify-between">
-                <Text className="font-sans-semi text-[13px] text-ink">{ROLE_LABEL[r]}</Text>
+                <Text className="font-sans-semi text-[13px] text-ink">{roleLabel(r, locale)}</Text>
                 <Text className="font-mono-semi text-[11px] text-ink-6">
                   {holders.length}
                 </Text>
               </View>
               <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-1.5">
-                {ROLE_BLURB[r]}
+                {roleBlurb(r, locale)}
               </Text>
 
               {holders.length === 0 ? (
@@ -38,7 +42,7 @@ export default function Peranan() {
                   className="font-sans-med text-[12px] mt-3"
                   style={{ color: C.warn }}
                 >
-                  Tiada pemegang aktif.
+                  {t('tiada_pemegang_aktif')}
                 </Text>
               ) : (
                 <View className="gap-2 mt-3">
@@ -69,10 +73,10 @@ export default function Peranan() {
       </View>
 
       <Card className="p-[15px] mt-2.5">
-        <MonoLabel>Rekod tukar pangkat</MonoLabel>
+        <MonoLabel>{t('rekod_tukar_pangkat')}</MonoLabel>
         {history.length === 0 ? (
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
-            Belum ada kenaikan atau penurunan pangkat direkod sesi ini.
+            {t('belum_ada_tukar_pangkat')}
           </Text>
         ) : (
           <View className="gap-2.5 mt-3">
@@ -93,14 +97,14 @@ export default function Peranan() {
                       {h.name}
                     </Text>
                     <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
-                      {ROLE_LABEL[h.from]} → {ROLE_LABEL[h.to]} · {h.at}
+                      {roleLabel(h.from, locale)} → {roleLabel(h.to, locale)} · {h.at}
                     </Text>
                   </View>
                   <Text
                     className="font-mono-semi text-[9.5px]"
                     style={{ color: promoted ? C.pass : C.warn }}
                   >
-                    {promoted ? 'NAIK' : 'TURUN'}
+                    {promoted ? t('naik') : t('turun')}
                   </Text>
                 </View>
               );

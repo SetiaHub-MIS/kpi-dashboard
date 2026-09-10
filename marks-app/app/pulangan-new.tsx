@@ -5,13 +5,14 @@ import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import {
-  REASON_LABEL,
   ReturnReason,
   TODAY_ISO,
   newReturnBlocker,
 } from '@/data/returns';
 import { isHq } from '@/data/branches';
+import { reasonLabel } from '@/i18n/labels';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { useReturns } from '@/store/useReturns';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
@@ -23,6 +24,8 @@ export default function NewReturn() {
   const branchLabel = useBranchLabel();
   const records = useReturns((s) => s.records);
   const addReturn = useReturns((s) => s.addReturn);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   // Prefilled when arriving from the stock-system comparison; blank otherwise.
   // Nothing is saved until the form is submitted, so the figures are still confirmed by a person.
@@ -59,7 +62,7 @@ export default function NewReturn() {
 
   const submit = () => {
     if (!outletId) {
-      setError('Pilih cawangan yang hantar barang.');
+      setError(t('pilih_cawangan_hantar'));
       return;
     }
     const blocked = newReturnBlocker(records, billNo, billDate);
@@ -87,25 +90,23 @@ export default function NewReturn() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Screen>
-        <BackLink label="Pulangan" />
-        <Text className="font-sans-semi text-[22px] text-ink mt-4">Bil pulangan baharu</Text>
+        <BackLink label={t('tab_pulangan')} />
+        <Text className="font-sans-semi text-[22px] text-ink mt-4">{t('bil_pulangan_baharu')}</Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          Tarikh terima direkod sebagai hari ini — dari sini masa terima → clear mula dikira.
+          {t('pulangan_new_intro')}
         </Text>
         {fromRecon && (
           <Text className="font-sans text-[12.5px] leading-[19px] mt-2" style={{ color: C.warn }}>
-            Butiran diisi dari export sistem stok
-            {prefill.reason ? '' : ', kecuali sebab — jenis bil itu bukan rosak atau luput, jadi pilih sendiri'}
-            . Semak sebelum rekod.
+            {t('recon_prefill_note', { reasonNote: prefill.reason ? '' : t('recon_reason_note') })}
           </Text>
         )}
 
         <Card className="p-[15px] mt-4">
-          <MonoLabel>Cawangan hantar</MonoLabel>
+          <MonoLabel>{t('cawangan_hantar')}</MonoLabel>
           <TextInput
             value={outletFilter}
             onChangeText={setOutletFilter}
-            placeholder="Cari cawangan atau kod…"
+            placeholder={t('cari_cawangan_kod')}
             placeholderTextColor={C.ink6}
             autoCorrect={false}
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13px] text-ink"
@@ -140,31 +141,31 @@ export default function NewReturn() {
           </View>
           {shownOutlets.length > 24 && (
             <Text className="font-sans text-[11.5px] text-ink-5 mt-2">
-              {shownOutlets.length - 24} lagi — taip untuk tapis.
+              {t('n_lagi_taip_tapis', { count: shownOutlets.length - 24 })}
             </Text>
           )}
         </Card>
 
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>No. bil</MonoLabel>
+          <MonoLabel>{t('no_bil')}</MonoLabel>
           <TextInput
             value={billNo}
-            onChangeText={(t) => {
-              setBillNo(t);
+            onChangeText={(text) => {
+              setBillNo(text);
               setError(null);
             }}
-            placeholder="cth: BR-8951"
+            placeholder={t('contoh_bill_no')}
             placeholderTextColor={C.ink6}
             autoCapitalize="characters"
             autoCorrect={false}
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-mono text-[13px] text-ink"
           />
           <View className="mt-3">
-            <MonoLabel>Tarikh bil</MonoLabel>
+            <MonoLabel>{t('tarikh_bil')}</MonoLabel>
             <TextInput
               value={billDate}
-              onChangeText={(t) => {
-                setBillDate(t);
+              onChangeText={(text) => {
+                setBillDate(text);
                 setError(null);
               }}
               placeholder="YYYY-MM-DD"
@@ -176,7 +177,7 @@ export default function NewReturn() {
         </Card>
 
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Catatan bil</MonoLabel>
+          <MonoLabel>{t('catatan_bil')}</MonoLabel>
           <View className="flex-row gap-2 mt-2.5">
             {(['damage', 'expired'] as ReturnReason[]).map((r) => {
               const on = reason === r;
@@ -196,7 +197,7 @@ export default function NewReturn() {
                     className="font-sans-med text-[12.5px]"
                     style={{ color: on ? '#fff' : C.ink3 }}
                   >
-                    {REASON_LABEL[r]}
+                    {reasonLabel(r, locale)}
                   </Text>
                 </Pressable>
               );
@@ -205,7 +206,7 @@ export default function NewReturn() {
           <TextInput
             value={remark}
             onChangeText={setRemark}
-            placeholder="Butiran barang, kuantiti…"
+            placeholder={t('butiran_barang_kuantiti')}
             placeholderTextColor={C.ink6}
             multiline
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13px] text-ink-2"
@@ -214,11 +215,11 @@ export default function NewReturn() {
         </Card>
 
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Pembekal</MonoLabel>
+          <MonoLabel>{t('pembekal')}</MonoLabel>
           <TextInput
             value={supplier}
             onChangeText={setSupplier}
-            placeholder="cth: Gardenia Bakeries"
+            placeholder={t('contoh_pembekal')}
             placeholderTextColor={C.ink6}
             autoCapitalize="words"
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
@@ -241,7 +242,7 @@ export default function NewReturn() {
           accessibilityRole="button"
           className="mt-3.5 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
         >
-          <Text className="font-sans-semi text-sm text-white">Rekod terima</Text>
+          <Text className="font-sans-semi text-sm text-white">{t('rekod_terima')}</Text>
         </Pressable>
       </Screen>
     </KeyboardAvoidingView>

@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Screen } from '@/components/Screen';
 import { useBranchLabel } from '@/store/useBranches';
+import { useT } from '@/store/useLocale';
 import { useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { staffOfBranch, useUsers } from '@/store/useUsers';
@@ -17,13 +18,13 @@ export default function Pekerja() {
   const branchId = me?.branchId ?? null;
   const crew = staffOfBranch(users, branchId);
   const branchLabel = useBranchLabel();
+  const t = useT();
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Pekerja</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('pekerja_tab_title')}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        {crew.length} pekerja di {branchLabel(branchId)}. Purata dikira daripada minggu yang sudah
-        dinilai sahaja.
+        {t('pekerja_intro', { count: crew.length, branch: branchLabel(branchId) })}
       </Text>
 
       <View className="gap-2 mt-[18px]">
@@ -47,7 +48,7 @@ export default function Pekerja() {
                 <View className="flex-1 min-w-0">
                   <Text className="font-sans-semi text-[13.5px] text-ink">{p.name}</Text>
                   <Text className="font-mono text-[11px] text-ink-5 mt-1">
-                    {p.id} · {marks.length}/4 minggu
+                    {p.id} · {t('n_minggu_slash4', { count: marks.length })}
                   </Text>
                 </View>
                 {avg == null ? (

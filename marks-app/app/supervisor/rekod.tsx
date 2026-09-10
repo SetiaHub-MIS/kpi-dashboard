@@ -4,6 +4,7 @@ import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { MONTHS, WEEK_COLS } from '@/data/checklist';
 import { isVerified, useMarks, weekMark } from '@/store/useMarks';
+import { useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { staffOfBranch, useUsers } from '@/store/useUsers';
 import { C, pctColor } from '@/theme/scoring';
@@ -13,6 +14,7 @@ export default function Rekod() {
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const crew = staffOfBranch(users, me?.branchId ?? null);
+  const t = useT();
 
   const weeks = WEEK_COLS.map((label, i) => ({
     label,
@@ -24,9 +26,9 @@ export default function Rekod() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Rekod penilaian</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('rekod_penilaian')}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        Markah yang anda hantar untuk {MONTHS[monthIdx]}.
+        {t('markah_hantar_bulan', { month: MONTHS[monthIdx] })}
       </Text>
 
       <View className="gap-2.5 mt-[18px]">
@@ -34,16 +36,16 @@ export default function Rekod() {
           <Card key={w.index} className="p-[15px]">
             <View className="flex-row items-baseline justify-between">
               <Text className="font-sans-semi text-[13px] text-ink">
-                Minggu {w.index + 1}
+                {t('minggu_n', { n: w.index + 1 })}
               </Text>
               <Text className="font-mono text-[10.5px] text-ink-6">
-                {w.rows.length}/{crew.length} dinilai
+                {t('n_daripada_dinilai', { done: w.rows.length, total: crew.length })}
               </Text>
             </View>
 
             {w.rows.length === 0 ? (
               <Text className="font-sans text-[12.5px] text-ink-6 mt-3">
-                Belum ada markah direkod.
+                {t('belum_ada_markah_direkod')}
               </Text>
             ) : (
               <View className="mt-3 gap-2">

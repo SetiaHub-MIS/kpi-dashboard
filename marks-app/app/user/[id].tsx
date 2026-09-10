@@ -5,12 +5,10 @@ import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { FORM_LABEL, WEEK_COLS } from '@/data/checklist';
+import { WEEK_COLS } from '@/data/checklist';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import {
   branchChangeBlocker,
-  ROLE_BLURB,
-  ROLE_LABEL,
   ROLE_LADDER,
   ROLE_LEVEL,
   Role,
@@ -21,7 +19,9 @@ import {
   roleChangeBlocker,
   transfersFor,
 } from '@/data/users';
+import { formLabel, roleBlurb, roleLabel } from '@/i18n/labels';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
+import { useLocale, useT } from '@/store/useLocale';
 import { findUser, useUsers } from '@/store/useUsers';
 import { C, pctColor } from '@/theme/scoring';
 
@@ -37,18 +37,20 @@ export default function UserDetail() {
   const passThreshold = useMarks((s) => s.passThreshold);
   const branches = useActiveBranches();
   const branchLabel = useBranchLabel();
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const user = findUser(users, id);
 
   if (!user) {
     return (
       <Screen>
-        <BackLink label="Pengguna" />
+        <BackLink label={t('tab_pengguna')} />
         <Text className="font-sans-semi text-[19px] text-ink mt-4">
-          Akaun tidak dijumpai
+          {t('akaun_tidak_dijumpai')}
         </Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          Akaun {id} tiada dalam senarai pengguna.
+          {t('akaun_tiada_senarai_pengguna', { id: id ?? '' })}
         </Text>
       </Screen>
     );
@@ -63,7 +65,7 @@ export default function UserDetail() {
   const change = (next: Role) => {
     const blocked = roleChangeBlocker(users, user.id, next);
     if (blocked) {
-      Alert.alert('Tidak boleh tukar peranan', blocked);
+      Alert.alert(t('tak_boleh_tukar_peranan'), blocked);
       return;
     }
     setRole(user.id, next, todayShort());
@@ -72,7 +74,7 @@ export default function UserDetail() {
   const moveBranch = (next: string) => {
     const blocked = branchChangeBlocker(users, user.id, next);
     if (blocked) {
-      Alert.alert('Tidak boleh tukar cawangan', blocked);
+      Alert.alert(t('tak_boleh_tukar_cawangan'), blocked);
       return;
     }
     setBranch(user.id, next);
@@ -82,7 +84,7 @@ export default function UserDetail() {
     if (user.active) {
       const blocked = deactivateBlocker(users, user.id);
       if (blocked) {
-        Alert.alert('Tidak boleh nyahaktif', blocked);
+        Alert.alert(t('tak_boleh_nyahaktif'), blocked);
         return;
       }
     }
@@ -95,21 +97,21 @@ export default function UserDetail() {
 
   return (
     <Screen>
-      <BackLink label="Pengguna" />
+      <BackLink label={t('tab_pengguna')} />
 
       <View className="flex-row gap-3 items-center mt-4">
         <Avatar init={user.init} size={46} />
         <View className="flex-1 min-w-0">
           <Text className="font-sans-semi text-[18px] text-ink">{user.name}</Text>
           <Text className="font-mono text-xs text-ink-5 mt-1">
-            {user.id} · {ROLE_LABEL[user.role]} · {branchLabel(user.branchId)}
-            {user.active ? '' : ' · nyahaktif'}
+            {user.id} · {roleLabel(user.role, locale)} · {branchLabel(user.branchId)}
+            {user.active ? '' : t('nyahaktif_suffix')}
           </Text>
         </View>
       </View>
 
       <Card className="p-[15px] mt-4">
-        <MonoLabel>Peranan</MonoLabel>
+        <MonoLabel>{t('tab_peranan')}</MonoLabel>
         <View className="gap-1.5 mt-3">
           {levels.map((level) => (
             <View key={level} className="flex-row gap-1.5">
@@ -137,10 +139,10 @@ export default function UserDetail() {
                         }
                         numberOfLines={1}
                       >
-                        {ROLE_LABEL[r]}
+                        {roleLabel(r, locale)}
                       </Text>
                       {current && (
-                        <Text className="font-mono-semi text-[9px] text-ink-5">KINI</Text>
+                        <Text className="font-mono-semi text-[9px] text-ink-5">{t('kini_badge')}</Text>
                       )}
                     </View>
                   </View>
@@ -151,7 +153,7 @@ export default function UserDetail() {
         </View>
 
         <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-3">
-          {ROLE_BLURB[user.role]}
+          {roleBlurb(user.role, locale)}
         </Text>
 
         {up.length > 0 && (
@@ -164,7 +166,7 @@ export default function UserDetail() {
                 className="flex-1 py-3 rounded-[10px] items-center bg-ink active:opacity-80"
               >
                 <Text className="font-sans-semi text-[12.5px] text-white">
-                  Naik ke {ROLE_LABEL[r]}
+                  {t('naik_ke', { role: roleLabel(r, locale) })}
                 </Text>
               </Pressable>
             ))}
@@ -181,7 +183,7 @@ export default function UserDetail() {
                 className="flex-1 py-3 rounded-[10px] border border-line items-center bg-card active:opacity-70"
               >
                 <Text className="font-sans-semi text-[12.5px] text-ink-2">
-                  Turun ke {ROLE_LABEL[r]}
+                  {t('turun_ke', { role: roleLabel(r, locale) })}
                 </Text>
               </Pressable>
             ))}
@@ -198,7 +200,7 @@ export default function UserDetail() {
                 className="flex-1 py-3 rounded-[10px] border border-line items-center bg-card active:opacity-70"
               >
                 <Text className="font-sans-semi text-[12.5px] text-ink-3">
-                  Tukar ke {ROLE_LABEL[r]}
+                  {t('tukar_ke', { role: roleLabel(r, locale) })}
                 </Text>
               </Pressable>
             ))}
@@ -208,7 +210,7 @@ export default function UserDetail() {
 
       {user.role !== 'admin' && (
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Cawangan</MonoLabel>
+          <MonoLabel>{t('tab_cawangan')}</MonoLabel>
           <View className="flex-row flex-wrap gap-1.5 mt-3">
             {branches.map((b) => {
               const on = user.branchId === b.id;
@@ -238,7 +240,9 @@ export default function UserDetail() {
 
       {isMarked(user.role) ? (
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Markah mingguan · {FORM_LABEL[formKeyForRole(user.role)]}</MonoLabel>
+          <MonoLabel>
+            {t('markah_mingguan')} · {formLabel(formKeyForRole(user.role), locale)}
+          </MonoLabel>
           <View className="flex-row gap-1.5 mt-3">
             {WEEK_COLS.map((w, i) => {
               const v = weekMark(user, i, submitted);
@@ -270,18 +274,16 @@ export default function UserDetail() {
             className="mt-3 py-2.5 rounded-[10px] border border-line items-center active:opacity-70"
           >
             <Text className="font-sans-semi text-[12.5px] text-ink-2">
-              Lihat rekod penuh
+              {t('lihat_rekod_penuh')}
             </Text>
           </Pressable>
         </Card>
       ) : (
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Markah mingguan</MonoLabel>
+          <MonoLabel>{t('markah_mingguan')}</MonoLabel>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
-            {ROLE_LABEL[user.role]} tidak dinilai atas checklist mingguan.
-            {marks.length > 0
-              ? ` Rekod lama sebagai pekerja (${marks.length} minggu) kekal disimpan.`
-              : ''}
+            {t('role_tidak_dinilai', { role: roleLabel(user.role, locale) })}
+            {marks.length > 0 ? t('rekod_lama_pekerja', { count: marks.length }) : ''}
           </Text>
         </Card>
       )}
@@ -296,7 +298,7 @@ export default function UserDetail() {
           className="font-sans-semi text-sm"
           style={{ color: user.active ? C.fail : C.pass }}
         >
-          {user.active ? 'Nyahaktifkan akaun' : 'Aktifkan semula akaun'}
+          {user.active ? t('nyahaktifkan_akaun') : t('aktifkan_semula_akaun')}
         </Text>
       </Pressable>
     </Screen>

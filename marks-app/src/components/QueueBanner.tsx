@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { WEEK_COLS } from '@/data/checklist';
+import { useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { useQueue } from '@/store/useQueue';
 import { useReturns } from '@/store/useReturns';
@@ -23,6 +24,7 @@ export function QueueBanner() {
   const clearMarkError = useMarks((s) => s.clearSaveError);
   const returnError = useReturns((s) => s.saveError);
   const clearReturnError = useReturns((s) => s.clearSaveError);
+  const t = useT();
 
   // Whichever refused most recently; both read the same to the person holding
   // the phone, and stacking two identical red boxes would help nobody.
@@ -42,11 +44,10 @@ export function QueueBanner() {
           style={{ backgroundColor: C.failBg, borderColor: C.fail }}
         >
           <Text className="font-sans-semi text-[13px]" style={{ color: C.fail }}>
-            Markah tidak dapat disimpan
+            {t('markah_gagal_simpan')}
           </Text>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-2 mt-1.5">
-            Pangkalan data menolak simpanan ini, jadi ia tidak akan dicuba semula
-            sendiri. Markah masih di skrin sahaja.
+            {t('markah_ditolak_pelayan')}
           </Text>
           <Text className="font-mono text-[10.5px] text-ink-5 mt-2">{saveError}</Text>
           <Pressable
@@ -56,7 +57,7 @@ export function QueueBanner() {
             style={{ borderColor: C.fail }}
           >
             <Text className="font-sans-med text-[12px]" style={{ color: C.fail }}>
-              Faham
+              {t('faham')}
             </Text>
           </Pressable>
         </View>
@@ -68,8 +69,7 @@ export function QueueBanner() {
           style={{ backgroundColor: C.warnBg, borderColor: C.warnLine }}
         >
           <Text className="font-sans-med text-[12.5px] leading-[19px]" style={{ color: C.warnInk }}>
-            {pending.length} markah menunggu sambungan. Ia disimpan dalam telefon
-            dan akan dihantar sendiri.
+            {t('markah_menunggu', { count: pending.length })}
           </Text>
         </View>
       )}
@@ -81,12 +81,10 @@ export function QueueBanner() {
           style={{ backgroundColor: C.failBg, borderColor: C.fail }}
         >
           <Text className="font-sans-semi text-[13px]" style={{ color: C.fail }}>
-            Markah {r.personLabel} tidak dapat dihantar
+            {t('markah_ditolak_orang_lain', { person: r.personLabel })}
           </Text>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-2 mt-1.5">
-            {WEEK_COLS[r.input.weekNo - 1]} sudah dinilai oleh orang lain sebelum
-            telefon ini dapat sambungan, jadi markah itu kekal. Nilai semula jika
-            markah anda yang betul.
+            {t('markah_ditolak_detail', { week: WEEK_COLS[r.input.weekNo - 1] })}
           </Text>
           <Pressable
             onPress={() => void dismiss(r.id)}
@@ -95,7 +93,7 @@ export function QueueBanner() {
             style={{ borderColor: C.fail }}
           >
             <Text className="font-sans-med text-[12px]" style={{ color: C.fail }}>
-              Faham
+              {t('faham')}
             </Text>
           </Pressable>
         </View>

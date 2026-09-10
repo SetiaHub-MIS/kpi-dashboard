@@ -3,6 +3,7 @@ import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
 import { OutletReportView } from '@/components/OutletReportView';
 import { Screen } from '@/components/Screen';
+import { useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { SignOutButton } from '@/components/SignOutButton';
@@ -15,10 +16,11 @@ import { SignOutButton } from '@/components/SignOutButton';
 export default function HeadOffice() {
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
+  const t = useT();
 
   return (
     <Screen>
-      <BackLink label="Log masuk" />
+      <BackLink label={t('log_masuk')} />
       {me ? (
         <>
           <OutletReportView me={me} />
@@ -27,8 +29,7 @@ export default function HeadOffice() {
       ) : (
         <Card className="p-4 mt-4">
           <Text className="font-sans-med text-[13px] text-ink-3">
-            Log masuk sebagai Manager atau General Manager untuk melihat laporan
-            cawangan.
+            {t('log_masuk_manager')}
           </Text>
         </Card>
       )}

@@ -7,8 +7,10 @@ import { Screen } from '@/components/Screen';
 import { ACTIVE_WEEK } from '@/data/checklist';
 import { currentPeriod, weekRangeLabel } from '@/data/period';
 import { useBranchLabel } from '@/store/useBranches';
-import { ROLE_LABEL, User } from '@/data/users';
+import { User } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
+import { useLocale, useT } from '@/store/useLocale';
 import { unreadReminders, useReminders } from '@/store/useReminders';
 import { currentUser, useSession } from '@/store/useSession';
 import { markingQueue, useUsers } from '@/store/useUsers';
@@ -20,6 +22,8 @@ export default function SupervisorQueue() {
   const startMarking = useMarks((s) => s.startMarking);
   const users = useUsers((s) => s.users);
   const unread = unreadReminders(useReminders((s) => s.items));
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const supervisor = currentUser(users, useSession((s) => s.currentUserId));
   const branchId = supervisor?.branchId ?? null;
@@ -37,14 +41,17 @@ export default function SupervisorQueue() {
   return (
     <Screen>
       <MonoLabel>
-        {supervisor?.name ?? 'Tiada SV/AS'} · {ROLE_LABEL.supervisor} · {branchLabel(branchId)}
+        {supervisor?.name ?? t('tiada_sv')} · {roleLabel('supervisor', locale)} · {branchLabel(branchId)}
       </MonoLabel>
       <Text className="font-sans-semi text-2xl text-ink mt-2">
-        Checklist Minggu {ACTIVE_WEEK + 1}
+        {t('checklist_minggu', { week: ACTIVE_WEEK + 1 })}
       </Text>
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
-        Tarikh {weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1)}. {pending.length} daripada{' '}
-        {crew.length} pekerja belum dinilai. Tutup sebelum Ahad.
+        {t('checklist_status', {
+          range: weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1),
+          pending: pending.length,
+          total: crew.length,
+        })}
       </Text>
 
       <QueueBanner />
@@ -60,7 +67,7 @@ export default function SupervisorQueue() {
             className="font-sans-med text-[12.5px] leading-[19px]"
             style={{ color: C.warnInk }}
           >
-            {unread.length} peringatan daripada Area Manager →
+            {t('peringatan_am_banner', { count: unread.length })}
           </Text>
         </Pressable>
       )}
@@ -82,7 +89,7 @@ export default function SupervisorQueue() {
                 <View className="flex-1 min-w-0">
                   <Text className="font-sans-semi text-[13.5px] text-ink">{p.name}</Text>
                   <Text className="font-mono text-[11px] text-ink-5 mt-1">
-                    {p.id} · {p.role === 'store' ? 'STOR' : 'KEDAI'}
+                    {p.id} · {p.role === 'store' ? t('badge_stor') : t('badge_kedai')}
                   </Text>
                 </View>
                 {done ? (
@@ -99,7 +106,7 @@ export default function SupervisorQueue() {
                   </View>
                 ) : (
                   <View className="px-[11px] py-[7px] rounded-lg bg-ink">
-                    <Text className="font-sans-semi text-xs text-white">Isi</Text>
+                    <Text className="font-sans-semi text-xs text-white">{t('isi')}</Text>
                   </View>
                 )}
               </View>

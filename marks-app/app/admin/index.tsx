@@ -6,7 +6,9 @@ import { MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { findBranch } from '@/data/branches';
 import { useBranches } from '@/store/useBranches';
-import { ROLE_LABEL, ROLE_LADDER, Role } from '@/data/users';
+import { ROLE_LADDER, Role } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
@@ -19,6 +21,8 @@ export default function AdminUsers() {
   const branches = useBranches((s) => s.branches);
   const [filter, setFilter] = useState<Filter>('all');
   const [branchFilter, setBranchFilter] = useState<string | null>(null);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const shown = users.filter(
     (u) =>
@@ -31,23 +35,24 @@ export default function AdminUsers() {
     <Screen>
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
-          <MonoLabel>Semua cawangan · Pentadbiran</MonoLabel>
-          <Text className="font-sans-semi text-2xl text-ink mt-2">Pengguna</Text>
+          <MonoLabel>{t('semua_cawangan_admin')}</MonoLabel>
+          <Text className="font-sans-semi text-2xl text-ink mt-2">{t('tab_pengguna')}</Text>
         </View>
         <Pressable
           onPress={() => router.push('/user-new')}
           accessibilityRole="button"
-          accessibilityLabel="Tambah pengguna"
+          accessibilityLabel={t('tambah_pengguna_a11y')}
           className="px-3.5 py-2.5 rounded-xl bg-ink active:opacity-80"
         >
-          <Text className="font-sans-semi text-[13px] text-white">+ Tambah</Text>
+          <Text className="font-sans-semi text-[13px] text-white">{t('tambah')}</Text>
         </Pressable>
       </View>
 
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        {users.filter((u) => u.active).length} akaun aktif
-        {inactive > 0 ? ` · ${inactive} nyahaktif` : ''}. Tukar peranan untuk naik atau
-        turun pangkat.
+        {t('akaun_aktif_summary', {
+          active: users.filter((u) => u.active).length,
+          inactive: inactive > 0 ? t('inactive_suffix', { count: inactive }) : '',
+        })}
       </Text>
 
       <View className="flex-row gap-1.5 mt-4">
@@ -69,7 +74,7 @@ export default function AdminUsers() {
                 style={{ color: on ? '#fff' : C.ink3 }}
                 numberOfLines={1}
               >
-                {bid === null ? 'Semua' : (findBranch(branches, bid)?.short ?? bid)}
+                {bid === null ? t('semua') : (findBranch(branches, bid)?.short ?? bid)}
               </Text>
             </Pressable>
           );
@@ -95,7 +100,7 @@ export default function AdminUsers() {
                 className="font-sans-med text-[12px]"
                 style={{ color: on ? '#fff' : C.ink3 }}
               >
-                {f === 'all' ? 'Semua' : ROLE_LABEL[f]} {count}
+                {f === 'all' ? t('semua') : roleLabel(f, locale)} {count}
               </Text>
             </Pressable>
           );
@@ -119,7 +124,7 @@ export default function AdminUsers() {
                 </Text>
                 <Text className="font-mono text-[11px] text-ink-5 mt-1">
                   {u.id} · {u.branchId ?? 'HQ'}
-                  {u.active ? '' : ' · nyahaktif'}
+                  {u.active ? '' : t('nyahaktif_suffix')}
                 </Text>
               </View>
               <View
@@ -130,7 +135,7 @@ export default function AdminUsers() {
                   className="font-mono-semi text-[10px]"
                   style={{ color: u.role === 'admin' ? C.pass : C.ink3 }}
                 >
-                  {ROLE_LABEL[u.role].toUpperCase()}
+                  {roleLabel(u.role, locale).toUpperCase()}
                 </Text>
               </View>
             </View>

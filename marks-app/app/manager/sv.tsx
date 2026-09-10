@@ -6,8 +6,9 @@ import { QueueBanner } from '@/components/QueueBanner';
 import { Screen } from '@/components/Screen';
 import { ACTIVE_WEEK } from '@/data/checklist';
 import { currentPeriod, weekRangeLabel } from '@/data/period';
-import { ROLE_LABEL } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
 import { useBranchLabel } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { markingQueue, useUsers } from '@/store/useUsers';
@@ -27,6 +28,8 @@ export default function ManagerSvQueue() {
   const users = useUsers((s) => s.users);
   const manager = currentUser(users, useSession((s) => s.currentUserId));
   const branchLabel = useBranchLabel();
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const crew = markingQueue(users, manager);
   const pending = crew.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
@@ -34,14 +37,17 @@ export default function ManagerSvQueue() {
   return (
     <Screen>
       <MonoLabel>
-        {manager?.name ?? '—'} · {manager ? ROLE_LABEL[manager.role] : ''}
+        {manager?.name ?? '—'} · {manager ? roleLabel(manager.role, locale) : ''}
       </MonoLabel>
       <Text className="font-sans-semi text-2xl text-ink mt-2">
-        Checklist SV/AS · Minggu {ACTIVE_WEEK + 1}
+        {t('checklist_sv_minggu', { week: ACTIVE_WEEK + 1 })}
       </Text>
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
-        Tarikh {weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1)}. {pending.length} daripada{' '}
-        {crew.length} SV/AS belum dinilai.
+        {t('checklist_sv_status', {
+          range: weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1),
+          pending: pending.length,
+          total: crew.length,
+        })}
       </Text>
 
       <QueueBanner />
@@ -49,7 +55,7 @@ export default function ManagerSvQueue() {
       {crew.length === 0 ? (
         <Card className="p-4 mt-4 items-center">
           <Text className="font-sans-med text-[12.5px] text-ink-4">
-            Tiada SV/AS di cawangan anda.
+            {t('tiada_sv_cawangan')}
           </Text>
         </Card>
       ) : (
@@ -77,7 +83,7 @@ export default function ManagerSvQueue() {
                 </View>
                 {v == null ? (
                   <View className="px-3 py-2 rounded-lg bg-ink">
-                    <Text className="font-sans-semi text-[12px] text-white">Isi</Text>
+                    <Text className="font-sans-semi text-[12px] text-white">{t('isi')}</Text>
                   </View>
                 ) : (
                   <View

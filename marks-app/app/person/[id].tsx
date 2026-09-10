@@ -7,6 +7,7 @@ import { Card } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { MONTHS } from '@/data/checklist';
+import { useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { formForRole, isVerified, useMarks, weekMark } from '@/store/useMarks';
@@ -28,6 +29,7 @@ export default function PersonDetail() {
   } = useMarks();
   const verify = useMarks((s) => s.verify);
   const me = currentUser(users, useSession((x) => x.currentUserId));
+  const t = useT();
   // Which week's "Ubah" editor is open, if any.
   const [adjustingKey, setAdjustingKey] = useState<string | null>(null);
   const [draftPct, setDraftPct] = useState('');
@@ -37,10 +39,10 @@ export default function PersonDetail() {
       <Screen>
         <BackLink label={MONTHS[monthIdx]} />
         <Text className="font-sans-semi text-[19px] text-ink mt-4">
-          Pekerja tidak dijumpai
+          {t('pekerja_tak_dijumpai')}
         </Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          Akaun {id} tiada dalam senarai pengguna.
+          {t('akaun_tiada_senarai', { id })}
         </Text>
       </Screen>
     );
@@ -55,7 +57,7 @@ export default function PersonDetail() {
         <View className="min-w-0 flex-1">
           <Text className="font-sans-semi text-[18px] text-ink">{person.name}</Text>
           <Text className="font-mono text-xs text-ink-5 mt-1">
-            {person.id} · Pekerja kedai
+            {person.id} · {t('pekerja_kedai_label')}
           </Text>
         </View>
       </View>
@@ -93,16 +95,16 @@ export default function PersonDetail() {
               <View className="flex-row items-center gap-3">
                 <View className="flex-1">
                   <Text className="font-sans-semi text-[13.5px] text-ink">
-                    Minggu {i + 1}
+                    {t('minggu_n', { n: i + 1 })}
                   </Text>
                   <Text className="font-sans text-[11.5px] text-ink-5 mt-1">
                     {v == null
-                      ? 'Belum dinilai'
+                      ? t('belum_dinilai')
                       : ok
                         ? overridePct != null
-                          ? 'Dinilai SV/AS · diselaraskan MGR'
-                          : 'Dinilai SV/AS · disahkan MGR'
-                        : 'Dinilai SV/AS · belum disahkan'}
+                          ? t('status_diselaraskan')
+                          : t('status_disahkan')
+                        : t('status_belum_disahkan')}
                   </Text>
                 </View>
                 <Text
@@ -116,9 +118,9 @@ export default function PersonDetail() {
                 </Text>
               </View>
 
-              {overridePct != null && (
+              {overridePct != null && v != null && (
                 <Text className="font-mono text-[10.5px] text-ink-5 mt-1.5">
-                  Markah asal SV/AS: {v}%
+                  {t('markah_asal_sv', { value: v })}
                 </Text>
               )}
 
@@ -136,7 +138,7 @@ export default function PersonDetail() {
                     className="flex-1 py-[11px] rounded-[9px] bg-ink items-center active:opacity-80"
                   >
                     <Text className="font-sans-semi text-[12.5px] text-white">
-                      Sahkan markah
+                      {t('sahkan_markah')}
                     </Text>
                   </Pressable>
                   <Pressable
@@ -144,7 +146,7 @@ export default function PersonDetail() {
                     accessibilityRole="button"
                     className="flex-1 py-[11px] rounded-[9px] border border-line bg-card items-center active:opacity-70"
                   >
-                    <Text className="font-sans-semi text-[12.5px] text-ink-2">Ubah</Text>
+                    <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('ubah')}</Text>
                   </Pressable>
                 </View>
               )}
@@ -152,7 +154,7 @@ export default function PersonDetail() {
               {isAdjusting && (
                 <View className="mt-3 pt-3 border-t border-rule">
                   <Text className="font-sans text-[12px] text-ink-4 mb-2">
-                    Peratus baharu untuk Minggu {i + 1} ({person.short})
+                    {t('peratus_baharu_minggu', { week: i + 1, name: person.short })}
                   </Text>
                   <View className="flex-row gap-2 items-center">
                     <TextInput
@@ -169,7 +171,7 @@ export default function PersonDetail() {
                       className="flex-1 py-[11px] rounded-[9px] bg-ink items-center active:opacity-80"
                     >
                       <Text className="font-sans-semi text-[12.5px] text-white">
-                        Simpan pelarasan
+                        {t('simpan_pelarasan')}
                       </Text>
                     </Pressable>
                     <Pressable
@@ -177,7 +179,7 @@ export default function PersonDetail() {
                       accessibilityRole="button"
                       className="py-[11px] px-3 rounded-[9px] border border-line bg-card items-center active:opacity-70"
                     >
-                      <Text className="font-sans-semi text-[12.5px] text-ink-2">Batal</Text>
+                      <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('batal')}</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -189,7 +191,7 @@ export default function PersonDetail() {
 
       <Card className="p-4 mt-2.5">
         <Text className="font-sans-semi text-[13px] text-ink mb-4">
-          Purata ikut perkara · {MONTHS[monthIdx]}
+          {t('purata_ikut_perkara_bulan', { month: MONTHS[monthIdx] })}
         </Text>
         <PerkaraBars values={person.perkara} form={formForRole(person.role)} />
       </Card>

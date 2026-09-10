@@ -6,19 +6,21 @@ import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { useActiveBranches } from '@/store/useBranches';
 import {
-  ROLE_BLURB,
-  ROLE_LABEL,
   ROLE_LADDER,
   Role,
   newUserBlocker,
   nextIdFor,
 } from '@/data/users';
+import { roleBlurb, roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 export default function NewUser() {
   const users = useUsers((s) => s.users);
   const addUser = useUsers((s) => s.addUser);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const [name, setName] = useState('');
   const [role, setRole] = useState<Role>('staff');
@@ -49,21 +51,21 @@ export default function NewUser() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Screen>
-        <BackLink label="Pengguna" />
-        <Text className="font-sans-semi text-[22px] text-ink mt-4">Akaun baharu</Text>
+        <BackLink label={t('tab_pengguna')} />
+        <Text className="font-sans-semi text-[22px] text-ink mt-4">{t('akaun_baharu')}</Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          No. pekerja dijana ikut siri peranan — KP untuk pekerja kedai, WS untuk SV/AS.
+          {t('akaun_baharu_intro')}
         </Text>
 
         <Card className="p-[15px] mt-4">
-          <MonoLabel>Nama penuh</MonoLabel>
+          <MonoLabel>{t('nama_penuh')}</MonoLabel>
           <TextInput
             value={name}
-            onChangeText={(t) => {
-              setName(t);
+            onChangeText={(text) => {
+              setName(text);
               setError(null);
             }}
-            placeholder="cth: Nurul Ain binti Rahim"
+            placeholder={t('contoh_nama_penuh')}
             placeholderTextColor={C.ink6}
             autoCapitalize="words"
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
@@ -71,7 +73,7 @@ export default function NewUser() {
         </Card>
 
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Peranan</MonoLabel>
+          <MonoLabel>{t('tab_peranan')}</MonoLabel>
           <View className="gap-1.5 mt-2.5">
             {ROLE_LADDER.map((r) => {
               const on = role === r;
@@ -102,12 +104,12 @@ export default function NewUser() {
                           : 'flex-1 font-sans-med text-[13px] text-ink-4'
                       }
                     >
-                      {ROLE_LABEL[r]}
+                      {roleLabel(r, locale)}
                     </Text>
                   </View>
                   {on && (
                     <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-1.5 pl-[17px]">
-                      {ROLE_BLURB[r]}
+                      {roleBlurb(r, locale)}
                     </Text>
                   )}
                 </Pressable>
@@ -118,7 +120,7 @@ export default function NewUser() {
 
         {role !== 'admin' && (
           <Card className="p-[15px] mt-2.5">
-            <MonoLabel>Cawangan</MonoLabel>
+            <MonoLabel>{t('tab_cawangan')}</MonoLabel>
             <View className="flex-row flex-wrap gap-1.5 mt-2.5">
               {branches.map((b) => {
                 const on = branchId === b.id;
@@ -145,17 +147,17 @@ export default function NewUser() {
               })}
             </View>
             <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
-              SV/AS dan Area Manager hanya nampak pekerja di cawangan ini.
+              {t('cawangan_hint_sv')}
             </Text>
           </Card>
         )}
 
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>No. pekerja</MonoLabel>
+          <MonoLabel>{t('no_pekerja')}</MonoLabel>
           <TextInput
             value={customId}
-            onChangeText={(t) => {
-              setCustomId(t);
+            onChangeText={(text) => {
+              setCustomId(text);
               setError(null);
             }}
             placeholder={suggestedId}
@@ -165,7 +167,7 @@ export default function NewUser() {
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-mono text-[13px] text-ink"
           />
           <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
-            Biarkan kosong untuk guna {suggestedId}.
+            {t('biarkan_kosong_guna_id', { id: suggestedId })}
           </Text>
         </Card>
 
@@ -186,7 +188,7 @@ export default function NewUser() {
           className="mt-3.5 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
         >
           <Text className="font-sans-semi text-sm text-white">
-            Cipta akaun {ROLE_LABEL[role]}
+            {t('cipta_akaun_role', { role: roleLabel(role, locale) })}
           </Text>
         </Pressable>
       </Screen>

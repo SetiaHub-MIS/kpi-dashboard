@@ -12,12 +12,14 @@ import {
   PublicSans_700Bold,
   useFonts,
 } from '@expo-google-fonts/public-sans';
-import { Stack } from 'expo-router';
+import { Stack, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { hydrateDirectory } from '@/lib/hydrate';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { useLocale } from '@/store/useLocale';
 import { useQueue } from '@/store/useQueue';
 import { findUser, useUsers } from '@/store/useUsers';
 import { useSession } from '@/store/useSession';
@@ -50,6 +52,7 @@ export default function RootLayout() {
   useEffect(() => {
     let live = true;
     void useQueue.getState().load();
+    void useLocale.getState().load();
     restore().then(async () => {
       if (!live || !useSession.getState().staff) return;
       // Drain before loading: a mark that syncs now should be in the directory
@@ -61,6 +64,21 @@ export default function RootLayout() {
       live = false;
     };
   }, [restore]);
+
+  // Every screen but the sign-in one requires a session. RLS already refuses
+  // the data underneath it — a supervisor querying another branch gets zero
+  // rows — but that is not the same as the UI never having offered the
+  // screen at all. A deep link straight to /admin with nobody signed in used
+  // to render that screen's empty shell; now it bounces to sign-in instead.
+  const status = useSession((s) => s.status);
+  const currentUserId = useSession((s) => s.currentUserId);
+  const pathname = usePathname();
+  const router = useRouter();
+  useEffect(() => {
+    if (!isSupabaseConfigured) return; // demo mode has no real session to check
+    if (status === 'restoring') return; // a stored session may still resolve
+    if (!currentUserId && pathname !== '/') router.replace('/');
+  }, [status, currentUserId, pathname, router]);
 
   if (!loaded && !error) return null;
 

@@ -5,10 +5,7 @@ import { Card, MonoLabel } from '@/components/Card';
 import { ReturnPhotos } from '@/components/ReturnPhotos';
 import { Screen } from '@/components/Screen';
 import {
-  DISPOSITION_LABEL,
   Disposition,
-  REASON_LABEL,
-  STAGE_LABEL,
   STAGE_OWNER,
   TODAY_ISO,
   daysBetween,
@@ -19,8 +16,9 @@ import {
   stagesFor,
   turnaroundDays,
 } from '@/data/returns';
-import { ROLE_LABEL } from '@/data/users';
+import { dispositionLabel, reasonLabel, roleLabel, stageLabel } from '@/i18n/labels';
 import { useReturns } from '@/store/useReturns';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -33,14 +31,16 @@ export default function ReturnDetail() {
   const segregate = useReturns((s) => s.segregate);
   const recordStage = useReturns((s) => s.recordStage);
   const undoStage = useReturns((s) => s.undoStage);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const record = records.find((r) => r.id === id);
 
   if (!record) {
     return (
       <Screen>
-        <BackLink label="Pulangan" />
-        <Text className="font-sans-semi text-[19px] text-ink mt-4">Bil tidak dijumpai</Text>
+        <BackLink label={t('tab_pulangan')} />
+        <Text className="font-sans-semi text-[19px] text-ink mt-4">{t('bil_tak_dijumpai')}</Text>
       </Screen>
     );
   }
@@ -57,10 +57,11 @@ export default function ReturnDetail() {
     if (!stage) return;
     if (!canAct) {
       Alert.alert(
-        'Bukan tindakan anda',
-        `${STAGE_LABEL[stage]} direkod oleh ${
-          STAGE_OWNER[stage] === 'clerk' ? ROLE_LABEL.clerk : ROLE_LABEL.store
-        }.`
+        t('bukan_tindakan_anda'),
+        t('stage_direkod_oleh', {
+          stage: stageLabel(stage, locale),
+          role: roleLabel(STAGE_OWNER[stage] === 'clerk' ? 'clerk' : 'store', locale),
+        })
       );
       return;
     }
@@ -69,7 +70,7 @@ export default function ReturnDetail() {
 
   return (
     <Screen>
-      <BackLink label="Pulangan" />
+      <BackLink label={t('tab_pulangan')} />
 
       <View className="flex-row items-center gap-2.5 mt-4">
         <Text className="flex-1 font-sans-semi text-[20px] text-ink">{record.billNo}</Text>
@@ -81,16 +82,16 @@ export default function ReturnDetail() {
             className="font-mono-semi text-[10px]"
             style={{ color: record.reason === 'damage' ? C.warnInk : C.fail }}
           >
-            {REASON_LABEL[record.reason].toUpperCase()}
+            {reasonLabel(record.reason, locale).toUpperCase()}
           </Text>
         </View>
       </View>
       <Text className="font-mono text-[11.5px] text-ink-5 mt-1.5">
-        Bil {fmtDate(record.billDate)} · {record.outlet}
+        {t('bil_outlet', { date: fmtDate(record.billDate), outlet: record.outlet })}
       </Text>
 
       <Card className="p-[15px] mt-4">
-        <MonoLabel>Terima → clear</MonoLabel>
+        <MonoLabel>{t('terima_clear')}</MonoLabel>
         <View className="flex-row items-baseline gap-1.5 mt-2.5">
           <Text
             className="font-mono-semi text-[34px]"
@@ -107,14 +108,14 @@ export default function ReturnDetail() {
             {turnaroundDays(record)}
           </Text>
           <Text className="font-mono text-[15px] text-ink-6">
-            hari{cleared ? '' : ' · masih berjalan'}
+            {t('hari')}{cleared ? '' : t('masih_berjalan_suffix')}
           </Text>
         </View>
         <Text className="font-sans text-[12.5px] leading-[19px] text-ink-3 mt-3 pt-3 border-t border-rule">
           {record.remark}
         </Text>
         <Text className="font-mono text-[10.5px] text-ink-5 mt-2">
-          Pembekal: {record.supplier}
+          {t('pembekal_colon', { name: record.supplier })}
         </Text>
       </Card>
 
@@ -132,9 +133,9 @@ export default function ReturnDetail() {
 
       {record.disposition == null ? (
         <Card className="p-[15px] mt-2.5">
-          <MonoLabel>Asingkan — tentukan tindakan</MonoLabel>
+          <MonoLabel>{t('asingkan_tentukan')}</MonoLabel>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
-            Pulang ke pembekal atau buang? Pilihan ini menentukan langkah seterusnya.
+            {t('asingkan_intro')}
           </Text>
           <View className="flex-row gap-2 mt-3">
             {(['supplier', 'discard'] as Disposition[]).map((d) => (
@@ -142,7 +143,7 @@ export default function ReturnDetail() {
                 key={d}
                 onPress={() => {
                   if (myOwner !== 'store') {
-                    Alert.alert('Bukan tindakan anda', 'Pengasingan direkod oleh Pekerja Stor.');
+                    Alert.alert(t('bukan_tindakan_anda'), t('pengasingan_bukan_anda'));
                     return;
                   }
                   segregate(record.id, d, TODAY_ISO, me?.id);
@@ -152,7 +153,7 @@ export default function ReturnDetail() {
                 style={{ borderColor: C.line, backgroundColor: C.card }}
               >
                 <Text className="font-sans-semi text-[12.5px] text-ink-2">
-                  {DISPOSITION_LABEL[d]}
+                  {dispositionLabel(d, locale)}
                 </Text>
               </Pressable>
             ))}
@@ -161,16 +162,16 @@ export default function ReturnDetail() {
       ) : (
         <Card className="p-[15px] mt-2.5">
           <View className="flex-row items-center gap-2.5">
-            <MonoLabel>Tindakan</MonoLabel>
+            <MonoLabel>{t('tindakan_label')}</MonoLabel>
             <Text className="flex-1 font-sans-semi text-[13px] text-ink text-right">
-              {DISPOSITION_LABEL[record.disposition]}
+              {dispositionLabel(record.disposition, locale)}
             </Text>
           </View>
         </Card>
       )}
 
       <Card className="p-[15px] mt-2.5">
-        <MonoLabel>Jejak masa</MonoLabel>
+        <MonoLabel>{t('jejak_masa')}</MonoLabel>
         <View className="mt-3">
           {stages.map((s, i) => {
             const on = record.events[s];
@@ -199,14 +200,18 @@ export default function ReturnDetail() {
                           : 'flex-1 font-sans-med text-[13px] text-ink-6'
                       }
                     >
-                      {STAGE_LABEL[s]}
+                      {stageLabel(s, locale)}
                     </Text>
                     {gap != null && (
                       <Text className="font-mono text-[10.5px] text-ink-5">+{gap}h</Text>
                     )}
                   </View>
                   <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
-                    {on ? fmtDate(on) : `Menunggu ${STAGE_OWNER[s] === 'clerk' ? ROLE_LABEL.clerk : ROLE_LABEL.store}`}
+                    {on
+                      ? fmtDate(on)
+                      : t('menunggu_role', {
+                          role: roleLabel(STAGE_OWNER[s] === 'clerk' ? 'clerk' : 'store', locale),
+                        })}
                   </Text>
                 </View>
               </View>
@@ -227,8 +232,10 @@ export default function ReturnDetail() {
             style={{ color: canAct ? '#fff' : C.ink6 }}
           >
             {canAct
-              ? `Rekod: ${STAGE_LABEL[stage]}`
-              : `Menunggu ${STAGE_OWNER[stage] === 'clerk' ? ROLE_LABEL.clerk : ROLE_LABEL.store}`}
+              ? t('rekod_stage', { stage: stageLabel(stage, locale) })
+              : t('menunggu_role', {
+                  role: roleLabel(STAGE_OWNER[stage] === 'clerk' ? 'clerk' : 'store', locale),
+                })}
           </Text>
         </Pressable>
       )}
@@ -239,7 +246,7 @@ export default function ReturnDetail() {
           style={{ backgroundColor: C.passBg, borderColor: C.pass }}
         >
           <Text className="font-sans-semi text-[13px]" style={{ color: C.pass }}>
-            Selesai — stok dilaraskan {fmtDate(record.events.adjusted!)}
+            {t('selesai_stok_dilaraskan', { date: fmtDate(record.events.adjusted!) })}
           </Text>
         </View>
       )}
@@ -254,7 +261,7 @@ export default function ReturnDetail() {
             className="mt-2 py-3 rounded-xl border border-line items-center bg-card active:opacity-70"
           >
             <Text className="font-sans-med text-[12.5px] text-ink-4">
-              Batalkan: {STAGE_LABEL[last]}
+              {t('batalkan_stage', { stage: stageLabel(last, locale) })}
             </Text>
           </Pressable>
         );

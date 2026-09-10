@@ -12,6 +12,7 @@ import {
   uploadReturnPhoto,
 } from '@/lib/photos';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { useT } from '@/store/useLocale';
 import { C } from '@/theme/scoring';
 
 /**
@@ -39,6 +40,7 @@ export function ReturnPhotos({
   const [urls, setUrls] = useState<Record<number, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!isSupabaseConfigured || returnId == null) return;
@@ -79,7 +81,7 @@ export function ReturnPhotos({
       );
       setUrls(Object.fromEntries(pairs.filter(([, u]) => u) as [number, string][]));
     } catch (e: any) {
-      setError(e?.message ?? 'Gambar tidak dapat dimuat naik.');
+      setError(e?.message ?? t('gambar_gagal_naik'));
     } finally {
       setBusy(false);
     }
@@ -91,7 +93,7 @@ export function ReturnPhotos({
       await deleteReturnPhoto(id);
       setPhotos((p) => p.filter((x) => x.id !== id));
     } catch (e: any) {
-      setError(e?.message ?? 'Gambar tidak dapat dibuang.');
+      setError(e?.message ?? t('gambar_gagal_buang'));
     } finally {
       setBusy(false);
     }
@@ -102,7 +104,7 @@ export function ReturnPhotos({
   return (
     <View className="bg-card border border-line rounded-[13px] p-[15px] mt-2.5">
       <View className="flex-row items-center justify-between">
-        <MonoLabel>Gambar bukti</MonoLabel>
+        <MonoLabel>{t('gambar_bukti')}</MonoLabel>
         <Text className="font-mono text-[10px] text-ink-6">
           {photos.length}/{MAX_PER_RETURN}
         </Text>
@@ -110,7 +112,7 @@ export function ReturnPhotos({
 
       {photos.length === 0 ? (
         <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2">
-          Ambil gambar barang rosak sebagai bukti untuk pembekal.
+          {t('gambar_bukti_hint')}
         </Text>
       ) : (
         <View className="flex-row gap-2 mt-3">
@@ -122,7 +124,7 @@ export function ReturnPhotos({
                   className="w-full rounded-[10px]"
                   style={{ height: 104 }}
                   resizeMode="cover"
-                  accessibilityLabel="Gambar bukti pulangan"
+                  accessibilityLabel={t('gambar_bukti_a11y')}
                 />
               ) : (
                 <View
@@ -137,11 +139,11 @@ export function ReturnPhotos({
                   onPress={() => void remove(p.id)}
                   disabled={busy}
                   accessibilityRole="button"
-                  accessibilityLabel="Buang gambar"
+                  accessibilityLabel={t('buang_gambar_a11y')}
                   className="self-start mt-1.5 px-2 py-1 rounded-md border"
                   style={{ borderColor: C.line }}
                 >
-                  <Text className="font-mono text-[10px] text-ink-5">Buang</Text>
+                  <Text className="font-mono text-[10px] text-ink-5">{t('buang')}</Text>
                 </Pressable>
               )}
             </View>
@@ -161,7 +163,7 @@ export function ReturnPhotos({
             {busy ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text className="font-sans-semi text-[12.5px] text-white">Ambil gambar</Text>
+              <Text className="font-sans-semi text-[12.5px] text-white">{t('ambil_gambar')}</Text>
             )}
           </Pressable>
           <Pressable
@@ -170,7 +172,7 @@ export function ReturnPhotos({
             accessibilityRole="button"
             className="px-3.5 py-2.5 rounded-lg border border-line items-center active:opacity-70"
           >
-            <Text className="font-sans-med text-[12.5px] text-ink-3">Galeri</Text>
+            <Text className="font-sans-med text-[12.5px] text-ink-3">{t('galeri')}</Text>
           </Pressable>
         </View>
       )}

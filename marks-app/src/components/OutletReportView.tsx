@@ -2,8 +2,10 @@ import { Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { MONTHS } from '@/data/checklist';
 import { OutletReport, hqReport, weakestFirst } from '@/data/hq';
-import { ROLE_LABEL, User } from '@/data/users';
+import { User } from '@/data/users';
+import { roleLabel as roleLabelFor } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { useMarks, weekMark } from '@/store/useMarks';
 import { useReturns } from '@/store/useReturns';
 import { useUsers } from '@/store/useUsers';
@@ -33,39 +35,44 @@ export function OutletReportView({ me }: { me: User }) {
 
   const weakest = weakestFirst(outlets);
   const storBlind = total.stor == null;
-  const roleLabel = ROLE_LABEL[me.role];
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
+  const roleLabel = roleLabelFor(me.role, locale);
 
   return (
     <>
       <MonoLabel>
-        {me.name} · {roleLabel} · Semua cawangan
+        {me.name} · {roleLabel} · {t('semua_cawangan')}
       </MonoLabel>
-      <Text className="font-sans-semi text-2xl text-ink mt-2">Laporan cawangan</Text>
+      <Text className="font-sans-semi text-2xl text-ink mt-2">{t('laporan_cawangan')}</Text>
       <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-        {MONTHS[MONTHS.length - 1]} · {outlets.length} cawangan berdata
-        {quiet > 0 ? ` · ${quiet} lagi belum ada pekerja atau pulangan` : ''}
+        {t('report_period', {
+          month: MONTHS[MONTHS.length - 1],
+          count: outlets.length,
+          quiet: quiet > 0 ? t('report_quiet_suffix', { count: quiet }) : '',
+        })}
       </Text>
 
       {/* ------------------------------------------------ all outlets ---- */}
       <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-5 mb-2">
-        Semua cawangan
+        {t('semua_cawangan')}
       </Text>
 
       <View className="flex-row gap-2.5">
         <Figure
-          label="Markah kedai"
+          label={t('markah_kedai')}
           value={total.kedai.avg}
           suffix="%"
           tone={pctColor(total.kedai.avg, passThreshold)}
-          foot={`${total.kedai.marked} penilaian · ${total.kedai.people} pekerja`}
+          foot={t('penilaian_pekerja', { marked: total.kedai.marked, people: total.kedai.people })}
         />
         {total.stor ? (
           <Figure
-            label="Markah stor · HQ"
+            label={t('markah_stor_hq')}
             value={total.stor.avg}
             suffix="%"
             tone={pctColor(total.stor.avg, passThreshold)}
-            foot={`${total.stor.marked} penilaian · ${total.stor.people} pekerja stor pusat`}
+            foot={t('penilaian_pekerja_stor', { marked: total.stor.marked, people: total.stor.people })}
           />
         ) : (
           <OutOfRemit />
@@ -74,18 +81,20 @@ export function OutletReportView({ me }: { me: User }) {
 
       <View className="flex-row gap-2.5 mt-2.5">
         <Figure
-          label="Belum dinilai"
+          label={t('belum_dinilai')}
           value={total.kedai.gaps + (total.stor?.gaps ?? 0)}
           tone={total.kedai.gaps > 0 ? C.warn : C.pass}
-          foot={`daripada ${total.kedai.cellTotal + (total.stor?.cellTotal ?? 0)} minggu × pekerja`}
+          foot={t('daripada_minggu_pekerja', {
+            total: total.kedai.cellTotal + (total.stor?.cellTotal ?? 0),
+          })}
         />
         {total.returns ? (
           <Figure
-            label="Hantar ke kerani"
+            label={t('hantar_ke_kerani')}
             value={total.returns.submissionPct}
             suffix="%"
             tone={pctColor(total.returns.submissionPct, 100)}
-            foot={`${total.returns.received} bil diterima`}
+            foot={t('bil_diterima', { count: total.returns.received })}
           />
         ) : (
           <OutOfRemit />
@@ -98,12 +107,12 @@ export function OutletReportView({ me }: { me: User }) {
           style={{ backgroundColor: C.failBg, borderColor: C.fail }}
         >
           <Text className="font-sans-semi text-[13px]" style={{ color: C.fail }}>
-            {total.returns.aged} bil melebihi 2 bulan merentas semua cawangan
+            {t('bil_melebihi_2_bulan', { count: total.returns.aged })}
           </Text>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-2 mt-1.5">
             {total.returns.overdue > 0
-              ? `${total.returns.overdue} sudah lepas tempoh seminggu untuk clear. Tertua ${total.returns.oldestDays} hari.`
-              : `Masih dalam tempoh seminggu untuk clear. Tertua ${total.returns.oldestDays} hari.`}
+              ? t('ageing_overdue', { overdue: total.returns.overdue, days: total.returns.oldestDays })
+              : t('ageing_breach', { days: total.returns.oldestDays })}
           </Text>
         </View>
       )}
@@ -114,15 +123,14 @@ export function OutletReportView({ me }: { me: User }) {
           style={{ backgroundColor: C.warnBg, borderColor: C.warnLine }}
         >
           <Text className="font-sans-med text-[12.5px] leading-[19px]" style={{ color: C.warnInk }}>
-            Peranan {roleLabel} tidak merangkumi bahagian stor — markah stor dan
-            pulangan tidak dipaparkan.
+            {t('peranan_stor_blind', { role: roleLabel })}
           </Text>
         </View>
       )}
 
       {/* ---------------------------------------------- per outlet ------- */}
       <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">
-        Ikut cawangan
+        {t('ikut_cawangan')}
       </Text>
 
       <View className="gap-2">
@@ -133,9 +141,12 @@ export function OutletReportView({ me }: { me: User }) {
 
       {weakest.length > 1 && (
         <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-3">
-          {weakest[0].label} paling rendah pada {weakest[0].kedai.avg}% markah kedai,{' '}
-          {weakest[weakest.length - 1].kedai.avg - weakest[0].kedai.avg} mata di bawah{' '}
-          {weakest[weakest.length - 1].label}.
+          {t('weakest_summary', {
+            outlet: weakest[0].label,
+            avg: weakest[0].kedai.avg,
+            diff: weakest[weakest.length - 1].kedai.avg - weakest[0].kedai.avg,
+            best: weakest[weakest.length - 1].label,
+          })}
         </Text>
       )}
     </>
@@ -151,42 +162,43 @@ function OutletCard({
 }) {
   const { kedai, stor, returns } = report;
   const unmarked = kedai.marked === 0 && (stor?.marked ?? 0) === 0;
+  const t = useT();
 
   return (
     <Card className="px-[15px] py-3.5">
       <View className="flex-row items-baseline justify-between">
         <Text className="font-sans-semi text-[15px] text-ink">{report.label}</Text>
         <Text className="font-mono-med text-[10px] uppercase tracking-label text-ink-5">
-          {kedai.people + (stor?.people ?? 0)} pekerja
+          {t('n_pekerja', { count: kedai.people + (stor?.people ?? 0) })}
         </Text>
       </View>
 
       {unmarked ? (
         <Text className="font-sans text-[12.5px] text-ink-4 mt-2">
-          Tiada penilaian direkod bulan ini.
+          {t('tiada_penilaian_bulan_ini')}
         </Text>
       ) : (
         <View className="flex-row gap-4 mt-3">
           <Metric
-            label="Kedai"
+            label={t('kedai')}
             value={kedai.marked ? `${kedai.avg}%` : '—'}
             tone={kedai.marked ? pctColor(kedai.avg, passThreshold) : C.ink6}
           />
           {stor && (
             <Metric
-              label="Stor"
+              label={t('stor')}
               value={stor.marked ? `${stor.avg}%` : '—'}
               tone={stor.marked ? pctColor(stor.avg, passThreshold) : C.ink6}
             />
           )}
           <Metric
-            label="Belum dinilai"
+            label={t('belum_dinilai')}
             value={String(kedai.gaps + (stor?.gaps ?? 0))}
             tone={kedai.gaps + (stor?.gaps ?? 0) > 0 ? C.warn : C.pass}
           />
           {returns && (
             <Metric
-              label="Hantar"
+              label={t('hantar_status')}
               value={returns.received ? `${returns.submissionPct}%` : '—'}
               tone={returns.received ? pctColor(returns.submissionPct, 100) : C.ink6}
             />
@@ -196,14 +208,16 @@ function OutletCard({
 
       {returns && returns.aged > 0 && (
         <Text className="font-sans text-[12px] leading-[18px] mt-2.5" style={{ color: C.fail }}>
-          {returns.aged} bil melebihi 2 bulan
-          {returns.overdue > 0 ? `, ${returns.overdue} lepas tempoh clear` : ''} · tertua{' '}
-          {returns.oldestDays} hari
+          {t('bil_melebihi_2_bulan_short', {
+            count: returns.aged,
+            overdue: returns.overdue > 0 ? t('overdue_suffix', { count: returns.overdue }) : '',
+            days: returns.oldestDays,
+          })}
         </Text>
       )}
       {returns && returns.aged === 0 && returns.open > 0 && (
         <Text className="font-sans text-[12px] leading-[18px] text-ink-4 mt-2.5">
-          {returns.open} bil terbuka, semua dalam tempoh 2 bulan.
+          {t('bil_terbuka_dalam_tempoh', { count: returns.open })}
         </Text>
       )}
     </Card>
@@ -239,14 +253,15 @@ function Figure({
 
 /** Placeholder that keeps the grid square when the stor side is out of remit. */
 function OutOfRemit() {
+  const t = useT();
   return (
     <Card className="flex-1 p-[15px]">
-      <MonoLabel>Bahagian stor</MonoLabel>
+      <MonoLabel>{t('bahagian_stor')}</MonoLabel>
       <Text className="font-mono-semi text-[30px] mt-2.5" style={{ color: C.ink7 }}>
         —
       </Text>
       <Text className="font-sans text-[11.5px] leading-4 text-ink-5 mt-[7px]">
-        Tiada dalam bidang peranan ini
+        {t('tiada_dalam_bidang')}
       </Text>
     </Card>
   );

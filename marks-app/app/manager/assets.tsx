@@ -3,8 +3,10 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { daysBetweenIso, todayIso } from '@/data/period';
 import { reportAssetIssue, resolveAssetIssue } from '@/lib/assets';
+import { roleLabel } from '@/i18n/labels';
 import { useBranchLabel } from '@/store/useBranches';
 import { assetsOfBranch, useAssets } from '@/store/useAssets';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -17,6 +19,8 @@ export default function Assets() {
   const rows = useAssets((s) => s.rows);
   const setRow = useAssets((s) => s.setRow);
   const items = assetsOfBranch(rows, branchId);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [draftNote, setDraftNote] = useState('');
@@ -54,10 +58,12 @@ export default function Assets() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Keadaan aset kedai</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('keadaan_aset_kedai')}</Text>
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
-        {branchLabel(branchId)} · dikemaskini oleh {me?.name ?? 'Area Manager'} · pemeriksaan
-        mingguan
+        {t('aset_dikemaskini', {
+          branch: branchLabel(branchId),
+          name: me?.name ?? roleLabel('area_manager', locale),
+        })}
       </Text>
 
       <View className="gap-2 mt-4">
@@ -87,7 +93,7 @@ export default function Assets() {
                     className="font-mono-semi text-[9.5px]"
                     style={{ color: a.isOpen ? C.warnInk : C.pass }}
                   >
-                    {a.isOpen ? 'BELUM SELESAI' : 'OK'}
+                    {a.isOpen ? t('belum_selesai') : t('ok_status')}
                   </Text>
                 </View>
               </View>
@@ -99,7 +105,7 @@ export default function Assets() {
                   </Text>
                   {age != null && (
                     <Text className="font-mono text-[11px] text-ink-6 mt-2.5">
-                      {age} hari terbuka
+                      {t('hari_terbuka', { days: age })}
                     </Text>
                   )}
                 </View>
@@ -112,7 +118,7 @@ export default function Assets() {
                   className="mt-3 py-2.5 rounded-[9px] bg-ink items-center active:opacity-80"
                 >
                   <Text className="font-sans-semi text-[12.5px] text-white">
-                    Tanda selesai
+                    {t('tanda_selesai')}
                   </Text>
                 </Pressable>
               )}
@@ -124,7 +130,7 @@ export default function Assets() {
                   className="mt-3 py-2.5 rounded-[9px] border border-line items-center active:opacity-70"
                 >
                   <Text className="font-sans-semi text-[12.5px] text-ink-2">
-                    Laporkan isu
+                    {t('laporkan_isu')}
                   </Text>
                 </Pressable>
               )}
@@ -134,7 +140,7 @@ export default function Assets() {
                   <TextInput
                     value={draftNote}
                     onChangeText={setDraftNote}
-                    placeholder="Terangkan isu ini…"
+                    placeholder={t('terangkan_isu')}
                     placeholderTextColor={C.ink7}
                     multiline
                     className="font-sans text-[12.5px] text-ink border border-line rounded-[9px] px-3 py-2.5 min-h-[64px]"
@@ -146,14 +152,14 @@ export default function Assets() {
                       className="flex-1 py-2.5 rounded-[9px] bg-ink items-center active:opacity-80"
                       style={{ opacity: draftNote.trim() ? 1 : 0.5 }}
                     >
-                      <Text className="font-sans-semi text-[12.5px] text-white">Hantar</Text>
+                      <Text className="font-sans-semi text-[12.5px] text-white">{t('hantar')}</Text>
                     </Pressable>
                     <Pressable
                       onPress={() => setEditingId(null)}
                       accessibilityRole="button"
                       className="py-2.5 px-3 rounded-[9px] border border-line items-center active:opacity-70"
                     >
-                      <Text className="font-sans-semi text-[12.5px] text-ink-2">Batal</Text>
+                      <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('batal')}</Text>
                     </Pressable>
                   </View>
                 </View>

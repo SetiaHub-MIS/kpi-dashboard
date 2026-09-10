@@ -1,9 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import {
-  REASON_LABEL,
   ReturnRecord,
-  STAGE_LABEL,
   STAGE_OWNER,
   Stage,
   StageOwner,
@@ -13,6 +11,8 @@ import {
   nextStage,
   turnaroundDays,
 } from '@/data/returns';
+import { reasonLabel, stageLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { C } from '@/theme/scoring';
 
 const BAND_COLOR = { ok: C.ink, warn: C.warn, late: C.fail } as const;
@@ -32,6 +32,8 @@ export function ReturnRow({
   const band = cleared ? 'ok' : ageBand(days);
   const stage: Stage | null = nextStage(record);
   const isMine = !!mine && stage != null && STAGE_OWNER[stage] === mine;
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   return (
     <Pressable
@@ -52,12 +54,12 @@ export function ReturnRow({
                 className="font-mono-semi text-[9px]"
                 style={{ color: record.reason === 'damage' ? C.warnInk : C.fail }}
               >
-                {REASON_LABEL[record.reason].toUpperCase()}
+                {reasonLabel(record.reason, locale).toUpperCase()}
               </Text>
             </View>
           </View>
           <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
-            Bil {fmtDate(record.billDate)} · {record.supplier}
+            {t('bil_tarikh', { date: fmtDate(record.billDate), supplier: record.supplier })}
           </Text>
         </View>
 
@@ -71,7 +73,7 @@ export function ReturnRow({
             </Text>
           </View>
           <Text className="font-mono text-[9px] text-ink-6 mt-1">
-            {cleared ? 'SELESAI' : 'TERBUKA'}
+            {cleared ? t('selesai') : t('terbuka')}
           </Text>
         </View>
       </View>
@@ -82,11 +84,11 @@ export function ReturnRow({
           style={{ backgroundColor: cleared ? C.pass : isMine ? C.ink : C.ink8 }}
         />
         <Text className="flex-1 font-sans-med text-[11.5px] text-ink-3" numberOfLines={1}>
-          {stage ? `Seterusnya: ${STAGE_LABEL[stage]}` : 'Stok sudah dilaraskan'}
+          {stage ? t('seterusnya', { stage: stageLabel(stage, locale) }) : t('stok_dilaraskan')}
         </Text>
         {isMine && (
           <Text className="font-mono-semi text-[9px]" style={{ color: C.ink }}>
-            TINDAKAN ANDA
+            {t('tindakan_anda')}
           </Text>
         )}
       </View>

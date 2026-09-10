@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { User } from '@/data/users';
 import { QueryMessage, fetchQueries, sendQuery, subscribeToQueries } from '@/lib/queries';
+import { useT } from '@/store/useLocale';
 import { C } from '@/theme/scoring';
 
 const timeLabel = (iso: string) => {
@@ -31,6 +32,7 @@ export function QueryThread({
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -71,10 +73,10 @@ export function QueryThread({
   return (
     <View className="mt-4">
       {loading && messages.length === 0 ? (
-        <Text className="font-sans text-[12.5px] text-ink-5">Memuatkan…</Text>
+        <Text className="font-sans text-[12.5px] text-ink-5">{t('memuatkan')}</Text>
       ) : messages.length === 0 ? (
         <Text className="font-sans text-[12.5px] text-ink-5">
-          Belum ada soalan. Tanya di bawah.
+          {t('belum_ada_soalan')}
         </Text>
       ) : (
         <View className="gap-2.5">
@@ -124,7 +126,7 @@ export function QueryThread({
         <TextInput
           value={draft}
           onChangeText={setDraft}
-          placeholder="Tulis soalan…"
+          placeholder={t('tulis_soalan')}
           placeholderTextColor={C.ink7}
           multiline
           className="flex-1 font-sans text-[13px] text-ink border border-line rounded-[10px] px-3 py-2.5"
@@ -137,7 +139,7 @@ export function QueryThread({
           className="py-2.5 px-4 rounded-[10px] bg-ink items-center justify-center"
           style={{ opacity: draft.trim() ? 1 : 0.4 }}
         >
-          <Text className="font-sans-semi text-[12.5px] text-white">Hantar</Text>
+          <Text className="font-sans-semi text-[12.5px] text-white">{t('hantar')}</Text>
         </Pressable>
       </View>
     </View>

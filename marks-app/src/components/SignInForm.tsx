@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-nativ
 import { MonoLabel } from '@/components/Card';
 import { Role } from '@/data/users';
 import { AUTH_EMAIL_DOMAIN } from '@/lib/auth';
+import { useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
 import { C } from '@/theme/scoring';
 
@@ -36,6 +37,7 @@ export function SignInForm() {
   const [payrollId, setPayrollId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const t = useT();
 
   const busy = loading || status === 'working';
 
@@ -60,7 +62,7 @@ export function SignInForm() {
 
   return (
     <View className="mt-7">
-      <MonoLabel>Nombor pekerja</MonoLabel>
+      <MonoLabel>{t('nombor_pekerja')}</MonoLabel>
       <TextInput
         value={payrollId}
         onChangeText={(t) => {
@@ -76,7 +78,7 @@ export function SignInForm() {
       />
 
       <View className="mt-3.5">
-        <MonoLabel>Kata laluan</MonoLabel>
+        <MonoLabel>{t('kata_laluan')}</MonoLabel>
         <TextInput
           value={password}
           onChangeText={(t) => {
@@ -114,16 +116,15 @@ export function SignInForm() {
         {busy ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text className="font-sans-semi text-sm text-white">Log masuk</Text>
+          <Text className="font-sans-semi text-sm text-white">{t('log_masuk')}</Text>
         )}
       </Pressable>
 
       <Text className="font-sans text-[12px] leading-[18px] text-ink-5 mt-3.5">
-        Guna nombor pekerja anda, bukan e-mel. Akaun dibuka oleh admin — hubungi
-        mereka jika belum ada kata laluan.
+        {t('sign_in_hint')}
       </Text>
       <Text className="font-mono text-[10px] text-ink-6 mt-1.5">
-        domain akaun: {AUTH_EMAIL_DOMAIN}
+        {t('akaun_domain', { domain: AUTH_EMAIL_DOMAIN })}
       </Text>
     </View>
   );

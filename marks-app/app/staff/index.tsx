@@ -7,6 +7,7 @@ import { Screen } from '@/components/Screen';
 import { todayLongLabel } from '@/data/period';
 import { formForRole } from '@/store/useMarks';
 import { useBranchLabel } from '@/store/useBranches';
+import { useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { sparkOf, useMyWeeks } from '@/store/useMyWeeks';
 import { currentUser, useSession } from '@/store/useSession';
@@ -23,6 +24,7 @@ export default function StaffHome() {
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const branchLabel = useBranchLabel();
+  const t = useT();
 
   const weeks = useMyWeeks((s) => s.weeks);
   const load = useMyWeeks((s) => s.load);
@@ -102,19 +104,21 @@ export default function StaffHome() {
 
           {weakest && weakest.i >= 0 && (
             <Text className="font-sans text-[11.5px] leading-[17px] text-[#A8AAA3] mt-3.5 pt-3 border-t border-[#2B2C2E]">
-              {weakestName} paling rendah ({weakest.v}%) minggu ini.
-              {latest.note ? ` ${latest.note}` : ''}
+              {t('weakest_this_week', {
+                name: weakestName,
+                value: weakest.v,
+                note: latest.note ? ` ${latest.note}` : '',
+              })}
             </Text>
           )}
         </View>
       ) : (
         <Card className="p-4 mt-4">
           <Text className="font-sans-med text-[13px] text-ink-3">
-            Belum ada markah direkod untuk anda.
+            {t('belum_ada_markah_anda')}
           </Text>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-5 mt-1.5">
-            SV/AS akan menilai checklist mingguan anda. Markah akan muncul di sini
-            sebaik ia dihantar.
+            {t('markah_akan_muncul')}
           </Text>
         </Card>
       )}
@@ -122,7 +126,7 @@ export default function StaffHome() {
       {weeks.length > 0 && (
         <>
           <Text className="font-sans-semi text-[13.5px] text-ink mt-5 mb-2.5 px-0.5">
-            Markah mingguan
+            {t('markah_mingguan')}
           </Text>
 
           <View className="gap-2">
@@ -158,7 +162,7 @@ export default function StaffHome() {
                       <View
                         className="w-[7px] h-[7px] rounded-full"
                         style={{ backgroundColor: C.link }}
-                        accessibilityLabel="Belum disahkan MANAGER"
+                        accessibilityLabel={t('belum_disahkan_manager_a11y')}
                       />
                     )}
                   </View>

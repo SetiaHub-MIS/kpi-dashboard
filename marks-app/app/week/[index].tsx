@@ -6,7 +6,8 @@ import { Card } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { useMyWeeks } from '@/store/useMyWeeks';
-import { ROLE_LABEL } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { findUser, primaryOf, useUsers } from '@/store/useUsers';
 import { pctColor } from '@/theme/scoring';
@@ -16,6 +17,8 @@ export default function WeekDetail() {
   const passThreshold = useMarks((s) => s.passThreshold);
   const users = useUsers((s) => s.users);
   const weeks = useMyWeeks((s) => s.weeks);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
   // Reachable by deep link, or after a restart before the list has loaded.
   const week = weeks[Number(index)] as (typeof weeks)[number] | undefined;
   // Who actually scored this particular week, not just "a" supervisor —
@@ -27,12 +30,12 @@ export default function WeekDetail() {
   if (!week) {
     return (
       <Screen>
-        <BackLink label="Kembali" />
+        <BackLink label={t('kembali')} />
         <Text className="font-sans-semi text-[19px] text-ink mt-4">
-          Markah tidak dijumpai
+          {t('markah_tak_dijumpai')}
         </Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          Buka semula dari senarai markah mingguan.
+          {t('buka_semula_senarai')}
         </Text>
       </Screen>
     );
@@ -40,11 +43,11 @@ export default function WeekDetail() {
 
   return (
     <Screen>
-      <BackLink label="Kembali" />
+      <BackLink label={t('kembali')} />
 
       <Text className="font-sans-semi text-[19px] text-ink mt-4">{week.label}</Text>
       <Text className="font-sans text-[11.5px] text-ink-5 mt-1.5">
-        Dinilai oleh {svName} ({supervisor?.id}) · checklist mingguan
+        {t('dinilai_oleh_checklist', { name: svName, id: supervisor?.id ?? '' })}
       </Text>
 
       <Card className="p-[18px] mt-4">
@@ -59,7 +62,7 @@ export default function WeekDetail() {
         </View>
         {week.adjustedPct != null && (
           <Text className="font-sans text-[12px] text-ink-5 mt-2">
-            Diselaraskan oleh Area Manager. Markah asal SV/AS: {week.pct}%.
+            {t('diselaraskan_am_detail', { value: week.pct })}
           </Text>
         )}
         <View className="mt-[18px]">
@@ -73,7 +76,7 @@ export default function WeekDetail() {
           <View>
             <Text className="font-sans-semi text-[13px] text-ink">{svName}</Text>
             <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
-              {supervisor?.id} · {ROLE_LABEL.supervisor}
+              {supervisor?.id} · {roleLabel('supervisor', locale)}
             </Text>
           </View>
         </View>
@@ -88,7 +91,7 @@ export default function WeekDetail() {
           accessibilityRole="button"
           className="flex-1 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
         >
-          <Text className="font-sans-semi text-sm text-white">Terima</Text>
+          <Text className="font-sans-semi text-sm text-white">{t('terima')}</Text>
         </Pressable>
         <Pressable
           onPress={() =>
@@ -96,7 +99,7 @@ export default function WeekDetail() {
               pathname: '/query/[markId]',
               params: {
                 markId: String(week.markId),
-                label: `Soalan · ${week.label}`,
+                label: t('soalan_week_label', { label: week.label }),
                 otherName: svName,
               },
             })
@@ -104,7 +107,7 @@ export default function WeekDetail() {
           accessibilityRole="button"
           className="flex-1 py-3.5 rounded-xl border border-[#D6D6D2] bg-card items-center active:opacity-70"
         >
-          <Text className="font-sans-semi text-sm text-ink-2">Tanya SV</Text>
+          <Text className="font-sans-semi text-sm text-ink-2">{t('tanya_sv')}</Text>
         </Pressable>
       </View>
     </Screen>

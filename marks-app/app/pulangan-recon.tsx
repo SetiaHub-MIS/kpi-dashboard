@@ -6,7 +6,6 @@ import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import {
-  FIELD_LABEL,
   Mapping,
   VENDOR_FIELDS,
   VendorField,
@@ -19,8 +18,10 @@ import {
   sniffDelimiter,
   toVendorRows,
 } from '@/data/reconcile';
-import { REASON_LABEL, ageingStatus, fmtDate, isCleared, ownerForRole } from '@/data/returns';
+import { ageingStatus, fmtDate, isCleared, ownerForRole } from '@/data/returns';
+import { fieldLabel, reasonLabel } from '@/i18n/labels';
 import { returnsVisibleTo, useReturns } from '@/store/useReturns';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -40,6 +41,8 @@ export default function PulanganRecon() {
   // Recording a bill stays a store job, as it is on the returns list itself;
   // everyone else can compare the two systems but not write from here.
   const canRecord = ownerForRole(me?.role) === 'store';
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const [raw, setRaw] = useState('');
   const [hasHeader, setHasHeader] = useState(true);
@@ -54,8 +57,8 @@ export default function PulanganRecon() {
   );
   const header = table[0] ?? [];
   const columns = useMemo(
-    () => header.map((h, i) => (h.trim() === '' ? `Lajur ${i + 1}` : h)),
-    [header]
+    () => header.map((h, i) => (h.trim() === '' ? t('lajur_n', { n: i + 1 }) : h)),
+    [header, t]
   );
 
   // The guess stands until the user overrides it, and is redone per paste.
@@ -108,11 +111,10 @@ export default function PulanganRecon() {
 
   return (
     <Screen>
-      <BackLink label="Pulangan" />
-      <Text className="font-sans-semi text-[22px] text-ink mt-4">Banding sistem stok</Text>
+      <BackLink label={t('tab_pulangan')} />
+      <Text className="font-sans-semi text-[22px] text-ink mt-4">{t('banding_sistem_stok')}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-        Tampal export CSV dari sistem stok. Aplikasi akan padankan ikut no. bil
-        dan tunjuk bil yang ada di satu sistem sahaja.
+        {t('recon_intro')}
       </Text>
 
       <View className="flex-row gap-2 mt-4">
@@ -121,7 +123,7 @@ export default function PulanganRecon() {
           accessibilityRole="button"
           className="flex-1 py-3 rounded-xl bg-ink items-center active:opacity-80"
         >
-          <Text className="font-sans-semi text-[13px] text-white">Tampal dari clipboard</Text>
+          <Text className="font-sans-semi text-[13px] text-white">{t('tampal_clipboard')}</Text>
         </Pressable>
         {raw !== '' && (
           <Pressable
@@ -133,19 +135,19 @@ export default function PulanganRecon() {
             accessibilityRole="button"
             className="px-4 py-3 rounded-xl border border-line bg-card items-center active:opacity-70"
           >
-            <Text className="font-sans-med text-[13px] text-ink-3">Kosongkan</Text>
+            <Text className="font-sans-med text-[13px] text-ink-3">{t('kosongkan')}</Text>
           </Pressable>
         )}
       </View>
 
       <TextInput
         value={raw}
-        onChangeText={(t) => {
-          setRaw(t);
+        onChangeText={(text) => {
+          setRaw(text);
           setMapping(null);
           setDropped([]);
         }}
-        placeholder="atau tampal terus di sini…"
+        placeholder={t('tampal_terus')}
         placeholderTextColor={C.ink6}
         multiline
         autoCorrect={false}
@@ -158,7 +160,7 @@ export default function PulanganRecon() {
         <>
           <Card className="p-[15px] mt-2.5">
             <View className="flex-row items-center justify-between">
-              <MonoLabel>Padanan lajur</MonoLabel>
+              <MonoLabel>{t('padanan_lajur')}</MonoLabel>
               <Pressable
                 onPress={() => setHasHeader(!hasHeader)}
                 accessibilityRole="switch"
@@ -167,19 +169,18 @@ export default function PulanganRecon() {
                 style={{ borderColor: C.line, backgroundColor: hasHeader ? C.rule : C.card }}
               >
                 <Text className="font-mono-med text-[10px] uppercase tracking-label text-ink-4">
-                  {hasHeader ? 'Baris 1 = tajuk' : 'Tiada tajuk'}
+                  {hasHeader ? t('baris_1_tajuk') : t('tiada_tajuk')}
                 </Text>
               </Pressable>
             </View>
             <Text className="font-sans text-xs leading-[18px] text-ink-4 mt-2">
-              Susunan lajur sistem stok belum disahkan, jadi tekan untuk betulkan
-              jika teka salah. No. bil wajib.
+              {t('recon_mapping_hint')}
             </Text>
 
             {VENDOR_FIELDS.map((field) => (
               <View key={field} className="mt-3">
                 <Text className="font-sans-med text-[12.5px] text-ink-2">
-                  {FIELD_LABEL[field]}
+                  {fieldLabel(field, locale)}
                   {field === 'billNo' && <Text style={{ color: C.fail }}> *</Text>}
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-1.5">
@@ -205,16 +206,15 @@ export default function PulanganRecon() {
 
           {!canReconcile(active) && (
             <Note tone="warn">
-              Pilih lajur no. bil dahulu — padanan dibuat ikut nombor bil sahaja.
+              {t('pilih_lajur_bil_dulu')}
             </Note>
           )}
 
           {locations.length > 0 && (
             <Card className="p-[15px] mt-2.5">
-              <MonoLabel>Kod lokasi dalam fail</MonoLabel>
+              <MonoLabel>{t('kod_lokasi_fail')}</MonoLabel>
               <Text className="font-sans text-xs leading-[18px] text-ink-4 mt-2">
-                Kod sistem stok sama dengan kod cawangan app. Matikan kod yang
-                bukan untuk semakan ini.
+                {t('kod_lokasi_hint')}
               </Text>
               <View className="flex-row flex-wrap gap-1.5 mt-2.5">
                 {locations.map((loc) => {
@@ -245,17 +245,17 @@ export default function PulanganRecon() {
           <View className="flex-row gap-2.5 mt-2.5">
             <Stat
               value={result.matched.length}
-              label="padan"
+              label={t('stat_padan')}
               tone={result.matched.length ? C.pass : C.ink}
             />
             <Stat
               value={result.appOnly.length}
-              label="app sahaja"
+              label={t('stat_app_sahaja')}
               tone={result.appOnly.length ? C.warn : C.pass}
             />
             <Stat
               value={result.vendorOnly.length}
-              label="stok sahaja"
+              label={t('stat_stok_sahaja')}
               tone={result.vendorOnly.length ? C.fail : C.pass}
             />
           </View>
@@ -263,25 +263,23 @@ export default function PulanganRecon() {
           {(result.duplicates.length > 0 || result.unparsedDates.length > 0) && (
             <Note tone="warn">
               {result.duplicates.length > 0 &&
-                `${result.duplicates.length} no. bil berulang dalam fail. `}
+                t('duplicates_note', { count: result.duplicates.length })}
               {result.unparsedDates.length > 0 &&
-                `${result.unparsedDates.length} tarikh tak dapat dibaca — tarikh tidak dibanding untuk baris itu.`}
+                t('unparsed_dates_note', { count: result.unparsedDates.length })}
             </Note>
           )}
 
           {result.unknownTypes.length > 0 && (
             <Note tone="warn">
-              {result.unknownTypes.length} bil berjenis bukan rosak atau luput
-              (cth. GOOD STOCK RETURN). App ini hanya model dua sebab itu, jadi
-              sebabnya kena dipilih sendiri semasa merekod.
+              {t('unknown_types_note', { count: result.unknownTypes.length })}
             </Note>
           )}
 
           <Section
-            title="Hanya dalam sistem stok"
+            title={t('section_vendor_only_title')}
             count={result.vendorOnly.length}
-            empty="Setiap bil dalam fail ada dalam app."
-            note="Bil ini belum direkod di sini, jadi ia tiada dalam KPI langsung."
+            empty={t('section_vendor_only_empty')}
+            note={t('section_vendor_only_note')}
           >
             {result.vendorOnly.map((row) => (
               <Card key={`${row.key}-${row.line}`} className="px-3.5 py-3">
@@ -289,7 +287,7 @@ export default function PulanganRecon() {
                   <View className="flex-1">
                     <Text className="font-mono-semi text-[13px] text-ink">{row.billNo}</Text>
                     <Text className="font-sans text-[12px] text-ink-4 mt-1">
-                      {row.billDate ? fmtDate(row.billDate) : row.billDateRaw || 'tarikh —'}
+                      {row.billDate ? fmtDate(row.billDate) : row.billDateRaw || t('tarikh_dash')}
                       {row.supplier ? ` · ${row.supplier}` : ''}
                       {row.amount ? ` · ${row.amount}` : ''}
                     </Text>
@@ -299,21 +297,21 @@ export default function PulanganRecon() {
                         style={{ color: row.reason ? C.ink5 : C.warn }}
                       >
                         {row.billType}
-                        {row.reason ? '' : ' · sebab tak dimodel'}
+                        {row.reason ? '' : t('sebab_tak_dimodel')}
                       </Text>
                     )}
                     <Text className="font-mono text-[10px] text-ink-6 mt-1">
-                      {row.branch ? `${row.branch} · ` : ''}baris {row.line}
+                      {row.branch ? `${row.branch} · ` : ''}{t('baris_n', { n: row.line })}
                     </Text>
                   </View>
                   {canRecord && (
                     <Pressable
                       onPress={() => recordVendorRow(row)}
                       accessibilityRole="button"
-                      accessibilityLabel={`Rekod bil ${row.billNo}`}
+                      accessibilityLabel={t('rekod_bil_no_a11y', { billNo: row.billNo })}
                       className="px-3 py-2 rounded-lg bg-ink active:opacity-80"
                     >
-                      <Text className="font-sans-semi text-[12px] text-white">Rekod</Text>
+                      <Text className="font-sans-semi text-[12px] text-white">{t('rekod')}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -322,10 +320,10 @@ export default function PulanganRecon() {
           </Section>
 
           <Section
-            title="Hanya dalam app"
+            title={t('section_app_only_title')}
             count={result.appOnly.length}
-            empty="Setiap bil app ada dalam fail sistem stok."
-            note="Bil ini direkod di sini tetapi tiada dalam export — semak sama ada pelarasan stok sudah dibuat."
+            empty={t('section_app_only_empty')}
+            note={t('section_app_only_note')}
           >
             {result.appOnly.map((r) => {
               const open = !isCleared(r);
@@ -347,7 +345,7 @@ export default function PulanganRecon() {
                       className="font-mono-med text-[10px] uppercase tracking-label"
                       style={{ color: open ? C.warn : C.ink6 }}
                     >
-                      {open ? ageingStatus(r) === 'ok' ? 'terbuka' : 'lewat' : 'selesai'}
+                      {open ? (ageingStatus(r) === 'ok' ? t('status_terbuka') : t('status_lewat')) : t('status_selesai')}
                     </Text>
                   </View>
                 </Pressable>
@@ -356,29 +354,29 @@ export default function PulanganRecon() {
           </Section>
 
           <Section
-            title="Padan tapi butiran beza"
+            title={t('section_mismatch_title')}
             count={result.mismatched.length}
-            empty="Tarikh dan pembekal sepadan untuk semua bil yang dipadankan."
-            note="No. bil sama, tetapi satu sistem menyimpan butiran lain."
+            empty={t('section_mismatch_empty')}
+            note={t('section_mismatch_note')}
           >
             {result.mismatched.map((m) => (
               <Card key={m.record.id} className="px-3.5 py-3">
                 <Text className="font-mono-semi text-[13px] text-ink">{m.record.billNo}</Text>
                 {m.clashes.includes('billDate') && (
                   <Clash
-                    label="Tarikh bil"
+                    label={t('tarikh_bil')}
                     app={fmtDate(m.record.billDate)}
                     vendor={m.row.billDate ? fmtDate(m.row.billDate) : m.row.billDateRaw}
                   />
                 )}
                 {m.clashes.includes('supplier') && (
-                  <Clash label="Pembekal" app={m.record.supplier} vendor={m.row.supplier} />
+                  <Clash label={t('pembekal')} app={m.record.supplier} vendor={m.row.supplier} />
                 )}
                 {m.clashes.includes('reason') && (
                   <Clash
-                    label="Sebab"
-                    app={REASON_LABEL[m.record.reason]}
-                    vendor={m.row.billType || (m.row.reason ? REASON_LABEL[m.row.reason] : '')}
+                    label={t('sebab')}
+                    app={reasonLabel(m.record.reason, locale)}
+                    vendor={m.row.billType || (m.row.reason ? reasonLabel(m.row.reason, locale) : '')}
                   />
                 )}
               </Card>
@@ -465,14 +463,15 @@ function Section({
 }
 
 function Clash({ label, app, vendor }: { label: string; app: string; vendor: string }) {
+  const t = useT();
   return (
     <View className="flex-row gap-3 mt-2">
       <View className="flex-1">
-        <MonoLabel>{`${label} · app`}</MonoLabel>
+        <MonoLabel>{t('clash_app', { label })}</MonoLabel>
         <Text className="font-sans text-[12.5px] text-ink-2 mt-1">{app || '—'}</Text>
       </View>
       <View className="flex-1">
-        <MonoLabel>{`${label} · stok`}</MonoLabel>
+        <MonoLabel>{t('clash_vendor', { label })}</MonoLabel>
         <Text className="font-sans text-[12.5px] mt-1" style={{ color: C.fail }}>
           {vendor || '—'}
         </Text>

@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { baseTabOptions, dotIcon } from '@/components/tabOptions';
+import { useT } from '@/store/useLocale';
 
 /**
  * Human Resources. The one head-office role that goes past the outlet summary:
@@ -9,19 +10,20 @@ import { baseTabOptions, dotIcon } from '@/components/tabOptions';
  * never fills it in.
  */
 export default function HrLayout() {
+  const t = useT();
   return (
     <Tabs screenOptions={baseTabOptions}>
       <Tabs.Screen
         name="index"
-        options={{ title: 'Laporan', tabBarIcon: dotIcon('square') }}
+        options={{ title: t('tab_laporan'), tabBarIcon: dotIcon('square') }}
       />
       <Tabs.Screen
         name="markah"
-        options={{ title: 'Markah', tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_markah'), tabBarIcon: dotIcon('circle') }}
       />
       <Tabs.Screen
         name="pulangan"
-        options={{ title: 'Pulangan', tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_pulangan'), tabBarIcon: dotIcon('circle') }}
       />
     </Tabs>
   );

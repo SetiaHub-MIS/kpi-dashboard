@@ -5,12 +5,14 @@ import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { FORM } from '@/data/checklist';
 import { useMyWeeks } from '@/store/useMyWeeks';
+import { useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { pctBg, pctColor } from '@/theme/scoring';
 
 export default function StaffRekod() {
   const passThreshold = useMarks((s) => s.passThreshold);
   const weeks = useMyWeeks((s) => s.weeks);
+  const t = useT();
 
   // Averaged over the weeks that carry per-perkara detail. Marks imported from
   // the workbooks have only a weekly total, so including them would divide by
@@ -24,17 +26,17 @@ export default function StaffRekod() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Rekod saya</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('rekod_saya')}</Text>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
         {weeks.length === 0
-          ? 'Belum ada minggu yang dinilai.'
-          : `${weeks.length} minggu terakhir yang sudah dinilai.`}
+          ? t('belum_ada_minggu_dinilai')
+          : t('n_minggu_terakhir', { count: weeks.length })}
       </Text>
 
       {detailed.length > 0 && (
         <Card className="p-4 mt-[18px]">
           <Text className="font-sans-semi text-[13px] text-ink mb-4">
-            Purata ikut perkara · {detailed.length} minggu
+            {t('purata_ikut_perkara', { count: detailed.length })}
           </Text>
           <PerkaraBars values={average} />
         </Card>

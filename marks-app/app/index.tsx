@@ -8,7 +8,9 @@ import { HQ_BRANCH_ID, isHq } from '@/data/branches';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useActiveBranches } from '@/store/useBranches';
 import { ME_ID } from '@/data/crew';
-import { ROLE_BLURB, ROLE_LABEL, Role } from '@/data/users';
+import { Role } from '@/data/users';
+import { roleBlurb, roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
 import { byRole, findUser, inBranch, useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -60,6 +62,8 @@ export default function RolePicker() {
   }, [signedInStaff]);
   const users = useUsers((s) => s.users);
   const signIn = useSession((s) => s.signIn);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
   const branches = useActiveBranches();
   const outlets = branches.filter((b) => !isHq(b.id));
   const [selected, setSelected] = useState<string | null>(null);
@@ -100,14 +104,12 @@ export default function RolePicker() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <MonoLabel>Log masuk</MonoLabel>
+        <MonoLabel>{t('log_masuk')}</MonoLabel>
         <Text className="font-sans-semi text-[30px] leading-9 text-ink mt-3">
           Checklist{'\n'}Mingguan
         </Text>
         <Text className="font-sans text-[14.5px] leading-6 text-ink-3 mt-3">
-          {isSupabaseConfigured
-            ? 'Log masuk dengan nombor pekerja. Apa yang anda nampak ditentukan oleh peranan anda.'
-            : 'SV/AS dan Area Manager hanya melihat pekerja di cawangan mereka sendiri. Stor pusat di HQ menerima pulangan dari semua cawangan.'}
+          {isSupabaseConfigured ? t('sign_in_intro') : t('demo_intro')}
         </Text>
 
         {isSupabaseConfigured ? (
@@ -115,7 +117,7 @@ export default function RolePicker() {
         ) : (
           <>
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-5 mb-2">
-            Cawangan · {outlets.length}
+            {t('cawangan_count', { count: outlets.length })}
           </Text>
           <View className="flex-row flex-wrap gap-1.5">
             {outlets.map((b) => {
@@ -161,18 +163,16 @@ export default function RolePicker() {
                   className="bg-card border border-line rounded-[14px] p-[18px] active:opacity-70"
                   style={{ opacity: disabled ? 0.5 : 1 }}
                 >
-                  <MonoLabel>{ROLE_LABEL[role].toUpperCase()}</MonoLabel>
+                  <MonoLabel>{roleLabel(role, locale).toUpperCase()}</MonoLabel>
                   <Text className="font-sans-semi text-[16px] text-ink mt-2">
                     {holder
                       ? `${holder.name} · ${holder.id}`
                       : fixtureOnly
-                        ? 'Paparan sendiri: Machang sahaja'
-                        : 'Tiada pemegang di cawangan ini'}
+                        ? t('paparan_sendiri_machang')
+                        : t('tiada_pemegang_cawangan')}
                   </Text>
                   <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-                    {fixtureOnly
-                      ? 'Rekod mingguan pekerja masih data contoh Kedai Machang.'
-                      : ROLE_BLURB[role]}
+                    {fixtureOnly ? t('rekod_contoh_machang') : roleBlurb(role, locale)}
                   </Text>
                 </Pressable>
               );
@@ -180,7 +180,7 @@ export default function RolePicker() {
           </View>
 
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">
-            Stor pusat · HQ Jenjarom
+            {t('stor_pusat_hq')}
           </Text>
           <View className="gap-2.5">
             {storeCrew.map(({ role, href, holder }) => (
@@ -192,19 +192,19 @@ export default function RolePicker() {
                 className="bg-card border border-line rounded-[14px] p-[18px] active:opacity-70"
                 style={{ opacity: holder ? 1 : 0.5 }}
               >
-                <MonoLabel>{ROLE_LABEL[role].toUpperCase()}</MonoLabel>
+                <MonoLabel>{roleLabel(role, locale).toUpperCase()}</MonoLabel>
                 <Text className="font-sans-semi text-[16px] text-ink mt-2">
-                  {holder ? `${holder.name} · ${holder.id}` : 'Tiada pemegang'}
+                  {holder ? `${holder.name} · ${holder.id}` : t('tiada_pemegang')}
                 </Text>
                 <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-                  {ROLE_BLURB[role]}
+                  {roleBlurb(role, locale)}
                 </Text>
               </Pressable>
             ))}
           </View>
 
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-6 mb-2">
-            Ibu pejabat · semua cawangan
+            {t('ibu_pejabat')}
           </Text>
           <View className="gap-2.5">
             {hq.map(({ role, href, holder }) => (
@@ -216,12 +216,12 @@ export default function RolePicker() {
                 className="bg-card border border-line rounded-[14px] p-[18px] active:opacity-70"
                 style={{ opacity: holder ? 1 : 0.5 }}
               >
-                <MonoLabel>{ROLE_LABEL[role].toUpperCase()}</MonoLabel>
+                <MonoLabel>{roleLabel(role, locale).toUpperCase()}</MonoLabel>
                 <Text className="font-sans-semi text-[16px] text-ink mt-2">
-                  {holder ? `${holder.name} · ${holder.id}` : 'Tiada pemegang'}
+                  {holder ? `${holder.name} · ${holder.id}` : t('tiada_pemegang')}
                 </Text>
                 <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-                  {ROLE_BLURB[role]}
+                  {roleBlurb(role, locale)}
                 </Text>
               </Pressable>
             ))}

@@ -6,7 +6,8 @@ import { Screen } from '@/components/Screen';
 import { currentUser, useSession } from '@/store/useSession';
 import { useMyWeeks } from '@/store/useMyWeeks';
 import { useBranchLabel } from '@/store/useBranches';
-import { ROLE_LABEL } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { findUser, primaryOf, useUsers } from '@/store/useUsers';
 import { pctColor } from '@/theme/scoring';
@@ -18,6 +19,8 @@ export default function Profil() {
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const supervisor = primaryOf(users, 'supervisor');
   const branchLabel = useBranchLabel();
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
   const weeks = useMyWeeks((s) => s.weeks);
   const avg = weeks.length
     ? Math.round(weeks.reduce((sum, w) => sum + w.pct, 0) / weeks.length)
@@ -25,7 +28,7 @@ export default function Profil() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Profil</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('tab_profil')}</Text>
 
       <Card className="p-[18px] mt-[18px] items-center">
         <Avatar init={me?.init ?? '?'} size={56} />
@@ -41,21 +44,21 @@ export default function Profil() {
             {avg}
           </Text>
           <Text className="font-mono text-[13px] text-ink-6">
-            % purata {weeks.length} minggu
+            {t('purata_n_minggu', { count: weeks.length })}
           </Text>
         </View>
       </Card>
 
       <Card className="p-[18px] mt-2.5">
-        <MonoLabel>Penyelia</MonoLabel>
+        <MonoLabel>{t('penyelia')}</MonoLabel>
         <View className="flex-row gap-3 items-center mt-3">
           <Avatar init={supervisor?.init ?? '?'} size={36} />
           <View>
             <Text className="font-sans-semi text-[13.5px] text-ink">
-              {supervisor?.name ?? 'Tiada penyelia'}
+              {supervisor?.name ?? t('tiada_penyelia')}
             </Text>
             <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
-              {supervisor?.id} · {ROLE_LABEL.supervisor}
+              {supervisor?.id} · {roleLabel('supervisor', locale)}
             </Text>
           </View>
         </View>

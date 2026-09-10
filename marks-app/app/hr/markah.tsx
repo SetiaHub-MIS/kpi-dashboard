@@ -4,8 +4,9 @@ import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { MONTHS, WEEK_COLS } from '@/data/checklist';
 import { cohortStat } from '@/data/hq';
-import { ROLE_LABEL } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { staffOf, useUsers } from '@/store/useUsers';
@@ -26,6 +27,8 @@ export default function HrMarkah() {
   const branches = useBranches((s) => s.branches);
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const markOf = (u: (typeof users)[number], i: number) => weekMark(u, i, submitted);
   const everyone = staffOf(users);
@@ -48,17 +51,17 @@ export default function HrMarkah() {
   return (
     <Screen>
       <MonoLabel>
-        {me?.name ?? '—'} · {me ? ROLE_LABEL[me.role] : ''} · Semua cawangan
+        {me?.name ?? '—'} · {me ? roleLabel(me.role, locale) : ''} · {t('semua_cawangan')}
       </MonoLabel>
-      <Text className="font-sans-semi text-2xl text-ink mt-2">Markah pekerja</Text>
+      <Text className="font-sans-semi text-2xl text-ink mt-2">{t('markah_pekerja')}</Text>
       <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-        {MONTHS[MONTHS.length - 1]} · paparan sahaja, penilaian dibuat oleh SV/AS.
+        {t('markah_pekerja_intro', { month: MONTHS[MONTHS.length - 1] })}
       </Text>
 
       {/* The stor cohort gets its own headline: it is the KPI HR is asked for,
           and it is easy to lose among the much larger kedai roll. */}
       <Card className="p-[15px] mt-4">
-        <MonoLabel>KPI pekerja stor · semua cawangan</MonoLabel>
+        <MonoLabel>{t('kpi_stor_semua_cawangan')}</MonoLabel>
         <View className="flex-row items-baseline gap-1 mt-2.5">
           <Text
             className="font-mono-semi text-[30px]"
@@ -69,8 +72,11 @@ export default function HrMarkah() {
           {storStat.marked > 0 && <Text className="font-mono text-[14px] text-ink-6">%</Text>}
         </View>
         <Text className="font-sans text-[12px] leading-[18px] text-ink-4 mt-[7px]">
-          {storStat.marked} penilaian daripada {storStat.cellTotal} minggu × pekerja ·{' '}
-          {storStat.gaps} belum dinilai
+          {t('kpi_stor_summary', {
+            marked: storStat.marked,
+            total: storStat.cellTotal,
+            gaps: storStat.gaps,
+          })}
         </Text>
       </Card>
 
@@ -79,7 +85,7 @@ export default function HrMarkah() {
           <View className="flex-row items-baseline justify-between mb-3">
             <Text className="font-sans-semi text-[14px] text-ink">{o.branch.name}</Text>
             <Text className="font-mono-med text-[10px] uppercase tracking-label text-ink-5">
-              {o.kedai.length + o.stor.length} pekerja
+              {t('n_pekerja', { count: o.kedai.length + o.stor.length })}
             </Text>
           </View>
 
@@ -92,8 +98,8 @@ export default function HrMarkah() {
           </View>
 
           {[
-            { key: 'kedai', label: 'Pekerja Kedai', people: o.kedai },
-            { key: 'stor', label: 'Pekerja Stor', people: o.stor },
+            { key: 'kedai', label: t('cohort_kedai'), people: o.kedai },
+            { key: 'stor', label: t('cohort_stor'), people: o.stor },
           ]
             .filter((c) => c.people.length > 0)
             .map((cohort) => (
@@ -107,7 +113,7 @@ export default function HrMarkah() {
                       onPress={() => router.push(`/person/${p.id}`)}
                       style={{ width: 100 }}
                       accessibilityRole="button"
-                      accessibilityLabel={`Rekod ${p.name}`}
+                      accessibilityLabel={t('rekod_nama_a11y', { name: p.name })}
                     >
                       <Text className="font-sans-med text-[11.5px] text-ink-2" numberOfLines={1}>
                         {p.short}

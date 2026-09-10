@@ -4,7 +4,6 @@ import { Card, MonoLabel } from '@/components/Card';
 import { QueueBanner } from '@/components/QueueBanner';
 import { ReturnRow } from '@/components/ReturnRow';
 import { Screen } from '@/components/Screen';
-import { ROLE_LABEL } from '@/data/users';
 import {
   STAGE_OWNER,
   ageingStatus,
@@ -13,7 +12,9 @@ import {
   submissionStats,
   turnaroundDays,
 } from '@/data/returns';
+import { roleLabel } from '@/i18n/labels';
 import { useBranchLabel } from '@/store/useBranches';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { openReturns, returnsVisibleTo, useReturns } from '@/store/useReturns';
 import { useUsers } from '@/store/useUsers';
@@ -25,6 +26,8 @@ export default function PulanganAktif() {
   const branchId = me?.branchId ?? null;
   const branchLabel = useBranchLabel();
   const records = useReturns((s) => s.records);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   // Only the two store roles can advance a return; others read it.
   const myOwner = ownerForRole(me?.role);
@@ -49,18 +52,18 @@ export default function PulanganAktif() {
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
           <MonoLabel>
-            {me?.name ?? '—'} · {me ? ROLE_LABEL[me.role] : ''} · {branchLabel(branchId)}
+            {me?.name ?? '—'} · {me ? roleLabel(me.role, locale) : ''} · {branchLabel(branchId)}
           </MonoLabel>
-          <Text className="font-sans-semi text-2xl text-ink mt-2">Pulangan</Text>
+          <Text className="font-sans-semi text-2xl text-ink mt-2">{t('tab_pulangan')}</Text>
         </View>
         {myOwner === 'store' && (
           <Pressable
             onPress={() => router.push('/pulangan-new')}
             accessibilityRole="button"
-            accessibilityLabel="Rekod bil pulangan"
+            accessibilityLabel={t('rekod_bil_a11y')}
             className="px-3.5 py-2.5 rounded-xl bg-ink active:opacity-80"
           >
-            <Text className="font-sans-semi text-[13px] text-white">+ Bil</Text>
+            <Text className="font-sans-semi text-[13px] text-white">{t('tambah_bil')}</Text>
           </Pressable>
         )}
       </View>
@@ -69,7 +72,7 @@ export default function PulanganAktif() {
 
       <View className="flex-row gap-2.5 mt-4">
         <Card className="flex-1 p-[15px]">
-          <MonoLabel>Hantar ke kerani</MonoLabel>
+          <MonoLabel>{t('hantar_ke_kerani')}</MonoLabel>
           <View className="flex-row items-baseline gap-1 mt-2.5">
             <Text
               className="font-mono-semi text-[34px]"
@@ -80,11 +83,11 @@ export default function PulanganAktif() {
             <Text className="font-mono text-[15px] text-ink-6">%</Text>
           </View>
           <Text className="font-sans text-xs text-ink-4 mt-[7px]">
-            {submission.onTime}/{submission.received} sebelum Jumaat
+            {t('before_friday_stat', { onTime: submission.onTime, received: submission.received })}
           </Text>
         </Card>
         <Card className="flex-1 p-[15px]">
-          <MonoLabel>Lebih 2 bulan</MonoLabel>
+          <MonoLabel>{t('lebih_2_bulan')}</MonoLabel>
           <View className="flex-row items-baseline gap-1 mt-2.5">
             <Text
               className="font-mono-semi text-[34px]"
@@ -92,10 +95,10 @@ export default function PulanganAktif() {
             >
               {aged.length}
             </Text>
-            <Text className="font-mono text-[13px] text-ink-6">bil</Text>
+            <Text className="font-mono text-[13px] text-ink-6">{t('bil')}</Text>
           </View>
           <Text className="font-sans text-xs text-ink-4 mt-[7px]">
-            tertua {oldest} hari
+            {t('tertua_n_hari', { days: oldest })}
           </Text>
         </Card>
       </View>
@@ -106,12 +109,12 @@ export default function PulanganAktif() {
           style={{ backgroundColor: C.failBg, borderColor: C.fail }}
         >
           <Text className="font-sans-semi text-[13px]" style={{ color: C.fail }}>
-            {aged.length} bil melebihi 2 bulan
+            {t('n_bil_melebihi', { count: aged.length })}
           </Text>
           <Text className="font-sans text-[12.5px] leading-[19px] text-ink-2 mt-1.5">
             {overdue.length > 0
-              ? `${overdue.length} sudah lepas tempoh seminggu untuk clear. Kerani dan pekerja stor kena selesaikan bersama.`
-              : 'Kena clear dalam seminggu dari tarikh cukup 2 bulan.'}
+              ? t('aged_overdue_detail', { count: overdue.length })
+              : t('aged_breach_detail')}
           </Text>
         </View>
       )}
@@ -122,24 +125,24 @@ export default function PulanganAktif() {
           accessibilityRole="button"
           className="flex-1 py-3 rounded-xl border border-line bg-card items-center active:opacity-70"
         >
-          <Text className="font-sans-semi text-[13px] text-ink-2">Banding sistem stok</Text>
+          <Text className="font-sans-semi text-[13px] text-ink-2">{t('banding_sistem_stok')}</Text>
         </Pressable>
         <Pressable
           onPress={() => router.push('/pulangan-csv')}
           accessibilityRole="button"
           className="flex-1 py-3 rounded-xl border border-line bg-card items-center active:opacity-70"
         >
-          <Text className="font-sans-semi text-[13px] text-ink-2">Export CSV</Text>
+          <Text className="font-sans-semi text-[13px] text-ink-2">{t('export_csv')}</Text>
         </Pressable>
       </View>
 
       <Text className="font-sans-semi text-[13.5px] text-ink mt-5 mb-2.5">
-        Tindakan anda · {mine.length}
+        {t('tindakan_anda_count', { count: mine.length })}
       </Text>
       {mine.length === 0 ? (
         <Card className="p-4 items-center">
           <Text className="font-sans-med text-[12.5px] text-ink-4">
-            Tiada bil menunggu tindakan anda.
+            {t('tiada_bil_tindakan')}
           </Text>
         </Card>
       ) : (
@@ -153,7 +156,7 @@ export default function PulanganAktif() {
       {others.length > 0 && (
         <>
           <Text className="font-sans-semi text-[13.5px] text-ink mt-5 mb-2.5">
-            Menunggu pihak lain · {others.length}
+            {t('menunggu_pihak_lain', { count: others.length })}
           </Text>
           <View className="gap-2">
             {others.map((r) => (

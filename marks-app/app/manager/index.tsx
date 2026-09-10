@@ -8,7 +8,9 @@ import { ACTIVE_WEEK, FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } fro
 import { exportMonthXlsx } from '@/lib/export';
 import { assetsOfBranch, useAssets } from '@/store/useAssets';
 import { useBranchLabel } from '@/store/useBranches';
-import { ROLE_LABEL, branchesOf } from '@/data/users';
+import { branchesOf } from '@/data/users';
+import { roleLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { markingQueue, useUsers, visibleStaff } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
@@ -27,6 +29,8 @@ export default function ManagerHome() {
   const prevMonth = useMarks((s) => s.prevMonth);
   const nextMonth = useMarks((s) => s.nextMonth);
   const [exporting, setExporting] = useState(false);
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const runExport = async () => {
     if (exporting) return;
@@ -39,12 +43,12 @@ export default function ManagerHome() {
       // explicitly and names where the file actually landed.
       if (!result.shared) {
         Alert.alert(
-          'Fail sedia, tiada cara berkongsi',
-          `${result.filename} berjaya dijana dan disimpan pada telefon, tetapi tiada aplikasi didapati untuk berkongsinya.\n\n${result.uri}`
+          t('fail_sedia_tiada_kongsi'),
+          t('fail_sedia_detail', { filename: result.filename, uri: result.uri })
         );
       }
     } catch (e: any) {
-      Alert.alert('Eksport gagal', e?.message ?? 'Cuba lagi sebentar.');
+      Alert.alert(t('eksport_gagal'), e?.message ?? t('cuba_lagi_sebentar'));
     } finally {
       setExporting(false);
     }
@@ -74,9 +78,9 @@ export default function ManagerHome() {
   // Each role is scored on its own form, so their kategori averages are
   // reported side by side rather than blended into one meaningless number.
   const cohorts = [
-    { key: 'kedai' as const, label: 'Pekerja Kedai', form: FORM, people: crew.filter((p) => p.role === 'staff') },
-    { key: 'stor' as const, label: 'Pekerja Stor', form: STOR_FORM, people: crew.filter((p) => p.role === 'store') },
-    { key: 'sv' as const, label: 'SV / AS', form: SV_FORM, people: crew.filter((p) => p.role === 'supervisor') },
+    { key: 'kedai' as const, label: t('cohort_kedai'), form: FORM, people: crew.filter((p) => p.role === 'staff') },
+    { key: 'stor' as const, label: t('cohort_stor'), form: STOR_FORM, people: crew.filter((p) => p.role === 'store') },
+    { key: 'sv' as const, label: t('cohort_sv'), form: SV_FORM, people: crew.filter((p) => p.role === 'supervisor') },
   ].filter((c) => c.people.length > 0);
 
   // The Area Manager's own marking round: the supervisors at the outlets they
@@ -94,8 +98,8 @@ export default function ManagerHome() {
   return (
     <Screen>
       <MonoLabel>
-        {manager?.name ?? 'Tiada Area Manager'} ·{' '}
-          {manager ? ROLE_LABEL[manager.role] : ROLE_LABEL.area_manager} · {scopeLabel}
+        {manager?.name ?? t('tiada_area_manager')} ·{' '}
+          {manager ? roleLabel(manager.role, locale) : roleLabel('area_manager', locale)} · {scopeLabel}
       </MonoLabel>
 
       <View className="flex-row items-center justify-between mt-2">
@@ -112,7 +116,7 @@ export default function ManagerHome() {
 
       <View className="flex-row gap-2.5 mt-4">
         <Card className="flex-1 p-[15px]">
-          <MonoLabel>Purata SV/AS</MonoLabel>
+          <MonoLabel>{t('purata_sv')}</MonoLabel>
           <View className="flex-row items-baseline gap-1 mt-2.5">
             <Text
               className="font-mono-semi text-[34px]"
@@ -123,7 +127,7 @@ export default function ManagerHome() {
             <Text className="font-mono text-[15px] text-ink-6">%</Text>
           </View>
           <Text className="font-sans text-xs text-ink-4 mt-[7px]">
-            {stats.marked} penilaian direkod
+            {t('n_penilaian_direkod', { count: stats.marked })}
           </Text>
         </Card>
 
@@ -133,7 +137,7 @@ export default function ManagerHome() {
           className="flex-1 bg-card rounded-[13px] p-[15px] border active:opacity-70"
           style={{ borderColor: gapHeavy ? C.warnLine : C.line }}
         >
-          <MonoLabel>Belum dinilai</MonoLabel>
+          <MonoLabel>{t('belum_dinilai')}</MonoLabel>
           <View className="flex-row items-baseline gap-1 mt-2.5">
             <Text
               className="font-mono-semi text-[34px]"
@@ -143,15 +147,15 @@ export default function ManagerHome() {
             </Text>
             <Text className="font-mono text-[13px] text-ink-6">/ {stats.cellTotal}</Text>
           </View>
-          <Text className="font-sans text-xs text-ink-4 mt-[7px]">minggu × pekerja</Text>
+          <Text className="font-sans text-xs text-ink-4 mt-[7px]">{t('minggu_x_pekerja')}</Text>
         </Pressable>
       </View>
 
       <Card className="p-[15px] mt-2.5">
         <View className="flex-row items-baseline justify-between mb-3">
-          <Text className="font-sans-semi text-[13px] text-ink">Markah mingguan</Text>
+          <Text className="font-sans-semi text-[13px] text-ink">{t('markah_mingguan')}</Text>
           <Text className="font-mono text-[10.5px] text-ink-6">
-            {verifyByManager ? 'hijau = disahkan MGR' : '% mingguan'}
+            {verifyByManager ? t('hijau_disahkan_mgr') : t('peratus_mingguan')}
           </Text>
         </View>
 
@@ -196,9 +200,11 @@ export default function ManagerHome() {
                     key={i}
                     onPress={() => router.push(`/person/${p.id}`)}
                     accessibilityRole="button"
-                    accessibilityLabel={`${p.short} minggu ${i + 1}: ${
-                      v == null ? 'belum dinilai' : `${v} peratus`
-                    }`}
+                    accessibilityLabel={
+                      v == null
+                        ? t('cell_a11y_unmarked', { name: p.short, week: i + 1 })
+                        : t('cell_a11y_marked', { name: p.short, week: i + 1, value: v })
+                    }
                     className="flex-1 h-[30px] rounded-md items-center justify-center"
                     style={
                       v == null
@@ -237,12 +243,16 @@ export default function ManagerHome() {
         return (
           <Card key={cohort.key} className="p-4 mt-2.5">
             <View className="flex-row items-baseline justify-between mb-4">
-              <Text className="font-sans-semi text-[13px] text-ink">Markah ikut perkara</Text>
+              <Text className="font-sans-semi text-[13px] text-ink">{t('markah_ikut_perkara')}</Text>
               <Text className="font-mono text-[10.5px] text-ink-6">{cohort.label}</Text>
             </View>
             <PerkaraBars values={averages} form={cohort.form} />
             <Text className="font-sans text-xs leading-[17px] text-ink-4 mt-4 pt-3 border-t border-rule">
-              {lowest} perkara paling rendah bagi {cohort.people.length} {cohort.label.toLowerCase()}.
+              {t('lowest_perkara_summary', {
+                item: lowest,
+                count: cohort.people.length,
+                cohort: cohort.label.toLowerCase(),
+              })}
             </Text>
           </Card>
         );
@@ -259,7 +269,7 @@ export default function ManagerHome() {
           }}
         >
           <Text className="font-sans-semi text-[13px] text-ink-2">
-            Checklist SV/AS: {svPending.length}/{myQueue.length} belum dinilai →
+            {t('checklist_sv_banner', { pending: svPending.length, total: myQueue.length })}
           </Text>
         </Pressable>
       )}
@@ -279,8 +289,7 @@ export default function ManagerHome() {
             className="flex-1 font-sans-med text-[13px] leading-[18px]"
             style={{ color: C.warnInk }}
           >
-            Checklist Kedai: {openAssets.length} aset belum selesai, tertua{' '}
-            {oldestAssetDays} hari →
+            {t('checklist_kedai_banner', { count: openAssets.length, days: oldestAssetDays })}
           </Text>
         </Pressable>
       )}
@@ -295,7 +304,7 @@ export default function ManagerHome() {
           style={{ backgroundColor: tugasanDone === tugasanTotal ? C.pass : C.ink7 }}
         />
         <Text className="flex-1 font-sans-med text-[13px] leading-[18px] text-ink-2">
-          Tugasan Area Manager: {tugasanDone}/{tugasanTotal} semakan mingguan selesai →
+          {t('tugasan_am_banner', { done: tugasanDone, total: tugasanTotal })}
         </Text>
       </Pressable>
 
@@ -307,7 +316,7 @@ export default function ManagerHome() {
         style={{ opacity: exporting ? 0.6 : 1 }}
       >
         <Text className="font-sans-semi text-sm text-ink-2">
-          {exporting ? 'Menjana fail…' : `Export ${MONTHS[monthIdx]} (XLSX)`}
+          {exporting ? t('menjana_fail') : t('export_month_xlsx', { month: MONTHS[monthIdx] })}
         </Text>
       </Pressable>
     </Screen>

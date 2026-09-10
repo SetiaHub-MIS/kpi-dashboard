@@ -15,7 +15,9 @@ import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { NOTE_CHIPS } from '@/data/assets';
-import { ACTIVE_WEEK, FORM_LABEL, allowsNa, countLines, lineKey } from '@/data/checklist';
+import { ACTIVE_WEEK, allowsNa, countLines, lineKey } from '@/data/checklist';
+import { formLabel } from '@/i18n/labels';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { draftTotals, formForRole, formKeyForRole, useMarks } from '@/store/useMarks';
@@ -27,6 +29,8 @@ export default function MarkPerson() {
   const person = findUser(users, id);
   const me = currentUser(users, useSession((x) => x.currentUserId));
   const insets = useSafeAreaInsets();
+  const t = useT();
+  const locale = useLocale((s) => s.locale);
 
   const draft = useMarks((s) => s.draft);
   const scaleMax = useMarks((s) => s.scaleMax);
@@ -56,12 +60,12 @@ export default function MarkPerson() {
   if (!person) {
     return (
       <Screen>
-        <BackLink label="Checklist" />
+        <BackLink label={t('tab_checklist')} />
         <Text className="font-sans-semi text-[19px] text-ink mt-4">
-          Pekerja tidak dijumpai
+          {t('pekerja_tak_dijumpai')}
         </Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          Akaun {id} tiada dalam senarai pengguna.
+          {t('akaun_tiada_senarai', { id })}
         </Text>
       </Screen>
     );
@@ -107,18 +111,18 @@ export default function MarkPerson() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <BackLink label="Batal" />
+        <BackLink label={t('batal')} />
 
         <View className="flex-row gap-3 items-center mt-4">
           <Avatar init={person.init} size={40} />
           <View className="min-w-0 flex-1">
             <Text className="font-sans-semi text-[17px] text-ink">{person.name}</Text>
             <Text className="font-mono text-[11px] text-ink-5 mt-1">
-              {person.id} · Minggu {ACTIVE_WEEK + 1} · skala 1–{scaleMax}
-              {naAllowed ? ' · N/A dibenarkan' : ''}
+              {person.id} · {t('minggu_skala', { week: ACTIVE_WEEK + 1, max: scaleMax })}
+              {naAllowed ? t('na_dibenarkan_suffix') : ''}
             </Text>
             <Text className="font-sans-med text-[11.5px] text-ink-4 mt-1">
-              {FORM_LABEL[formKey]} · {lineCount} perkara
+              {t('form_perkara_count', { form: formLabel(formKey, locale), count: lineCount })}
             </Text>
           </View>
         </View>
@@ -195,7 +199,7 @@ export default function MarkPerson() {
                                   key={v}
                                   onPress={() => setScore(key, v)}
                                   accessibilityRole="button"
-                                  accessibilityLabel={`${label}: ${v}`}
+                                  accessibilityLabel={t('perkara_a11y', { label, value: v })}
                                   className="flex-1 py-2.5 rounded-lg items-center border"
                                   style={{
                                     borderColor: on ? 'transparent' : C.line,
@@ -215,7 +219,7 @@ export default function MarkPerson() {
                               <Pressable
                                 onPress={() => setScore(key, 'na')}
                                 accessibilityRole="button"
-                                accessibilityLabel={`${label}: tidak berkenaan`}
+                                accessibilityLabel={t('perkara_na_a11y', { label })}
                                 className="px-2.5 py-2.5 rounded-lg items-center border"
                                 style={{
                                   borderColor: picked === 'na' ? 'transparent' : C.line,
@@ -241,7 +245,7 @@ export default function MarkPerson() {
                       className="self-start px-3 py-2 rounded-lg border border-line bg-[#FAFAF9] active:opacity-70"
                     >
                       <Text className="font-sans-med text-xs text-ink-3">
-                        Semua {scaleMax - 1}
+                        {t('semua_n', { value: scaleMax - 1 })}
                       </Text>
                     </Pressable>
                   </View>
@@ -251,11 +255,11 @@ export default function MarkPerson() {
           })}
 
           <Card className="p-[15px]">
-            <Text className="font-sans-semi text-[13px] text-ink">Catatan</Text>
+            <Text className="font-sans-semi text-[13px] text-ink">{t('catatan')}</Text>
             <TextInput
               value={draft.noteText}
               onChangeText={setNoteText}
-              placeholder="Tulis atau pilih catatan…"
+              placeholder={t('tulis_pilih_catatan')}
               placeholderTextColor={C.ink6}
               multiline
               className="bg-app border border-[#EAEAE7] rounded-[10px] p-3 mt-3 font-sans text-[13px] text-ink-2"
@@ -295,7 +299,7 @@ export default function MarkPerson() {
       >
         <View>
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5">
-            Jumlah markah
+            {t('jumlah_markah')}
           </Text>
           <View className="flex-row items-baseline gap-1 mt-1.5">
             <Text
@@ -324,8 +328,8 @@ export default function MarkPerson() {
             style={{ color: totals.complete ? '#fff' : C.ink6 }}
           >
             {totals.complete
-              ? 'Hantar markah'
-              : `${totals.filled}/${lineCount} perkara diisi`}
+              ? t('hantar_markah')
+              : t('n_perkara_diisi', { filled: totals.filled, total: lineCount })}
           </Text>
         </Pressable>
       </View>

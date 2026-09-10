@@ -4,6 +4,7 @@ import { Avatar } from '@/components/Avatar';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { sendReminder } from '@/lib/reminders';
+import { useT } from '@/store/useLocale';
 import { monthStats, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { primaryOfBranch, useUsers, visibleStaff } from '@/store/useUsers';
@@ -17,6 +18,7 @@ export default function Gaps() {
   const stats = monthStats(crew, submitted);
   const [sending, setSending] = useState(false);
   const [sentCount, setSentCount] = useState<number | null>(null);
+  const t = useT();
 
   const rows = crew.map((p) => {
     const missing = p.w
@@ -66,16 +68,15 @@ export default function Gaps() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">Belum dinilai</Text>
+      <Text className="font-sans-semi text-[22px] text-ink">{t('belum_dinilai')}</Text>
       <Text className="font-sans text-sm leading-[20px] text-ink-4 mt-2">
-        {stats.gaps} daripada {stats.cellTotal} kotak minggu × pekerja masih kosong. Ini
-        yang jadi #DIV/0! dalam fail Excel.
+        {t('gaps_intro', { gaps: stats.gaps, total: stats.cellTotal })}
       </Text>
 
       {rows.length === 0 ? (
         <Card className="p-5 mt-[18px] items-center">
           <Text className="font-sans-med text-sm text-ink-3">
-            Semua kotak sudah diisi bulan ini.
+            {t('semua_kotak_diisi')}
           </Text>
         </Card>
       ) : (
@@ -89,7 +90,7 @@ export default function Gaps() {
                     {person.name}
                   </Text>
                   <Text className="font-sans text-[11.5px] text-ink-5 mt-1">
-                    {person.id} · minggu {missing.join(', ')}
+                    {person.id} · {t('minggu_list', { list: missing.join(', ') })}
                   </Text>
                 </View>
                 <Text className="font-mono-semi text-[18px]" style={{ color: C.warn }}>
@@ -111,12 +112,12 @@ export default function Gaps() {
             style={{ opacity: sending ? 0.6 : 1 }}
           >
             <Text className="font-sans-semi text-sm text-white">
-              {sending ? 'Menghantar…' : 'Hantar peringatan ke SV/AS'}
+              {sending ? t('menghantar') : t('hantar_peringatan_sv')}
             </Text>
           </Pressable>
           {sentCount != null && (
             <Text className="font-sans text-[12.5px] text-ink-4 mt-2.5 text-center">
-              {sentCount} SV/AS menerima peringatan dalam apl.
+              {t('sv_terima_peringatan', { count: sentCount })}
             </Text>
           )}
         </>
