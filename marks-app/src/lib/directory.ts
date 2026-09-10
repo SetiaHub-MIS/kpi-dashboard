@@ -48,6 +48,10 @@ export async function fetchStaff(
   markIds: Record<string, number>;
   verified: Record<string, boolean>;
   notes: Record<string, string>;
+  /** `${userId}-${weekIdx}` -> the Area Manager's overriding percentage. */
+  adjusted: Record<string, number>;
+  /** `${userId}-${weekIdx}` -> that mark's max_score, for validating a new override. */
+  markMax: Record<string, number>;
 }> {
   const [{ data: users, error: userErr }, marks, perkara] = await Promise.all([
     supabase.from('users').select(USER_COLUMNS).order('id'),
@@ -67,16 +71,22 @@ export async function fetchStaff(
   const markIds: Record<string, number> = {};
   const verified: Record<string, boolean> = {};
   const notes: Record<string, string> = {};
+  const adjusted: Record<string, number> = {};
+  const markMax: Record<string, number> = {};
   marks.forEach((m) => {
     const key = `${m.userId}-${m.weekNo - 1}`;
     markIds[key] = m.id;
+    markMax[key] = m.maxScore;
     if (m.verified) verified[key] = true;
     if (m.note) notes[key] = m.note;
+    if (m.adjustedTo != null) adjusted[key] = Math.round((m.adjustedTo / m.maxScore) * 100);
   });
 
   return {
     verified,
     notes,
+    adjusted,
+    markMax,
     users: (users ?? []).map((u) => {
       const mine = byUser.get(u.id) ?? [];
       const w: (number | null)[] = [null, null, null, null];
@@ -137,5 +147,7 @@ export async function fetchDirectory(
     markIds: staff.markIds,
     verified: staff.verified,
     notes: staff.notes,
+    adjusted: staff.adjusted,
+    markMax: staff.markMax,
   };
 }

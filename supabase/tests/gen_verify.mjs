@@ -17,6 +17,22 @@ await db.exec(`
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
   CREATE ROLE authenticated;
+  -- Enough of Supabase Storage for return_photos.sql to apply. Its policies
+  -- live in the storage schema, which the checks below never query (they are
+  -- scoped to schemaname = 'public'), so this is only here to let the
+  -- migration itself run.
+  CREATE SCHEMA IF NOT EXISTS storage;
+  CREATE TABLE storage.buckets (
+    id text PRIMARY KEY, name text, public boolean,
+    file_size_limit bigint, allowed_mime_types text[]
+  );
+  CREATE TABLE storage.objects (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    bucket_id text, name text, owner uuid
+  );
+  ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+  CREATE FUNCTION storage.foldername(name text) RETURNS text[]
+    LANGUAGE sql IMMUTABLE AS $$ SELECT string_to_array(name, '/') $$;
 `);
 
 const MIGRATIONS = [
@@ -30,6 +46,11 @@ const MIGRATIONS = [
   '20260909030200_central_store_at_hq.sql',
   '20260909030300_grants.sql',
   '20260909030400_real_branches.sql',
+  '20260910010000_sv_checklist.sql',
+  '20260910010100_who_may_score.sql',
+  '20260910020000_return_photos.sql',
+  '20260910030000_mark_queries.sql',
+  '20260910030100_reminders.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

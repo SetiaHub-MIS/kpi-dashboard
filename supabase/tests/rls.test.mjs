@@ -43,6 +43,8 @@ for (const m of [
   'supabase/migrations/20260910010000_sv_checklist.sql',
   'supabase/migrations/20260910010100_who_may_score.sql',
   'supabase/migrations/20260910020000_return_photos.sql',
+  'supabase/migrations/20260910030000_mark_queries.sql',
+  'supabase/migrations/20260910030100_reminders.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -77,6 +79,8 @@ const ACCOUNTS = {
   manager:  ['66666666-6666-6666-6666-666666666666', 'MG0001', 'Manager, no stor'],
   gm:       ['77777777-7777-7777-7777-777777777777', 'GM0001', 'General Manager'],
   hr:       ['88888888-8888-8888-8888-888888888888', 'HR0001', 'Human Resources'],
+  syazana:  ['99999999-9999-9999-9999-999999999999', 'KP0093', 'Staff, Machang'],
+  putri:    ['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'KP0103', 'Staff, Machang (another person)'],
 };
 for (const [uuid, staffId] of Object.values(ACCOUNTS)) {
   await db.exec(`INSERT INTO auth.users (id) VALUES ('${uuid}');`);
@@ -516,6 +520,89 @@ console.log('=== photo evidence is bounded, and scoped like the bill it belongs 
     purged.rows[0].n, 0);
 }
 
+console.log('\n=== staff <-> SV/AS query threads stay between the two of them ===');
+{
+  const markRow = await as(ACCOUNTS.syazana[0],
+    `SELECT id FROM marks WHERE user_id='KP0093' AND period_year=2026 AND period_month=9 AND week_no=1`);
+  const markId = markRow.rows[0].id;
+
+  check('the staff member may ask a question on their own mark',
+    await tryWrite(ACCOUNTS.syazana[0],
+      `INSERT INTO mark_queries (mark_id, sender_id, body)
+       VALUES (${markId}, 'KP0093', 'Kenapa markah tandas rendah minggu ni?')`),
+    'allowed');
+
+  check('the SV/AS who scored it may reply',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO mark_queries (mark_id, sender_id, body)
+       VALUES (${markId}, 'WS0001', 'Tandas belum disapu masa saya check petang tu.')`),
+    'allowed');
+
+  const seenByStaff = await as(ACCOUNTS.syazana[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
+  check('the staff member sees both messages', seenByStaff.rows[0].n, 2);
+
+  const seenByOther = await as(ACCOUNTS.putri[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
+  check('a different staff member at the same branch sees none of it', seenByOther.rows[0].n, 0);
+
+  check('...and may not post into it either',
+    await tryWrite(ACCOUNTS.putri[0],
+      `INSERT INTO mark_queries (mark_id, sender_id, body) VALUES (${markId}, 'KP0103', 'butting in')`),
+    'blocked');
+
+  const seenByManager = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
+  check('the cross-branch manager cannot read it either — no individual marking sheets', seenByManager.rows[0].n, 0);
+
+  const seenByHr = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
+  check('HR can, on the same reach as the mark itself', seenByHr.rows[0].n, 2);
+
+  check('nobody may impersonate another sender',
+    await tryWrite(ACCOUNTS.syazana[0],
+      `INSERT INTO mark_queries (mark_id, sender_id, body) VALUES (${markId}, 'WS0001', 'pretending to be the SV')`),
+    'blocked');
+}
+
+console.log('\n=== reminders are an Area Manager -> SV/AS nudge, not a broadcast ===');
+{
+  check('an Area Manager may send a reminder to the SV/AS they cover',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `INSERT INTO reminders (branch_id, recipient_id, sent_by, message)
+       VALUES ('DMC', 'WS0001', 'AM0001', '3 pekerja belum dinilai minggu ini.')`),
+    'allowed');
+
+  check('a supervisor may NOT send one — only head office chases the gaps',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO reminders (branch_id, recipient_id, sent_by, message)
+       VALUES ('DMC', 'WS0001', 'WS0001', 'self reminder')`),
+    'blocked');
+
+  check('an Area Manager may NOT send one to a branch they do not cover',
+    await tryWrite(ACCOUNTS.farah[0],
+      `INSERT INTO reminders (branch_id, recipient_id, sent_by, message)
+       VALUES ('DMC', 'WS0001', 'AM0002', 'wrong outlet')`),
+    'blocked');
+
+  const inbox = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM reminders WHERE recipient_id='WS0001'`);
+  check('the SV/AS sees the reminder addressed to them', inbox.rows[0].n, 1);
+
+  const other = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM reminders WHERE recipient_id='WS0012'`);
+  check('...but not one addressed to a different supervisor', other.rows[0].n, 0);
+
+  const rid = (await as(ACCOUNTS.syahirah[0], `SELECT id FROM reminders WHERE recipient_id='WS0001' LIMIT 1`)).rows[0].id;
+
+  // An UPDATE a policy's USING clause filters to zero rows does not throw — it
+  // just changes nothing — so this is checked by reading the row back rather
+  // than by expecting tryWrite to report 'blocked'. Getting this wrong is
+  // exactly the permissive-RLS failure mode the rest of this suite warns about.
+  await as(ACCOUNTS.herdi[0], `UPDATE reminders SET read_at = now() WHERE id=${rid}`);
+  const afterSender = await as(ACCOUNTS.syahirah[0], `SELECT read_at FROM reminders WHERE id=${rid}`);
+  check('the sender may not mark it read on the recipient\'s behalf', afterSender.rows[0].read_at, null);
+
+  check('the recipient may mark their own reminder read',
+    await tryWrite(ACCOUNTS.syahirah[0], `UPDATE reminders SET read_at = now() WHERE id=${rid}`),
+    'allowed');
+  const afterSelf = await as(ACCOUNTS.syahirah[0], `SELECT read_at FROM reminders WHERE id=${rid}`);
+  check('...and that one sticks', afterSelf.rows[0].read_at != null, true);
+}
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

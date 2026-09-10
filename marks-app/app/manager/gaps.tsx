@@ -1,10 +1,12 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
+import { sendReminder } from '@/lib/reminders';
 import { monthStats, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
-import { useUsers, visibleStaff } from '@/store/useUsers';
+import { primaryOfBranch, useUsers, visibleStaff } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 export default function Gaps() {
@@ -13,6 +15,8 @@ export default function Gaps() {
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const crew = visibleStaff(users, me);
   const stats = monthStats(crew, submitted);
+  const [sending, setSending] = useState(false);
+  const [sentCount, setSentCount] = useState<number | null>(null);
 
   const rows = crew.map((p) => {
     const missing = p.w
@@ -20,6 +24,45 @@ export default function Gaps() {
       .filter((n): n is number => n != null);
     return { person: p, missing };
   }).filter((r) => r.missing.length > 0);
+
+  const sendAll = async () => {
+    if (!me || sending) return;
+    setSending(true);
+    setSentCount(null);
+
+    // Grouped by branch, because the recipient is the SV/AS covering that
+    // outlet, not the crew member themselves — this is a nudge to whoever
+    // still owes the marking, not a broadcast to everyone with a gap.
+    const byBranch = new Map<string, { person: (typeof rows)[number]['person']; missing: number[] }[]>();
+    rows.forEach((r) => {
+      const list = byBranch.get(r.person.branchId ?? '') ?? [];
+      list.push(r);
+      byBranch.set(r.person.branchId ?? '', list);
+    });
+
+    let sent = 0;
+    for (const [branchId, group] of byBranch) {
+      const supervisor = primaryOfBranch(users, 'supervisor', branchId);
+      if (!supervisor) continue;
+      const message = group
+        .map((r) => `${r.person.short}: minggu ${r.missing.join(', ')}`)
+        .join('; ');
+      try {
+        await sendReminder({
+          branchId,
+          recipientId: supervisor.id,
+          sentBy: me.id,
+          message: `${group.length} pekerja belum dinilai — ${message}.`,
+        });
+        sent += 1;
+      } catch {
+        // Left uncounted; the button stays available to try again.
+      }
+    }
+
+    setSentCount(sent);
+    setSending(false);
+  };
 
   return (
     <Screen>
@@ -59,20 +102,24 @@ export default function Gaps() {
       )}
 
       {rows.length > 0 && (
-        <Pressable
-          onPress={() =>
-            Alert.alert(
-              'Peringatan dihantar',
-              `${rows.length} SV/AS akan menerima senarai pekerja yang belum dinilai.`
-            )
-          }
-          accessibilityRole="button"
-          className="mt-3.5 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
-        >
-          <Text className="font-sans-semi text-sm text-white">
-            Hantar peringatan ke SV/AS
-          </Text>
-        </Pressable>
+        <>
+          <Pressable
+            onPress={() => void sendAll()}
+            disabled={sending}
+            accessibilityRole="button"
+            className="mt-3.5 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
+            style={{ opacity: sending ? 0.6 : 1 }}
+          >
+            <Text className="font-sans-semi text-sm text-white">
+              {sending ? 'Menghantar…' : 'Hantar peringatan ke SV/AS'}
+            </Text>
+          </Pressable>
+          {sentCount != null && (
+            <Text className="font-sans text-[12.5px] text-ink-4 mt-2.5 text-center">
+              {sentCount} SV/AS menerima peringatan dalam apl.
+            </Text>
+          )}
+        </>
       )}
     </Screen>
   );

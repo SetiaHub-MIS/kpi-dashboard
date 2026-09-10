@@ -8,6 +8,11 @@
     "verify:policies": "node supabase/tests/gen_verify.mjs"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.3.11"
+    "@electric-sql/pglite": "^0.3.11",
+    "@types/react": "~19.2.4",
+    "typescript": "~6.0.3"
+  },
+  "dependencies": {
+    "expo": "^57.0.21"
   }
 }

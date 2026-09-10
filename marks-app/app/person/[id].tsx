@@ -1,5 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
@@ -15,10 +16,21 @@ export default function PersonDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const users = useUsers((s) => s.users);
   const person = findUser(users, id);
-  const { monthIdx, submitted, submittedNotes, verified, passThreshold, verifyByManager } =
-    useMarks();
+  const {
+    monthIdx,
+    submitted,
+    submittedNotes,
+    verified,
+    adjusted,
+    markMax,
+    passThreshold,
+    verifyByManager,
+  } = useMarks();
   const verify = useMarks((s) => s.verify);
   const me = currentUser(users, useSession((x) => x.currentUserId));
+  // Which week's "Ubah" editor is open, if any.
+  const [adjustingKey, setAdjustingKey] = useState<string | null>(null);
+  const [draftPct, setDraftPct] = useState('');
 
   if (!person) {
     return (
@@ -55,6 +67,22 @@ export default function PersonDetail() {
           const ok = isVerified(key, verified);
           const note = submittedNotes[key];
           const needsVerify = verifyByManager && v != null && !ok;
+          const overridePct = adjusted[key];
+          const isAdjusting = adjustingKey === key;
+
+          const startAdjust = () => {
+            setAdjustingKey(key);
+            setDraftPct(String(v ?? ''));
+          };
+
+          const saveAdjust = () => {
+            const max = markMax[key];
+            const pct = Math.max(0, Math.min(100, Math.round(Number(draftPct))));
+            if (!me || !max || !Number.isFinite(pct)) return;
+            const adjustedTo = Math.round((pct / 100) * max);
+            void verify(key, { verifiedBy: me.id, adjustedTo });
+            setAdjustingKey(null);
+          };
 
           return (
             <Card
@@ -71,17 +99,28 @@ export default function PersonDetail() {
                     {v == null
                       ? 'Belum dinilai'
                       : ok
-                        ? 'Dinilai SV/AS · disahkan MGR'
+                        ? overridePct != null
+                          ? 'Dinilai SV/AS · diselaraskan MGR'
+                          : 'Dinilai SV/AS · disahkan MGR'
                         : 'Dinilai SV/AS · belum disahkan'}
                   </Text>
                 </View>
                 <Text
                   className="font-mono-semi text-[17px]"
-                  style={{ color: v == null ? C.ink7 : pctColor(v, passThreshold) }}
+                  style={{
+                    color:
+                      v == null ? C.ink7 : pctColor(overridePct ?? v, passThreshold),
+                  }}
                 >
-                  {v == null ? '–' : `${v}%`}
+                  {v == null ? '–' : `${overridePct ?? v}%`}
                 </Text>
               </View>
+
+              {overridePct != null && (
+                <Text className="font-mono text-[10.5px] text-ink-5 mt-1.5">
+                  Markah asal SV/AS: {v}%
+                </Text>
+              )}
 
               {note && (
                 <Text className="font-sans text-[12.5px] leading-[19px] text-ink-3 mt-3 pt-3 border-t border-rule">
@@ -89,7 +128,7 @@ export default function PersonDetail() {
                 </Text>
               )}
 
-              {needsVerify && (
+              {needsVerify && !isAdjusting && (
                 <View className="flex-row gap-2 mt-3">
                   <Pressable
                     onPress={() => void verify(key, me ? { verifiedBy: me.id } : undefined)}
@@ -101,17 +140,46 @@ export default function PersonDetail() {
                     </Text>
                   </Pressable>
                   <Pressable
-                    onPress={() =>
-                      Alert.alert(
-                        'Ubah markah',
-                        `Buka semula checklist Minggu ${i + 1} untuk ${person.short} dan laraskan markah SV/AS.`
-                      )
-                    }
+                    onPress={startAdjust}
                     accessibilityRole="button"
                     className="flex-1 py-[11px] rounded-[9px] border border-line bg-card items-center active:opacity-70"
                   >
                     <Text className="font-sans-semi text-[12.5px] text-ink-2">Ubah</Text>
                   </Pressable>
+                </View>
+              )}
+
+              {isAdjusting && (
+                <View className="mt-3 pt-3 border-t border-rule">
+                  <Text className="font-sans text-[12px] text-ink-4 mb-2">
+                    Peratus baharu untuk Minggu {i + 1} ({person.short})
+                  </Text>
+                  <View className="flex-row gap-2 items-center">
+                    <TextInput
+                      value={draftPct}
+                      onChangeText={setDraftPct}
+                      keyboardType="number-pad"
+                      maxLength={3}
+                      className="font-mono-semi text-[15px] text-ink border border-line rounded-[9px] px-3 py-2 w-[70px] text-center"
+                    />
+                    <Text className="font-mono text-[13px] text-ink-5">%</Text>
+                    <Pressable
+                      onPress={saveAdjust}
+                      accessibilityRole="button"
+                      className="flex-1 py-[11px] rounded-[9px] bg-ink items-center active:opacity-80"
+                    >
+                      <Text className="font-sans-semi text-[12.5px] text-white">
+                        Simpan pelarasan
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setAdjustingKey(null)}
+                      accessibilityRole="button"
+                      className="py-[11px] px-3 rounded-[9px] border border-line bg-card items-center active:opacity-70"
+                    >
+                      <Text className="font-sans-semi text-[12.5px] text-ink-2">Batal</Text>
+                    </Pressable>
+                  </View>
                 </View>
               )}
             </Card>

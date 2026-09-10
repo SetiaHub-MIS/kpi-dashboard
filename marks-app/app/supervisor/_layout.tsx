@@ -16,6 +16,10 @@ export default function SupervisorLayout() {
         name="pekerja"
         options={{ title: 'Pekerja', tabBarIcon: dotIcon('circle') }}
       />
+      <Tabs.Screen
+        name="soalan"
+        options={{ title: 'Soalan', tabBarIcon: dotIcon('circle') }}
+      />
     </Tabs>
   );
 }

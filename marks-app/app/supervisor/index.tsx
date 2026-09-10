@@ -9,15 +9,17 @@ import { currentPeriod, weekRangeLabel } from '@/data/period';
 import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL, User } from '@/data/users';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
+import { unreadReminders, useReminders } from '@/store/useReminders';
 import { currentUser, useSession } from '@/store/useSession';
 import { markingQueue, useUsers } from '@/store/useUsers';
-import { pctBg, pctColor } from '@/theme/scoring';
+import { C, pctBg, pctColor } from '@/theme/scoring';
 
 export default function SupervisorQueue() {
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
   const startMarking = useMarks((s) => s.startMarking);
   const users = useUsers((s) => s.users);
+  const unread = unreadReminders(useReminders((s) => s.items));
 
   const supervisor = currentUser(users, useSession((s) => s.currentUserId));
   const branchId = supervisor?.branchId ?? null;
@@ -46,6 +48,22 @@ export default function SupervisorQueue() {
       </Text>
 
       <QueueBanner />
+
+      {unread.length > 0 && (
+        <Pressable
+          onPress={() => router.push('/supervisor/soalan')}
+          accessibilityRole="button"
+          className="mt-3 rounded-[10px] px-3.5 py-3 border active:opacity-70"
+          style={{ backgroundColor: C.warnCard, borderColor: C.warnLine }}
+        >
+          <Text
+            className="font-sans-med text-[12.5px] leading-[19px]"
+            style={{ color: C.warnInk }}
+          >
+            {unread.length} peringatan daripada Area Manager →
+          </Text>
+        </Pressable>
+      )}
 
       <View className="gap-2 mt-[18px]">
         {crew.map((p) => {

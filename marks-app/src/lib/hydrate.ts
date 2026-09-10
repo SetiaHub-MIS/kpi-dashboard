@@ -1,10 +1,14 @@
 import { currentPeriod } from '@/data/period';
+import { fetchAssets } from '@/lib/assets';
 import { fetchDirectory } from '@/lib/directory';
+import { fetchMyReminders } from '@/lib/reminders';
 import { fetchReturns } from '@/lib/returns';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { useAssets } from '@/store/useAssets';
 import { useBranches } from '@/store/useBranches';
 import { useMarks } from '@/store/useMarks';
 import { useMyWeeks } from '@/store/useMyWeeks';
+import { useReminders } from '@/store/useReminders';
 import { useReturns } from '@/store/useReturns';
 import { useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
@@ -32,6 +36,8 @@ export async function hydrateDirectory(): Promise<boolean> {
     useMarks.getState().noteMarkIds(dir.markIds);
     useMarks.getState().noteVerified(dir.verified);
     useMarks.getState().noteWeekNotes(dir.notes);
+    useMarks.getState().noteAdjusted(dir.adjusted);
+    useMarks.getState().noteMarkMax(dir.markMax);
 
     // Returns are read separately: a role with no access to them still needs
     // the directory, and a refusal here must not empty the staff list.
@@ -40,6 +46,18 @@ export async function hydrateDirectory(): Promise<boolean> {
       useReturns.getState().hydrate(records, ids);
     } catch {
       // Roles shut out of returns land here by design.
+    }
+
+    try {
+      useAssets.getState().hydrate(await fetchAssets());
+    } catch {
+      // Roles with no branch to see assets for land here.
+    }
+
+    try {
+      useReminders.getState().hydrate(await fetchMyReminders());
+    } catch {
+      // Nobody has ever sent this account one, or the read was refused.
     }
 
     return true;
@@ -69,6 +87,8 @@ export async function signOutAndClear(): Promise<void> {
   useUsers.getState().hydrate([]);
   useBranches.getState().hydrate([]);
   useReturns.getState().hydrate([], {});
+  useAssets.getState().hydrate([]);
+  useReminders.getState().hydrate([]);
   useMarks.getState().reset();
   useMyWeeks.getState().reset();
 }

@@ -1,10 +1,12 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
-import { ACTIVE_WEEK, FORM, MONTHS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
-import { assetsOfBranch } from '@/data/assets';
+import { ACTIVE_WEEK, FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
+import { exportMonthXlsx } from '@/lib/export';
+import { assetsOfBranch, useAssets } from '@/store/useAssets';
 import { useBranchLabel } from '@/store/useBranches';
 import { ROLE_LABEL, branchesOf } from '@/data/users';
 import { currentUser, useSession } from '@/store/useSession';
@@ -24,6 +26,19 @@ export default function ManagerHome() {
   const { monthIdx, submitted, verified, passThreshold, verifyByManager } = useMarks();
   const prevMonth = useMarks((s) => s.prevMonth);
   const nextMonth = useMarks((s) => s.nextMonth);
+  const [exporting, setExporting] = useState(false);
+
+  const runExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      await exportMonthXlsx(PERIODS[monthIdx]);
+    } catch (e: any) {
+      Alert.alert('Eksport gagal', e?.message ?? 'Cuba lagi sebentar.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const users = useUsers((s) => s.users);
   const manager = currentUser(users, useSession((s) => s.currentUserId));
@@ -38,7 +53,13 @@ export default function ManagerHome() {
 
   const stats = monthStats(crew, submitted);
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
-  const openAssets = assetsOfBranch(branchId).filter((a) => a.open);
+  const assetRows = useAssets((s) => s.rows);
+  const openAssets = assetsOfBranch(assetRows, branchId).filter((a) => a.isOpen);
+  const oldestAssetDays = openAssets.reduce((max, a) => {
+    if (!a.openedOn) return max;
+    const days = Math.max(0, Math.round((Date.now() - Date.parse(a.openedOn)) / 86_400_000));
+    return Math.max(max, days);
+  }, 0);
 
   // Each role is scored on its own form, so their kategori averages are
   // reported side by side rather than blended into one meaningless number.
@@ -248,7 +269,8 @@ export default function ManagerHome() {
             className="flex-1 font-sans-med text-[13px] leading-[18px]"
             style={{ color: C.warnInk }}
           >
-            Checklist Kedai: {openAssets.length} aset belum selesai, tertua 34 hari →
+            Checklist Kedai: {openAssets.length} aset belum selesai, tertua{' '}
+            {oldestAssetDays} hari →
           </Text>
         </Pressable>
       )}
@@ -268,17 +290,14 @@ export default function ManagerHome() {
       </Pressable>
 
       <Pressable
-        onPress={() =>
-          Alert.alert(
-            `Export ${MONTHS[monthIdx]}`,
-            `${stats.marked} penilaian sedia untuk dieksport. ${stats.gaps} kotak masih kosong dan akan keluar sebagai sel kosong, bukan #DIV/0!.`
-          )
-        }
+        onPress={() => void runExport()}
+        disabled={exporting}
         accessibilityRole="button"
         className="mt-2.5 py-3.5 rounded-xl border border-[#D6D6D2] bg-card items-center active:opacity-70"
+        style={{ opacity: exporting ? 0.6 : 1 }}
       >
         <Text className="font-sans-semi text-sm text-ink-2">
-          Export {MONTHS[monthIdx]} (XLSX)
+          {exporting ? 'Menjana fail…' : `Export ${MONTHS[monthIdx]} (XLSX)`}
         </Text>
       </Pressable>
     </Screen>

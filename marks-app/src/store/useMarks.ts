@@ -73,6 +73,10 @@ type MarksState = {
   verified: Record<string, boolean>;
   /** marks.id for a person's week, once known. Verification needs the row id. */
   markIds: Record<string, number>;
+  /** The Area Manager's overriding percentage, keyed `${personId}-${weekIndex}`. Absent = agreed with SV/AS. */
+  adjusted: Record<string, number>;
+  /** That mark's max_score, so an override can be validated against it. */
+  markMax: Record<string, number>;
   /** Set when a write to Postgres failed, so the screen can say so. */
   saveError: string | null;
   draft: Draft;
@@ -90,6 +94,8 @@ type MarksState = {
   noteMarkIds: (ids: Record<string, number>) => void;
   noteVerified: (flags: Record<string, boolean>) => void;
   noteWeekNotes: (notes: Record<string, string>) => void;
+  noteAdjusted: (adjusted: Record<string, number>) => void;
+  noteMarkMax: (markMax: Record<string, number>) => void;
   clearSaveError: () => void;
   /** Drops everything loaded for the signed-in account. */
   reset: () => void;
@@ -106,6 +112,8 @@ export const useMarks = create<MarksState>((set, get) => ({
   submittedNotes: {},
   verified: {},
   markIds: {},
+  adjusted: {},
+  markMax: {},
   saveError: null,
   draft: emptyDraft,
 
@@ -213,7 +221,14 @@ export const useMarks = create<MarksState>((set, get) => ({
   },
 
   verify: async (key, ctx) => {
-    set((s) => ({ verified: { ...s.verified, [key]: true }, saveError: null }));
+    set((s) => ({
+      verified: { ...s.verified, [key]: true },
+      adjusted:
+        ctx?.adjustedTo != null && s.markMax[key]
+          ? { ...s.adjusted, [key]: Math.round((ctx.adjustedTo / s.markMax[key]) * 100) }
+          : s.adjusted,
+      saveError: null,
+    }));
 
     const markId = get().markIds[key];
     if (!isSupabaseConfigured || !ctx || markId == null) return;
@@ -232,6 +247,10 @@ export const useMarks = create<MarksState>((set, get) => ({
   noteWeekNotes: (notes) =>
     set((s) => ({ submittedNotes: { ...notes, ...s.submittedNotes } })),
 
+  noteAdjusted: (adjusted) => set((s) => ({ adjusted: { ...s.adjusted, ...adjusted } })),
+
+  noteMarkMax: (markMax) => set((s) => ({ markMax: { ...s.markMax, ...markMax } })),
+
   clearSaveError: () => set({ saveError: null }),
 
   reset: () =>
@@ -240,6 +259,8 @@ export const useMarks = create<MarksState>((set, get) => ({
       submittedNotes: {},
       verified: {},
       markIds: {},
+      adjusted: {},
+      markMax: {},
       saveError: null,
       draft: emptyDraft,
     }),

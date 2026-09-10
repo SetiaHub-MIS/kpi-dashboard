@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
@@ -8,17 +8,21 @@ import { Screen } from '@/components/Screen';
 import { useMyWeeks } from '@/store/useMyWeeks';
 import { ROLE_LABEL } from '@/data/users';
 import { useMarks } from '@/store/useMarks';
-import { primaryOf, useUsers } from '@/store/useUsers';
+import { findUser, primaryOf, useUsers } from '@/store/useUsers';
 import { pctColor } from '@/theme/scoring';
 
 export default function WeekDetail() {
   const { index } = useLocalSearchParams<{ index: string }>();
   const passThreshold = useMarks((s) => s.passThreshold);
-  const supervisor = primaryOf(useUsers((s) => s.users), 'supervisor');
-  const svName = supervisor?.name ?? 'SV/AS';
+  const users = useUsers((s) => s.users);
   const weeks = useMyWeeks((s) => s.weeks);
   // Reachable by deep link, or after a restart before the list has loaded.
   const week = weeks[Number(index)] as (typeof weeks)[number] | undefined;
+  // Who actually scored this particular week, not just "a" supervisor —
+  // imported marks carry no scored_by, so that case falls back to whoever
+  // marks first today.
+  const supervisor = (week?.scoredBy ? findUser(users, week.scoredBy) : undefined) ?? primaryOf(users, 'supervisor');
+  const svName = supervisor?.name ?? 'SV/AS';
 
   if (!week) {
     return (
@@ -47,12 +51,17 @@ export default function WeekDetail() {
         <View className="flex-row items-baseline gap-1.5">
           <Text
             className="font-mono-semi text-[38px]"
-            style={{ color: pctColor(week.pct, passThreshold) }}
+            style={{ color: pctColor(week.adjustedPct ?? week.pct, passThreshold) }}
           >
-            {week.pct}
+            {week.adjustedPct ?? week.pct}
           </Text>
           <Text className="font-mono text-[15px] text-ink-6">% · {week.total}/110</Text>
         </View>
+        {week.adjustedPct != null && (
+          <Text className="font-sans text-[12px] text-ink-5 mt-2">
+            Diselaraskan oleh Area Manager. Markah asal SV/AS: {week.pct}%.
+          </Text>
+        )}
         <View className="mt-[18px]">
           <PerkaraBars values={week.perkara} />
         </View>
@@ -83,10 +92,14 @@ export default function WeekDetail() {
         </Pressable>
         <Pressable
           onPress={() =>
-            Alert.alert(
-              'Tanya penyelia',
-              `Hantar soalan kepada ${svName} tentang markah ${week.label}.`
-            )
+            router.push({
+              pathname: '/query/[markId]',
+              params: {
+                markId: String(week.markId),
+                label: `Soalan · ${week.label}`,
+                otherName: svName,
+              },
+            })
           }
           accessibilityRole="button"
           className="flex-1 py-3.5 rounded-xl border border-[#D6D6D2] bg-card items-center active:opacity-70"

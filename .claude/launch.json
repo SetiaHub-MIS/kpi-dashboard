@@ -5,6 +5,12 @@
       "name": "marks-app-web",
       "url": "http://localhost:8081",
       "port": 8081
+    },
+    {
+      "name": "marks-app-web-claude",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "marks-app", "run", "web", "--", "--port", "8090"],
+      "port": 8090
     }
   ]
 }

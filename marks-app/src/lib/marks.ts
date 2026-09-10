@@ -182,31 +182,39 @@ export type MarkRow = {
   weekNo: number;
   pct: number;
   note: string | null;
+  maxScore: number;
   verified: boolean;
+  /** Set only when the Area Manager overrode the SV/AS total. */
+  adjustedTo: number | null;
 };
 
 /** Every mark in a period, with whether the manager has signed it off. */
 export async function fetchMarks(period: Period): Promise<MarkRow[]> {
   const { data, error } = await supabase
     .from('marks')
-    .select('id, user_id, branch_id, form_key, week_no, pct, note, mark_verifications(mark_id)')
+    .select(
+      'id, user_id, branch_id, form_key, week_no, pct, note, max_score, mark_verifications(mark_id, adjusted_to)'
+    )
     .eq('period_year', period.year)
     .eq('period_month', period.month);
 
   if (error) throw error;
 
-  return (data ?? []).map((m: any) => ({
-    id: m.id,
-    userId: m.user_id,
-    branchId: m.branch_id,
-    formKey: m.form_key,
-    weekNo: m.week_no,
-    pct: m.pct,
-    note: m.note,
-    verified: Array.isArray(m.mark_verifications)
-      ? m.mark_verifications.length > 0
-      : m.mark_verifications != null,
-  }));
+  return (data ?? []).map((m: any) => {
+    const ver = Array.isArray(m.mark_verifications) ? m.mark_verifications[0] : m.mark_verifications;
+    return {
+      id: m.id,
+      userId: m.user_id,
+      branchId: m.branch_id,
+      formKey: m.form_key,
+      weekNo: m.week_no,
+      pct: m.pct,
+      note: m.note,
+      maxScore: m.max_score,
+      verified: ver != null,
+      adjustedTo: ver?.adjusted_to ?? null,
+    };
+  });
 }
 
 /**
@@ -277,6 +285,8 @@ export type StaffWeek = {
   perkara: number[];
   verified: boolean;
   scoredBy: string | null;
+  /** Set only when the Area Manager overrode the SV/AS total, as a percentage. */
+  adjustedPct: number | null;
 };
 
 /**
@@ -294,7 +304,7 @@ export async function fetchMyWeeks(
 ): Promise<StaffWeek[]> {
   const { data: marks, error } = await supabase
     .from('marks')
-    .select('id, period_year, period_month, week_no, total_score, max_score, pct, note, scored_by, mark_verifications(mark_id)')
+    .select('id, period_year, period_month, week_no, total_score, max_score, pct, note, scored_by, mark_verifications(mark_id, adjusted_to)')
     .eq('user_id', userId)
     .order('period_year', { ascending: false })
     .order('period_month', { ascending: false })
@@ -342,6 +352,8 @@ export async function fetchMyWeeks(
       }
     }
 
+    const ver = Array.isArray(m.mark_verifications) ? m.mark_verifications[0] : m.mark_verifications;
+
     return {
       markId: m.id,
       period,
@@ -354,10 +366,10 @@ export async function fetchMyWeeks(
       maxScore: m.max_score,
       note: m.note ?? '',
       perkara,
-      verified: Array.isArray(m.mark_verifications)
-        ? m.mark_verifications.length > 0
-        : m.mark_verifications != null,
+      verified: ver != null,
       scoredBy: m.scored_by,
+      adjustedPct:
+        ver?.adjusted_to != null ? Math.round((ver.adjusted_to / m.max_score) * 100) : null,
     };
   });
 }
