@@ -11,6 +11,15 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "marks-app", "run", "web", "--", "--port", "8090"],
       "port": 8090
+    },
+    {
+      "name": "marks-app-web-demo",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set EXPO_NO_DOTENV=1&& npm --prefix marks-app run web -- --port 8091"
+      ],
+      "port": 8091
     }
   ]
 }

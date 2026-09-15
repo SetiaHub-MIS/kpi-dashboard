@@ -69,7 +69,7 @@ export function SignInForm() {
           setPayrollId(t);
           if (error) clearError();
         }}
-        placeholder="cth: KP0093"
+        placeholder={t('contoh_payroll')}
         placeholderTextColor={C.ink6}
         autoCapitalize="characters"
         autoCorrect={false}

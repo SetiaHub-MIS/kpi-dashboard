@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { baseTabOptions, dotIcon } from '@/components/tabOptions';
+import { baseTabOptions, tabIcon } from '@/components/tabOptions';
 import { useT } from '@/store/useLocale';
 
 export default function AdminLayout() {
@@ -8,15 +8,15 @@ export default function AdminLayout() {
     <Tabs screenOptions={baseTabOptions}>
       <Tabs.Screen
         name="index"
-        options={{ title: t('tab_pengguna'), tabBarIcon: dotIcon('square') }}
+        options={{ title: t('tab_pengguna'), tabBarIcon: tabIcon('people') }}
       />
       <Tabs.Screen
         name="peranan"
-        options={{ title: t('tab_peranan'), tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_peranan'), tabBarIcon: tabIcon('id-card') }}
       />
       <Tabs.Screen
         name="cawangan"
-        options={{ title: t('tab_cawangan'), tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_cawangan'), tabBarIcon: tabIcon('storefront') }}
       />
     </Tabs>
   );

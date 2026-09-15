@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { baseTabOptions, dotIcon } from '@/components/tabOptions';
+import { baseTabOptions, tabIcon } from '@/components/tabOptions';
 import { useT } from '@/store/useLocale';
 
 /**
@@ -15,15 +15,15 @@ export default function HrLayout() {
     <Tabs screenOptions={baseTabOptions}>
       <Tabs.Screen
         name="index"
-        options={{ title: t('tab_laporan'), tabBarIcon: dotIcon('square') }}
+        options={{ title: t('tab_laporan'), tabBarIcon: tabIcon('document-text') }}
       />
       <Tabs.Screen
         name="markah"
-        options={{ title: t('tab_markah'), tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_markah'), tabBarIcon: tabIcon('bar-chart') }}
       />
       <Tabs.Screen
         name="pulangan"
-        options={{ title: t('tab_pulangan'), tabBarIcon: dotIcon('circle') }}
+        options={{ title: t('tab_pulangan'), tabBarIcon: tabIcon('arrow-undo') }}
       />
     </Tabs>
   );

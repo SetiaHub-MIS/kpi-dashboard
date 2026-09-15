@@ -34,6 +34,7 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   // ------------------------------------------------------------ sign-in
   log_masuk: { ms: 'Log masuk', en: 'Sign in' },
   nombor_pekerja: { ms: 'Nombor pekerja', en: 'Payroll number' },
+  contoh_payroll: { ms: 'cth: KP0093', en: 'e.g. KP0093' },
   kata_laluan: { ms: 'Kata laluan', en: 'Password' },
   sign_in_hint: {
     ms: 'Guna nombor pekerja anda, bukan e-mel. Akaun dibuka oleh admin — hubungi mereka jika belum ada kata laluan.',
@@ -185,7 +186,9 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   tab_belum_dinilai: { ms: 'Belum dinilai', en: 'Not scored' },
   tab_aset_kedai: { ms: 'Aset kedai', en: 'Shop assets' },
   tab_checklist_sv: { ms: 'Checklist SV', en: 'SV checklist' },
-  tab_tugasan_saya: { ms: 'Tugasan saya', en: 'My tugasan' },
+  // Tab label only — five tabs at 375pt truncate "Tugasan saya"; the screen
+  // heading keeps the full name.
+  tab_tugasan_saya: { ms: 'Tugasan', en: 'Tugasan' },
   tab_markah: { ms: 'Markah', en: 'Scores' },
   tab_pulangan: { ms: 'Pulangan', en: 'Returns' },
   tab_admin: { ms: 'Admin', en: 'Admin' },
