@@ -17,6 +17,7 @@ await db.exec(`
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
   CREATE ROLE authenticated;
+  CREATE ROLE anon;
   -- Enough of Supabase Storage for return_photos.sql to apply. Its policies
   -- live in the storage schema, which the checks below never query (they are
   -- scoped to schemaname = 'public'), so this is only here to let the
@@ -52,6 +53,7 @@ const MIGRATIONS = [
   '20260910030000_mark_queries.sql',
   '20260910030100_reminders.sql',
   '20260916010000_branch_staff_management.sql',
+  '20260916020000_tighten_grants.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));
@@ -159,6 +161,22 @@ SELECT * FROM (
       SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
         FROM information_schema.role_table_grants
        WHERE table_schema = 'public' AND grantee = 'authenticated'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
+
+  UNION ALL
+  -- 2c. anon holds nothing. Every policy is TO authenticated, so a grant to
+  --     anon is dead weight at best — and Supabase hands one out by default
+  --     to any table created through the dashboard, which is how the live
+  --     database drifted from grants.sql for a week without anyone seeing.
+  SELECT 2, 'anon holds nothing on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'PASS' ELSE 'OVER-GRANTED' END,
+         CASE WHEN a.privs IS NULL THEN '' ELSE 'anon has [' || a.privs || ']' END
+    FROM expected_grant e
+    LEFT JOIN (
+      SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee = 'anon'
        GROUP BY table_name
     ) a ON a.table_name = e.tbl
 

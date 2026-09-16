@@ -174,6 +174,22 @@ SELECT * FROM (
     ) a ON a.table_name = e.tbl
 
   UNION ALL
+  -- 2c. anon holds nothing. Every policy is TO authenticated, so a grant to
+  --     anon is dead weight at best — and Supabase hands one out by default
+  --     to any table created through the dashboard, which is how the live
+  --     database drifted from grants.sql for a week without anyone seeing.
+  SELECT 2, 'anon holds nothing on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'PASS' ELSE 'OVER-GRANTED' END,
+         CASE WHEN a.privs IS NULL THEN '' ELSE 'anon has [' || a.privs || ']' END
+    FROM expected_grant e
+    LEFT JOIN (
+      SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee = 'anon'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
+
+  UNION ALL
   -- 3. each policy exists and rests on the rules it should
   SELECT 3, e.tbl || '.' || e.pol,
          CASE

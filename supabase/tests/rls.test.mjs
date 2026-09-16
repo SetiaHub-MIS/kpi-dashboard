@@ -26,6 +26,7 @@ await db.exec(`
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
   CREATE ROLE authenticated;
+  CREATE ROLE anon;
 `);
 
 const file = (p) => readFileSync(`${ROOT}/${p}`, 'utf8');
@@ -46,6 +47,7 @@ for (const m of [
   'supabase/migrations/20260910030000_mark_queries.sql',
   'supabase/migrations/20260910030100_reminders.sql',
   'supabase/migrations/20260916010000_branch_staff_management.sql',
+  'supabase/migrations/20260916020000_tighten_grants.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
