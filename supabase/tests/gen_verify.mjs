@@ -51,6 +51,7 @@ const MIGRATIONS = [
   '20260910020000_return_photos.sql',
   '20260910030000_mark_queries.sql',
   '20260910030100_reminders.sql',
+  '20260916010000_branch_staff_management.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

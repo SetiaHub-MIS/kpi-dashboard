@@ -10,6 +10,8 @@ import {
   seesStoreOps,
   shortOf,
 } from '@/data/users';
+import { CreateUserResult, createUser } from '@/lib/directory';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 export type RoleChange = {
   id: string;
@@ -26,7 +28,13 @@ type UsersState = {
   /** Replaces the seed with rows read from Postgres. */
   hydrate: (users: User[]) => void;
 
-  addUser: (input: { name: string; id: string; role: Role; branchId: string | null }) => void;
+  /** Written to Postgres first; the local list only grows once the row is accepted. */
+  addUser: (input: {
+    name: string;
+    id: string;
+    role: Role;
+    branchId: string | null;
+  }) => Promise<CreateUserResult>;
   setRole: (id: string, role: Role, at: string) => void;
   setBranch: (id: string, branchId: string | null) => void;
   setActive: (id: string, active: boolean) => void;
@@ -38,23 +46,25 @@ export const useUsers = create<UsersState>((set) => ({
 
   hydrate: (users) => set({ users }),
 
-  addUser: ({ name, id, role, branchId }) =>
-    set((s) => ({
-      users: [
-        ...s.users,
-        {
-          id: id.trim().toUpperCase(),
-          name: name.trim(),
-          short: shortOf(name),
-          init: initialsOf(name),
-          role,
-          branchId,
-          active: true,
-          w: [null, null, null, null],
-          perkara: [0, 0, 0, 0, 0, 0, 0],
-        },
-      ],
-    })),
+  addUser: async ({ name, id, role, branchId }) => {
+    const user: User = {
+      id: id.trim().toUpperCase(),
+      name: name.trim(),
+      short: shortOf(name),
+      init: initialsOf(name),
+      role,
+      branchId,
+      active: true,
+      w: [null, null, null, null],
+      perkara: [0, 0, 0, 0, 0, 0, 0],
+    };
+    if (isSupabaseConfigured) {
+      const result = await createUser(user);
+      if (!result.ok) return result;
+    }
+    set((s) => ({ users: [...s.users, user] }));
+    return { ok: true };
+  },
 
   setRole: (id, role, at) =>
     set((s) => {

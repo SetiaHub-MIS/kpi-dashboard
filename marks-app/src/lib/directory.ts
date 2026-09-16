@@ -16,6 +16,39 @@ import { supabase } from '@/lib/supabase';
 /** Column list kept in one place so the row type and the select cannot drift. */
 const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, active';
 
+const UNIQUE_VIOLATION = '23505';
+const RLS_REFUSED = '42501';
+
+export type CreateUserResult =
+  | { ok: true }
+  | { ok: false; reason: 'duplicate' | 'forbidden' | 'unknown'; message: string };
+
+/**
+ * Adds one person to the directory. Who may do this is the database's call:
+ * admin anywhere, an SV/AS or Area Manager only for pekerja kedai at an outlet
+ * they cover (users_insert_branch_staff). A refusal comes back as 'forbidden'
+ * rather than a thrown error, because it is an answer, not a fault.
+ *
+ * 'duplicate' matters more than it looks. A supervisor's copy of the
+ * directory is their own branch, so the app cannot know a payroll number is
+ * taken at another outlet — only the primary key can.
+ */
+export async function createUser(user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId'>): Promise<CreateUserResult> {
+  const { error } = await supabase.from('users').insert({
+    id: user.id,
+    name: user.name,
+    short_name: user.short,
+    initials: user.init,
+    role: user.role,
+    branch_id: user.branchId,
+  });
+
+  if (!error) return { ok: true };
+  if (error.code === UNIQUE_VIOLATION) return { ok: false, reason: 'duplicate', message: error.message };
+  if (error.code === RLS_REFUSED) return { ok: false, reason: 'forbidden', message: error.message };
+  return { ok: false, reason: 'unknown', message: error.message };
+}
+
 export async function fetchBranches(): Promise<Branch[]> {
   const { data, error } = await supabase
     .from('branches')

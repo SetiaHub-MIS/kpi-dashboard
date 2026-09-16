@@ -22,7 +22,17 @@ export default function Pekerja() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">{t('pekerja_tab_title')}</Text>
+      <View className="flex-row items-start justify-between gap-3">
+        <Text className="flex-1 font-sans-semi text-[22px] text-ink">{t('pekerja_tab_title')}</Text>
+        <Pressable
+          onPress={() => router.push('/user-new')}
+          accessibilityRole="button"
+          accessibilityLabel={t('tambah_pekerja_a11y')}
+          className="px-3.5 py-2.5 rounded-xl bg-ink active:opacity-80"
+        >
+          <Text className="font-sans-semi text-[13px] text-white">{t('tambah')}</Text>
+        </Pressable>
+      </View>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
         {t('pekerja_intro', { count: crew.length, branch: branchLabel(branchId) })}
       </Text>

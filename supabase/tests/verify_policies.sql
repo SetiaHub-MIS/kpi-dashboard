@@ -124,6 +124,7 @@ expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('tugasan_signoffs', 'tugasan_signoffs_write', 'ALL', 'app_can_see_branch,app_is_admin,app_role', 'area_manager'),
   ('user_branches', 'user_branches_read', 'SELECT', 'app_can_see_branch,app_is_cross_branch,app_user_id', ''),
   ('user_branches', 'user_branches_write', 'ALL', 'app_is_admin', ''),
+  ('users', 'users_insert_branch_staff', 'INSERT', 'app_can_see_branch,app_role', 'area_manager,staff,supervisor'),
   ('users', 'users_read', 'SELECT', 'app_can_see_branch,app_is_admin', ''),
   ('users', 'users_write', 'ALL', 'app_is_admin', '')
 ),

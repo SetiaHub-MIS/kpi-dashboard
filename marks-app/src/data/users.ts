@@ -317,3 +317,23 @@ export function newUserBlocker(users: User[], name: string, id: string): string 
   }
   return null;
 }
+
+/**
+ * How far an account's hiring reach goes. Mirrors users_insert_branch_staff
+ * in RLS: admin creates any role anywhere; an SV/AS or Area Manager creates
+ * pekerja kedai at the outlets they cover; nobody else creates anyone.
+ */
+export type HiringScope =
+  | { kind: 'any' }
+  | { kind: 'branch'; role: 'staff'; branchIds: string[] }
+  | { kind: 'none' };
+
+export function hiringScope(user: User | undefined): HiringScope {
+  if (!user) return { kind: 'none' };
+  if (user.role === 'admin') return { kind: 'any' };
+  if (user.role === 'supervisor' || user.role === 'area_manager') {
+    const branchIds = branchesOf(user);
+    return branchIds.length > 0 ? { kind: 'branch', role: 'staff', branchIds } : { kind: 'none' };
+  }
+  return { kind: 'none' };
+}

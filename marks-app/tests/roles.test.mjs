@@ -12,6 +12,7 @@ import {
   branchChangeBlocker,
   deactivateBlocker,
   demotionsFor,
+  hiringScope,
   newUserBlocker,
   nextIdFor,
   promotionsFor,
@@ -124,4 +125,35 @@ test('the next free ID is one past the highest in that role\'s own series', () =
   assert.equal(nextIdFor(users, 'staff'), 'KP0112');
   assert.equal(nextIdFor(users, 'supervisor'), 'WS0002');
   assert.equal(nextIdFor(users, 'admin'), 'AD0001', 'an empty series starts at 1');
+});
+
+// --- who may hire whom, mirroring users_insert_branch_staff in RLS
+
+test('admin hires any role, anywhere', () => {
+  assert.deepEqual(hiringScope(mkUser({ id: 'AD0001', role: 'admin', branchId: null })), { kind: 'any' });
+});
+
+test('a supervisor hires pekerja kedai at their own outlet only', () => {
+  assert.deepEqual(
+    hiringScope(mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' })),
+    { kind: 'branch', role: 'staff', branchIds: ['DMC'] }
+  );
+});
+
+test('an Area Manager hires at every outlet they cover, home posting first', () => {
+  assert.deepEqual(
+    hiringScope(mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'] })),
+    { kind: 'branch', role: 'staff', branchIds: ['DMC', 'DKB'] }
+  );
+});
+
+test('an unposted supervisor has nowhere to hire into', () => {
+  assert.deepEqual(hiringScope(mkUser({ role: 'supervisor', branchId: null })), { kind: 'none' });
+});
+
+test('staff, the stor team and head office do not hire', () => {
+  for (const role of ['staff', 'store', 'clerk', 'manager', 'general_manager', 'human_resources']) {
+    assert.deepEqual(hiringScope(mkUser({ role, branchId: role === 'store' ? 'HQ' : 'DMC' })), { kind: 'none' }, role);
+  }
+  assert.deepEqual(hiringScope(undefined), { kind: 'none' });
 });

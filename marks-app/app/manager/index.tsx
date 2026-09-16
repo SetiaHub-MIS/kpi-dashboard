@@ -235,6 +235,15 @@ export default function ManagerHome() {
             </View>
           ))}
         </View>
+
+        <Pressable
+          onPress={() => router.push('/user-new')}
+          accessibilityRole="button"
+          accessibilityLabel={t('tambah_pekerja_a11y')}
+          className="mt-3 pt-3 border-t border-rule active:opacity-60"
+        >
+          <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('tambah_pekerja')}</Text>
+        </Pressable>
       </Card>
 
       {cohorts.map((cohort) => {

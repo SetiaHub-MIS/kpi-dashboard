@@ -760,6 +760,38 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   no_pekerja: { ms: 'No. pekerja', en: 'Payroll number' },
   biarkan_kosong_guna_id: { ms: 'Biarkan kosong untuk guna {id}.', en: 'Leave blank to use {id}.' },
   cipta_akaun_role: { ms: 'Cipta akaun {role}', en: 'Create {role} account' },
+
+  // ------------------------------------------- user-new, SV/AS + Area Manager
+  pekerja_baharu: { ms: 'Pekerja baharu', en: 'New staff member' },
+  pekerja_baharu_intro: {
+    ms: 'Pekerja kedai baharu di cawangan anda. Guna no. pekerja yang diberi HR — ia kekal dan muncul pada setiap rekod.',
+    en: 'A new shop staff member at your branch. Use the payroll number HR issued — it is permanent and appears on every record.',
+  },
+  contoh_no_pekerja: { ms: 'cth: KP0112', en: 'e.g. KP0112' },
+  no_pekerja_dari_hr: {
+    ms: 'Dari slip gaji atau HR. Dua huruf dan empat angka.',
+    en: 'From the payslip or HR. Two letters and four digits.',
+  },
+  login_dibuat_admin: {
+    ms: 'Login dibuat oleh admin selepas akaun wujud — beritahu mereka.',
+    en: 'Admin issues the login once the account exists — let them know.',
+  },
+  tambah_pekerja: { ms: '+ Tambah pekerja', en: '+ Add staff' },
+  tambah_pekerja_a11y: { ms: 'Tambah pekerja', en: 'Add staff member' },
+  cipta_akaun: { ms: 'Cipta akaun', en: 'Create account' },
+  tak_boleh_tambah_akaun: {
+    ms: 'Peranan anda tidak boleh menambah akaun.',
+    en: 'Your role cannot add accounts.',
+  },
+  no_pekerja_sudah_digunakan: {
+    ms: 'No. pekerja {id} sudah digunakan.',
+    en: 'Payroll number {id} is already in use.',
+  },
+  tambah_ditolak_pelayan: {
+    ms: 'Pelayan menolak: anda tidak dibenarkan menambah akaun ini.',
+    en: 'Refused by the server: you may not add this account.',
+  },
+  tambah_gagal: { ms: 'Tidak dapat menyimpan akaun. Cuba lagi.', en: 'Could not save the account. Try again.' },
 };
 
 /**

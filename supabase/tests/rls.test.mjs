@@ -45,6 +45,7 @@ for (const m of [
   'supabase/migrations/20260910020000_return_photos.sql',
   'supabase/migrations/20260910030000_mark_queries.sql',
   'supabase/migrations/20260910030100_reminders.sql',
+  'supabase/migrations/20260916010000_branch_staff_management.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -175,10 +176,13 @@ check('store staff may log a return in own branch',
     `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
      VALUES ('PR9001','DMC','BR-9001',DATE '2026-09-09','damage')`), 'allowed');
 
-check('SV/AS may NOT create a user',
+// Since 20260916 an SV/AS may add pekerja kedai at their own outlet (the full
+// boundary is tested in its own section below); every other kind of user
+// row is still admin's to create.
+check('SV/AS may NOT create a user of any role but pekerja kedai',
   await tryWrite(ACCOUNTS.syahirah[0],
     `INSERT INTO users (id,name,short_name,initials,role,branch_id)
-     VALUES ('KP9999','Test','Test','TT','staff','DMC')`), 'blocked');
+     VALUES ('WS9999','Test','Test','TT','supervisor','DMC')`), 'blocked');
 
 check('admin may create a user',
   await tryWrite(ACCOUNTS.admin[0],
@@ -602,6 +606,60 @@ console.log('\n=== reminders are an Area Manager -> SV/AS nudge, not a broadcast
     'allowed');
   const afterSelf = await as(ACCOUNTS.syahirah[0], `SELECT read_at FROM reminders WHERE id=${rid}`);
   check('...and that one sticks', afterSelf.rows[0].read_at != null, true);
+}
+
+console.log('\n=== SV/AS and Area Managers hire pekerja kedai into their own outlet, and only that ===');
+{
+  const hire = (id, branch, role = 'staff', extra = '') =>
+    `INSERT INTO users (id, name, short_name, initials, role, branch_id${extra ? ', auth_user_id' : ''})
+     VALUES ('${id}', 'Pekerja Baharu', 'Baharu', 'PB', '${role}', '${branch}'${extra ? `, '${extra}'` : ''})`;
+
+  check('the Machang SV may add a pekerja kedai at Machang',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('KP0901', 'DMC')), 'allowed');
+
+  check('...and the new person is on their own staff list straight away',
+    (await as(ACCOUNTS.syahirah[0], `SELECT branch_id FROM users WHERE id='KP0901'`)).rows[0]?.branch_id, 'DMC');
+
+  check('the Machang SV may NOT add one at Kota Bharu',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('KP0902', 'DKB')), 'blocked');
+
+  check('a supervisor may NOT mint another supervisor',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('WS0901', 'DMC', 'supervisor')), 'blocked');
+
+  check('...nor an admin',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('AD0901', 'DMC', 'admin')), 'blocked');
+
+  check('...nor a pekerja stor — the stor team is HQ\'s, not a kedai\'s',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('ST0901', 'HQ', 'store')), 'blocked');
+
+  check('the row cannot arrive with a login already attached',
+    await tryWrite(ACCOUNTS.syahirah[0], hire('KP0903', 'DMC', 'staff', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')), 'blocked');
+
+  check('an unassigned (NULL branch) hire is refused — it would be invisible to everyone but admin',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO users (id, name, short_name, initials, role, branch_id)
+       VALUES ('KP0904', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', NULL)`), 'blocked');
+
+  check('an Area Manager may add at an outlet they cover through user_branches',
+    await tryWrite(ACCOUNTS.herdi[0], hire('KP0905', 'DKB')), 'allowed');
+
+  check('an Area Manager may NOT add at an outlet they do not cover',
+    await tryWrite(ACCOUNTS.farah[0], hire('KP0906', 'DMC')), 'blocked');
+
+  check('a pekerja cannot add a colleague',
+    await tryWrite(ACCOUNTS.syazana[0], hire('KP0907', 'DMC')), 'blocked');
+
+  check('the cross-branch manager cannot either — hiring is an outlet decision',
+    await tryWrite(ACCOUNTS.manager[0], hire('KP0908', 'DMC')), 'blocked');
+
+  check('admin still may, anywhere',
+    await tryWrite(ACCOUNTS.admin[0], hire('KP0909', 'DKB')), 'allowed');
+
+  // The policy is INSERT only. A supervisor who could update would be one
+  // step from promoting themselves, so the write side stays admin's.
+  await as(ACCOUNTS.syahirah[0], `UPDATE users SET role = 'supervisor' WHERE id = 'KP0901'`);
+  check('...and a supervisor cannot then promote the person they added',
+    (await as(ACCOUNTS.admin[0], `SELECT role FROM users WHERE id='KP0901'`)).rows[0].role, 'staff');
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
