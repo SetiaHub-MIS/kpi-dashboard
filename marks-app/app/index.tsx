@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MonoLabel } from '@/components/Card';
+import { LanguageToggle } from '@/components/LanguageToggle';
 import { HOME_ROUTE, SignInForm } from '@/components/SignInForm';
 import { HQ_BRANCH_ID, isHq } from '@/data/branches';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -104,7 +105,10 @@ export default function RolePicker() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <MonoLabel>{t('log_masuk')}</MonoLabel>
+        <View className="flex-row items-center justify-between">
+          <MonoLabel>{t('log_masuk')}</MonoLabel>
+          <LanguageToggle />
+        </View>
         <Text className="font-sans-semi text-[30px] leading-9 text-ink mt-3">
           Checklist{'\n'}Mingguan
         </Text>

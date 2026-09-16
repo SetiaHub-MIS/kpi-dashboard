@@ -29,7 +29,6 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: '{count} markah masih menunggu sambungan. Ia kekal dalam telefon ini dan akan dihantar sendiri, walaupun selepas log keluar.',
     en: '{count} scores are still waiting for a connection. They stay on this phone and send on their own, even after signing out.',
   },
-  bahasa: { ms: 'Bahasa', en: 'Language' },
 
   // ------------------------------------------------------------ sign-in
   log_masuk: { ms: 'Log masuk', en: 'Sign in' },
