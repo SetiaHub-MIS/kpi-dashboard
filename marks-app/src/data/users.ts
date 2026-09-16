@@ -319,6 +319,26 @@ export function newUserBlocker(users: User[], name: string, id: string): string 
 }
 
 /**
+ * Where a new account is posted, from the outlets picked on the form.
+ *
+ * Head office holds no branch at all — a NULL branch_id is what makes the
+ * cross-branch policies apply, so a manager pinned to Machang would see only
+ * Machang. An Area Manager is posted to the first outlet picked and covers the
+ * rest through user_branches. Everyone else has exactly one.
+ */
+export function postingFor(
+  role: Role,
+  picked: string[]
+): { branchId: string | null; extraBranchIds: string[] } {
+  if (isCrossBranch(role)) return { branchId: null, extraBranchIds: [] };
+  const [home, ...rest] = picked;
+  return {
+    branchId: home ?? null,
+    extraBranchIds: role === 'area_manager' ? rest : [],
+  };
+}
+
+/**
  * How far an account's hiring reach goes. Mirrors users_insert_branch_staff
  * in RLS: admin creates any role anywhere; an SV/AS or Area Manager creates
  * pekerja kedai at the outlets they cover; nobody else creates anyone.

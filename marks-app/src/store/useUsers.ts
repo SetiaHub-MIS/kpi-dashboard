@@ -34,6 +34,8 @@ type UsersState = {
     id: string;
     role: Role;
     branchId: string | null;
+    /** Further outlets an Area Manager covers, beyond `branchId`. */
+    extraBranchIds?: string[];
   }) => Promise<CreateUserResult>;
   setRole: (id: string, role: Role, at: string) => void;
   setBranch: (id: string, branchId: string | null) => void;
@@ -46,7 +48,7 @@ export const useUsers = create<UsersState>((set) => ({
 
   hydrate: (users) => set({ users }),
 
-  addUser: async ({ name, id, role, branchId }) => {
+  addUser: async ({ name, id, role, branchId, extraBranchIds = [] }) => {
     const user: User = {
       id: id.trim().toUpperCase(),
       name: name.trim(),
@@ -54,13 +56,19 @@ export const useUsers = create<UsersState>((set) => ({
       init: initialsOf(name),
       role,
       branchId,
+      ...(extraBranchIds.length > 0 ? { branchIds: extraBranchIds } : {}),
       active: true,
       w: [null, null, null, null],
       perkara: [0, 0, 0, 0, 0, 0, 0],
     };
     if (isSupabaseConfigured) {
-      const result = await createUser(user);
+      const result = await createUser(user, extraBranchIds);
       if (!result.ok) return result;
+      if (result.coverageError) {
+        // The person is real; only the extra outlets are missing locally too.
+        set((s) => ({ users: [...s.users, { ...user, branchIds: undefined }] }));
+        return result;
+      }
     }
     set((s) => ({ users: [...s.users, user] }));
     return { ok: true };

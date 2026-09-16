@@ -791,6 +791,23 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'Refused by the server: you may not add this account.',
   },
   tambah_gagal: { ms: 'Tidak dapat menyimpan akaun. Cuba lagi.', en: 'Could not save the account. Try again.' },
+
+  // ------------------------------------------------ user-new, posting rules
+  semua_cawangan_hint: {
+    ms: 'Peranan ibu pejabat — tiada cawangan, nampak semua.',
+    en: 'A head-office role — no branch, sees every outlet.',
+  },
+  liputan_hint: {
+    ms: 'Pilih setiap cawangan yang diliputi. Yang pertama dipilih ialah cawangan utama.',
+    en: 'Pick every outlet they cover. The first one picked is the home posting.',
+  },
+  cawangan_utama_badge: { ms: 'UTAMA', en: 'HOME' },
+  pilih_satu_cawangan: { ms: 'Pilih sekurang-kurangnya satu cawangan.', en: 'Pick at least one branch.' },
+  liputan_gagal_title: { ms: 'Akaun dicipta, liputan tidak disimpan', en: 'Account created, coverage not saved' },
+  liputan_gagal_body: {
+    ms: '{name} wujud di {home}, tetapi cawangan tambahan gagal disimpan. Hubungi admin sistem.',
+    en: '{name} exists at {home}, but the extra outlets did not save. Contact the system admin.',
+  },
 };
 
 /**

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,7 +13,17 @@ import {
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { ROLE_LADDER, Role, hiringScope, newUserBlocker, nextIdFor } from '@/data/users';
+import { isHq } from '@/data/branches';
+import {
+  ROLE_LADDER,
+  Role,
+  hiringScope,
+  isCentralStore,
+  isCrossBranch,
+  newUserBlocker,
+  nextIdFor,
+  postingFor,
+} from '@/data/users';
 import { roleBlurb, roleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
@@ -37,20 +48,42 @@ export default function NewUser() {
   const locale = useLocale((s) => s.locale);
   const branchLabel = useBranchLabel();
 
-  const allBranches = useActiveBranches();
-  // Scope order, not list order: an Area Manager's home posting comes first,
-  // so it is the default the form opens on.
-  const branches =
-    scope.kind === 'branch'
-      ? scope.branchIds.flatMap((id) => allBranches.filter((b) => b.id === id))
-      : allBranches;
   const pinnedRole: Role | null = scope.kind === 'branch' ? scope.role : null;
 
   const [name, setName] = useState('');
   const [pickedRole, setPickedRole] = useState<Role>('staff');
   const role = pinnedRole ?? pickedRole;
-  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
-  const branchId = selectedBranch ?? branches[0]?.id ?? null;
+
+  const allBranches = useActiveBranches();
+  // Scope order, not list order: an Area Manager hiring staff sees their home
+  // posting first. Admin sees every outlet — except that the stor team is
+  // posted to HQ and nobody else is, so HQ is offered to them alone.
+  const branches =
+    scope.kind === 'branch'
+      ? scope.branchIds.flatMap((id) => allBranches.filter((b) => b.id === id))
+      : allBranches.filter((b) => isHq(b.id) === isCentralStore(role));
+
+  // Head office holds no branch. An Area Manager may hold several — the first
+  // picked is the home posting, the rest go to user_branches — so nothing is
+  // pre-selected for them: the home outlet must be a deliberate tap, not
+  // whichever kedai happens to sort first. Everyone else gets exactly one.
+  const crossBranch = isCrossBranch(role);
+  const multi = scope.kind === 'any' && role === 'area_manager';
+  const [picked, setPicked] = useState<string[]>([]);
+  const effectivePicked =
+    picked.length > 0 ? picked : multi ? [] : branches[0] ? [branches[0].id] : [];
+  const posting = postingFor(role, effectivePicked);
+  const toggleBranch = (id: string) => {
+    setError(null);
+    if (!multi) {
+      setPicked([id]);
+      return;
+    }
+    setPicked((prev) => {
+      const current = prev.length > 0 ? prev : effectivePicked;
+      return current.includes(id) ? current.filter((b) => b !== id) : [...current, id];
+    });
+  };
   const [customId, setCustomId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -70,10 +103,19 @@ export default function NewUser() {
       setError(blocked);
       return;
     }
+    if (!crossBranch && posting.branchId == null) {
+      setError(t('pilih_satu_cawangan'));
+      return;
+    }
     setBusy(true);
     try {
-      // Admin is cross-branch by definition, so it is never pinned to one kedai.
-      const result = await addUser({ name, id, role, branchId: role === 'admin' ? null : branchId });
+      const result = await addUser({
+        name,
+        id,
+        role,
+        branchId: posting.branchId,
+        extraBranchIds: posting.extraBranchIds,
+      });
       if (!result.ok) {
         setError(
           result.reason === 'duplicate'
@@ -83,6 +125,12 @@ export default function NewUser() {
               : t('tambah_gagal')
         );
         return;
+      }
+      if (result.coverageError) {
+        Alert.alert(
+          t('liputan_gagal_title'),
+          t('liputan_gagal_body', { name: name.trim(), home: branchLabel(posting.branchId) })
+        );
       }
       if (scope.kind === 'any') router.replace(`/user/${id}`);
       else goBack();
@@ -152,6 +200,8 @@ export default function NewUser() {
                     key={r}
                     onPress={() => {
                       setPickedRole(r);
+                      // A multi-outlet pick must not leak into a one-outlet role.
+                      setPicked([]);
                       setError(null);
                     }}
                     accessibilityRole="radio"
@@ -189,47 +239,55 @@ export default function NewUser() {
           )}
         </Card>
 
-        {role !== 'admin' && (
-          <Card className="p-[15px] mt-2.5">
-            <MonoLabel>{t('tab_cawangan')}</MonoLabel>
-            {branches.length === 1 ? (
-              <Text className="font-sans-semi text-[13px] text-ink mt-2.5">
-                {branchLabel(branches[0].id)}
-              </Text>
-            ) : (
-              <View className="flex-row flex-wrap gap-1.5 mt-2.5">
-                {branches.map((b) => {
-                  const on = branchId === b.id;
-                  return (
-                    <Pressable
-                      key={b.id}
-                      onPress={() => setSelectedBranch(b.id)}
-                      accessibilityRole="radio"
-                      accessibilityState={{ selected: on }}
-                      className="flex-1 py-2.5 rounded-lg border items-center"
-                      style={{
-                        borderColor: on ? 'transparent' : C.line,
-                        backgroundColor: on ? C.ink : C.card,
-                      }}
+        <Card className="p-[15px] mt-2.5">
+          <MonoLabel>{t('tab_cawangan')}</MonoLabel>
+          {crossBranch ? (
+            <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
+              {t('semua_cawangan_hint')}
+            </Text>
+          ) : branches.length === 1 ? (
+            <Text className="font-sans-semi text-[13px] text-ink mt-2.5">
+              {branchLabel(branches[0].id)}
+            </Text>
+          ) : (
+            <View className="flex-row flex-wrap gap-1.5 mt-2.5">
+              {branches.map((b) => {
+                const on = effectivePicked.includes(b.id);
+                const home = multi && on && effectivePicked[0] === b.id;
+                return (
+                  <Pressable
+                    key={b.id}
+                    onPress={() => toggleBranch(b.id)}
+                    accessibilityRole={multi ? 'checkbox' : 'radio'}
+                    accessibilityState={multi ? { checked: on } : { selected: on }}
+                    className="px-3 py-2 rounded-lg border items-center"
+                    style={{
+                      borderColor: on ? 'transparent' : C.line,
+                      backgroundColor: on ? C.ink : C.card,
+                    }}
+                  >
+                    <Text
+                      className="font-sans-med text-[12.5px]"
+                      style={{ color: on ? '#fff' : C.ink3 }}
                     >
-                      <Text
-                        className="font-sans-med text-[12.5px]"
-                        style={{ color: on ? '#fff' : C.ink3 }}
-                      >
-                        {b.short}
+                      {b.short}
+                    </Text>
+                    {home && (
+                      <Text className="font-mono-semi text-[8px] mt-0.5" style={{ color: C.ink7 }}>
+                        {t('cawangan_utama_badge')}
                       </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-            {!branchMode && (
-              <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
-                {t('cawangan_hint_sv')}
-              </Text>
-            )}
-          </Card>
-        )}
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+          {!branchMode && !crossBranch && branches.length > 1 && (
+            <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+              {multi ? t('liputan_hint') : t('cawangan_hint_sv')}
+            </Text>
+          )}
+        </Card>
 
         <Card className="p-[15px] mt-2.5">
           <MonoLabel>{t('no_pekerja')}</MonoLabel>

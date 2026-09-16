@@ -20,7 +20,8 @@ const UNIQUE_VIOLATION = '23505';
 const RLS_REFUSED = '42501';
 
 export type CreateUserResult =
-  | { ok: true }
+  /** `coverageError` is set when the person exists but their extra outlets did not save. */
+  | { ok: true; coverageError?: string }
   | { ok: false; reason: 'duplicate' | 'forbidden' | 'unknown'; message: string };
 
 /**
@@ -32,8 +33,16 @@ export type CreateUserResult =
  * 'duplicate' matters more than it looks. A supervisor's copy of the
  * directory is their own branch, so the app cannot know a payroll number is
  * taken at another outlet — only the primary key can.
+ *
+ * An Area Manager's extra outlets go into user_branches once the row exists.
+ * That second write cannot share the first's transaction from here, so if it
+ * fails the person is still created and the caller is told — retrying the
+ * whole thing would only hit 'duplicate'.
  */
-export async function createUser(user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId'>): Promise<CreateUserResult> {
+export async function createUser(
+  user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId'>,
+  extraBranchIds: string[] = []
+): Promise<CreateUserResult> {
   const { error } = await supabase.from('users').insert({
     id: user.id,
     name: user.name,
@@ -43,10 +52,19 @@ export async function createUser(user: Pick<User, 'id' | 'name' | 'short' | 'ini
     branch_id: user.branchId,
   });
 
-  if (!error) return { ok: true };
-  if (error.code === UNIQUE_VIOLATION) return { ok: false, reason: 'duplicate', message: error.message };
-  if (error.code === RLS_REFUSED) return { ok: false, reason: 'forbidden', message: error.message };
-  return { ok: false, reason: 'unknown', message: error.message };
+  if (error) {
+    if (error.code === UNIQUE_VIOLATION) return { ok: false, reason: 'duplicate', message: error.message };
+    if (error.code === RLS_REFUSED) return { ok: false, reason: 'forbidden', message: error.message };
+    return { ok: false, reason: 'unknown', message: error.message };
+  }
+
+  if (extraBranchIds.length === 0) return { ok: true };
+
+  const { error: coverageErr } = await supabase
+    .from('user_branches')
+    .insert(extraBranchIds.map((branchId) => ({ user_id: user.id, branch_id: branchId })));
+
+  return coverageErr ? { ok: true, coverageError: coverageErr.message } : { ok: true };
 }
 
 export async function fetchBranches(): Promise<Branch[]> {

@@ -13,6 +13,7 @@ import {
   deactivateBlocker,
   demotionsFor,
   hiringScope,
+  postingFor,
   newUserBlocker,
   nextIdFor,
   promotionsFor,
@@ -156,4 +157,30 @@ test('staff, the stor team and head office do not hire', () => {
     assert.deepEqual(hiringScope(mkUser({ role, branchId: role === 'store' ? 'HQ' : 'DMC' })), { kind: 'none' }, role);
   }
   assert.deepEqual(hiringScope(undefined), { kind: 'none' });
+});
+
+// --- where a new account is posted, from what was picked on the form
+
+test('head office holds no branch, whatever was picked', () => {
+  for (const role of ['manager', 'general_manager', 'human_resources', 'admin']) {
+    assert.deepEqual(postingFor(role, ['DMC', 'DKB']), { branchId: null, extraBranchIds: [] }, role);
+  }
+});
+
+test('an Area Manager is posted to the first outlet and covers the rest', () => {
+  assert.deepEqual(postingFor('area_manager', ['DMC', 'DKB', 'DPM']), {
+    branchId: 'DMC',
+    extraBranchIds: ['DKB', 'DPM'],
+  });
+  assert.deepEqual(postingFor('area_manager', ['DKB']), { branchId: 'DKB', extraBranchIds: [] });
+});
+
+test('every other role gets exactly one outlet, extras dropped', () => {
+  assert.deepEqual(postingFor('staff', ['DMC', 'DKB']), { branchId: 'DMC', extraBranchIds: [] });
+  assert.deepEqual(postingFor('supervisor', ['DKB']), { branchId: 'DKB', extraBranchIds: [] });
+});
+
+test('nothing picked is a null posting, not a crash', () => {
+  assert.deepEqual(postingFor('staff', []), { branchId: null, extraBranchIds: [] });
+  assert.deepEqual(postingFor('area_manager', []), { branchId: null, extraBranchIds: [] });
 });

@@ -269,6 +269,28 @@ console.log('\n=== an Area Manager reaches every outlet assigned to them ===');
   check('user_branches rejects a role that is not area_manager',
     await tryWrite(ACCOUNTS.admin[0],
       `INSERT INTO user_branches (user_id,branch_id) VALUES ('WS0001','DKB')`), 'blocked');
+
+  // The exact pair of writes the "Akaun baharu" form makes for a new Area
+  // Manager covering more than one outlet: the row, then the extra coverage.
+  check('admin posts a new Area Manager to a home outlet',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO users (id,name,short_name,initials,role,branch_id)
+       VALUES ('AM0900','Azlan bin Ismail','Azlan','AI','area_manager','DMC')`), 'allowed');
+  check('...and adds a second outlet through user_branches',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO user_branches (user_id,branch_id) VALUES ('AM0900','DKB')`), 'allowed');
+  check('a supervisor may NOT hand an Area Manager another outlet',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO user_branches (user_id,branch_id) VALUES ('AM0900','DPM')`), 'blocked');
+  // Give the new person a login and look through their eyes: the second
+  // outlet must be reachable, and a third must not.
+  const azlan = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+  await db.exec(`INSERT INTO auth.users (id) VALUES ('${azlan}');`);
+  await db.exec(`UPDATE users SET auth_user_id = '${azlan}' WHERE id = 'AM0900';`);
+  const seen = await as(azlan,
+    `SELECT DISTINCT branch_id FROM users WHERE branch_id IS NOT NULL ORDER BY 1`);
+  check('...and the new Area Manager sees exactly those two outlets',
+    seen.rows.map((x) => x.branch_id), ['DKB', 'DMC']);
 }
 
 console.log('\n=== manager is cross-branch on kedai, and blind to the stor side ===');
