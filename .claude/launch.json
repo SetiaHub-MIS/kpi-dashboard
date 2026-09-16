@@ -13,6 +13,12 @@
       "port": 8090
     },
     {
+      "name": "marks-app-web-dist",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-s", "marks-app/dist", "-l", "8092"],
+      "port": 8092
+    },
+    {
       "name": "marks-app-web-demo",
       "runtimeExecutable": "cmd",
       "runtimeArgs": [

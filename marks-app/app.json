@@ -41,6 +41,13 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e0f3ebdd-3b09-40ac-b500-2024894abe6a"
+      }
+    },
+    "owner": "dgtalzme"
   }
 }
