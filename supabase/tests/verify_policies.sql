@@ -190,6 +190,20 @@ SELECT * FROM (
     ) a ON a.table_name = e.tbl
 
   UNION ALL
+  -- 2d. service_role can read the directory. payroll-auth resolves a payroll
+  --     number to its login address under it; Supabase's default privileges
+  --     were assumed to cover this and did not on the live database (42501
+  --     from the function, 17 Sep 2026), so 20260917030000 grants it and
+  --     this holds the database to it.
+  SELECT 2, 'service_role can read users',
+         CASE WHEN EXISTS (
+                SELECT 1 FROM information_schema.role_table_grants
+                 WHERE table_schema = 'public' AND table_name = 'users'
+                   AND grantee = 'service_role' AND privilege_type = 'SELECT')
+              THEN 'PASS' ELSE 'MISSING' END,
+         ''
+
+  UNION ALL
   -- 3. each policy exists and rests on the rules it should
   SELECT 3, e.tbl || '.' || e.pol,
          CASE

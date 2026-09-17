@@ -30,6 +30,7 @@ await db.exec(`
   $$;
   CREATE ROLE authenticated;
   CREATE ROLE anon;
+  CREATE ROLE service_role BYPASSRLS;
 `);
 
 const file = (p) => readFileSync(`${ROOT}/${p}`, 'utf8');
@@ -53,6 +54,7 @@ for (const m of [
   'supabase/migrations/20260916020000_tighten_grants.sql',
   'supabase/migrations/20260917010000_user_email.sql',
   'supabase/migrations/20260917020000_set_my_email.sql',
+  'supabase/migrations/20260917030000_service_role_reads_users.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -827,6 +829,21 @@ console.log('\n=== a person keeps their own e-mail current, and nothing else ===
 
   check('anon cannot call it at all',
     await tryWrite('00000000-0000-0000-0000-000000000000', `SELECT set_my_email('x@example.com')`), 'blocked');
+}
+
+// --- the service role, which payroll-auth reads the directory under.
+// Supabase's default privileges were assumed to cover this and did not on the
+// live database; 20260917030000 grants it explicitly, so it is held to here.
+{
+  console.log('\nservice_role — the view payroll-auth reads the directory through');
+  await db.exec(`SET ROLE service_role;`);
+  try {
+    const row = (await db.query(`SELECT email, auth_user_id IS NOT NULL AS linked, active FROM users WHERE id = 'KP0103'`)).rows[0];
+    check('service_role reads any row of users, e-mail included, past RLS',
+      [row.email, row.linked, row.active], ['mine@example.com', true, true]);
+  } finally {
+    await db.exec(`RESET ROLE;`);
+  }
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
