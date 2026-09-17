@@ -128,21 +128,10 @@ async function establishSession(id: string, password: string): Promise<string | 
 }
 
 /**
- * Asks for a reset link. Always resolves: the reply from the function is the
- * same whether or not the number exists or has an address, and so is the
- * screen — the person is told to check their e-mail, and to see admin if
- * none arrives.
+ * Sets a new password on the current session. Forgotten passwords are
+ * admin's to reset (supabase/reset_password.sql); the app only ever changes
+ * the password of whoever is signed in.
  */
-export async function requestPasswordReset(payrollId: string, redirectTo?: string): Promise<void> {
-  if (!isSupabaseConfigured) return;
-  await supabase.functions
-    .invoke('payroll-auth', {
-      body: { action: 'request-reset', payrollId: payrollId.trim().toUpperCase(), redirectTo },
-    })
-    .catch(() => undefined);
-}
-
-/** Sets a new password on the current session — from a reset link, or by choice. */
 export async function updatePassword(password: string): Promise<string | null> {
   if (!isSupabaseConfigured) return null;
   const { error } = await supabase.auth.updateUser({ password });

@@ -836,17 +836,9 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   },
 
   // ------------------------------------------------ password reset & change
-  lupa_kata_laluan: { ms: 'Lupa kata laluan?', en: 'Forgot password?' },
-  set_semula_kata_laluan: { ms: 'Set semula kata laluan', en: 'Reset password' },
-  set_semula_intro: {
-    ms: 'Masukkan nombor pekerja anda. Jika akaun anda ada e-mel, pautan set semula akan dihantar ke sana.',
-    en: 'Enter your payroll number. If your account has an e-mail, a reset link will be sent there.',
-  },
-  hantar_pautan: { ms: 'Hantar pautan', en: 'Send link' },
-  pautan_dihantar_title: { ms: 'Semak e-mel anda', en: 'Check your e-mail' },
-  pautan_dihantar_body: {
-    ms: 'Jika {id} ada e-mel berdaftar, pautan set semula telah dihantar. Tiada e-mel? Hubungi admin untuk set semula.',
-    en: 'If {id} has a registered e-mail, a reset link has been sent. No e-mail? Ask admin to reset it.',
+  lupa_hubungi: {
+    ms: 'Sila hubungi Setiahub-MIS jika anda terlupa kata laluan.',
+    en: 'Please contact Setiahub-MIS if you have forgotten your password.',
   },
   kembali_log_masuk: { ms: 'Kembali ke log masuk', en: 'Back to sign in' },
   kata_laluan_baharu: { ms: 'Kata laluan baharu', en: 'New password' },
@@ -863,10 +855,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'Guna kata laluan baharu pada log masuk seterusnya.',
     en: 'Use the new password the next time you sign in.',
   },
-  pautan_tak_sah: { ms: 'Pautan tidak sah atau sudah tamat', en: 'Link invalid or expired' },
-  pautan_tak_sah_body: {
-    ms: 'Minta pautan set semula yang baharu dari skrin log masuk.',
-    en: 'Request a new reset link from the sign-in screen.',
+  perlu_log_masuk: { ms: 'Sila log masuk dahulu', en: 'Sign in first' },
+  perlu_log_masuk_body: {
+    ms: 'Kata laluan boleh ditukar di Profil selepas log masuk. Terlupa kata laluan? Sila hubungi Setiahub-MIS.',
+    en: 'You can change your password under Profil once signed in. Forgotten it? Please contact Setiahub-MIS.',
   },
   tukar_kata_laluan: { ms: 'Tukar kata laluan', en: 'Change password' },
 

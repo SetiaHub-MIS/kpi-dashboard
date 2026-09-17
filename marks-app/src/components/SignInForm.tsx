@@ -120,15 +120,9 @@ export function SignInForm() {
         )}
       </Pressable>
 
-      <Pressable
-        onPress={() => router.push('/lupa-kata-laluan')}
-        hitSlop={8}
-        accessibilityRole="link"
-        className="mt-4 self-start active:opacity-60"
-      >
-        <Text className="font-sans-med text-[13px] text-ink-3 underline">{t('lupa_kata_laluan')}</Text>
-      </Pressable>
-
+      <Text className="font-sans-med text-[13px] leading-[19px] text-ink-3 mt-4">
+        {t('lupa_hubungi')}
+      </Text>
       <Text className="font-sans text-[12px] leading-[18px] text-ink-5 mt-3.5">
         {t('sign_in_hint')}
       </Text>

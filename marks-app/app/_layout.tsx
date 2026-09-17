@@ -27,7 +27,7 @@ import { useSession } from '@/store/useSession';
 SplashScreen.preventAutoHideAsync();
 
 /** Reachable with nobody signed in: the way in, and the way back in. */
-const PUBLIC_ROUTES = new Set(['/', '/lupa-kata-laluan', '/reset-password']);
+const PUBLIC_ROUTES = new Set(['/', '/reset-password']);
 
 /** A rejection has to name a person months later, so the label is resolved now. */
 const nameOf = (userId: string) =>

@@ -51,14 +51,14 @@ export default function ResetPassword() {
     return (
       <Screen>
         <BackLink label={t('kembali_log_masuk')} />
-        <Text className="font-sans-semi text-[22px] text-ink mt-4">{t('pautan_tak_sah')}</Text>
-        <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">{t('pautan_tak_sah_body')}</Text>
+        <Text className="font-sans-semi text-[22px] text-ink mt-4">{t('perlu_log_masuk')}</Text>
+        <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">{t('perlu_log_masuk_body')}</Text>
         <Pressable
-          onPress={() => router.replace('/lupa-kata-laluan')}
+          onPress={() => router.replace('/')}
           accessibilityRole="button"
           className="mt-6 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
         >
-          <Text className="font-sans-semi text-sm text-white">{t('set_semula_kata_laluan')}</Text>
+          <Text className="font-sans-semi text-sm text-white">{t('kembali_log_masuk')}</Text>
         </Pressable>
       </Screen>
     );
