@@ -9,7 +9,10 @@ const db = new PGlite();
 await db.exec(`
   CREATE SCHEMA IF NOT EXISTS auth;
   CREATE SCHEMA IF NOT EXISTS storage;
-  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text);
+  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text, updated_at timestamptz);
+  CREATE TABLE auth.identities (
+    user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb, updated_at timestamptz
+  );
   -- Enough of Supabase Storage to hold the bucket and its policies.
   CREATE TABLE storage.buckets (
     id text PRIMARY KEY, name text, public boolean,
@@ -48,6 +51,7 @@ for (const m of [
   'supabase/migrations/20260910030100_reminders.sql',
   'supabase/migrations/20260916010000_branch_staff_management.sql',
   'supabase/migrations/20260916020000_tighten_grants.sql',
+  'supabase/migrations/20260917010000_user_email.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -737,6 +741,54 @@ console.log('\n=== editing a person: role, posting and coverage are admin\'s, an
   await as(ACCOUNTS.admin[0], `INSERT INTO user_branches (user_id, branch_id) VALUES ('AM0001', 'DKB')`);
   check('restored: promoting back and re-adding coverage takes effect at once',
     await seenBy(ACCOUNTS.herdi[0]), ['DKB', 'DMC']);
+}
+
+console.log('\n=== a real e-mail on the directory row becomes the login\'s address ===');
+{
+  const loginEmail = async (payroll) =>
+    (await db.query(`SELECT a.email FROM users u JOIN auth.users a ON a.id = u.auth_user_id WHERE u.id = '${payroll}'`)).rows[0]?.email ?? null;
+
+  // The harness linked the seeded logins with no address at all; give
+  // Syazana the identity row GoTrue would have written, so both updates
+  // the trigger makes are observable.
+  await db.exec(`INSERT INTO auth.identities (user_id, provider, identity_data)
+                 VALUES ('${ACCOUNTS.syazana[0]}', 'email', '{"email":"kp0093@checklist.local"}'::jsonb)`);
+
+  check('admin may record an e-mail',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET email = 'Syazana@Example.com' WHERE id = 'KP0093'`), 'allowed');
+  check('...and the login now answers to it, lower-cased',
+    await loginEmail('KP0093'), 'syazana@example.com');
+  check('...as does the identity GoTrue keeps beside it',
+    (await db.query(`SELECT identity_data->>'email' AS e FROM auth.identities WHERE user_id = '${ACCOUNTS.syazana[0]}'`)).rows[0].e, 'syazana@example.com');
+
+  check('clearing it hands the login back its synthetic address',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET email = NULL WHERE id = 'KP0093'`), 'allowed');
+  check('...kp0093@checklist.local', await loginEmail('KP0093'), 'kp0093@checklist.local');
+
+  check('a malformed address is refused by the table, not the app',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET email = 'not-an-address' WHERE id = 'KP0093'`), 'blocked');
+
+  await as(ACCOUNTS.admin[0], `UPDATE users SET email = 'putri@example.com' WHERE id = 'KP0103'`);
+  check('the same address on two people is refused, whatever the case',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET email = 'PUTRI@example.com' WHERE id = 'KP0093'`), 'blocked');
+
+  await as(ACCOUNTS.syahirah[0], `UPDATE users SET email = 'sv-wrote-this@example.com' WHERE id = 'KP0093'`);
+  check('a supervisor cannot set an e-mail on their staff — editing stays admin\'s',
+    (await as(ACCOUNTS.admin[0], `SELECT email FROM users WHERE id='KP0093'`)).rows[0].email, null);
+
+  check('...but may record one when hiring, since that is part of the row they create',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO users (id, name, short_name, initials, role, branch_id, email)
+       VALUES ('KP0910', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC', 'baharu@example.com')`), 'allowed');
+  check('with no login yet, there is nothing for the trigger to update — and nothing breaks',
+    await loginEmail('KP0910'), null);
+
+  // Linking a login later (what provision_logins.sql does) fires the same
+  // trigger through auth_user_id, so the address is right from the start.
+  await db.exec(`INSERT INTO auth.users (id, email) VALUES ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'placeholder')`);
+  await db.exec(`UPDATE users SET auth_user_id = 'dddddddd-dddd-dddd-dddd-dddddddddddd' WHERE id = 'KP0910'`);
+  check('...and once a login is linked, it carries the real address',
+    await loginEmail('KP0910'), 'baharu@example.com');
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);

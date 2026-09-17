@@ -17,6 +17,7 @@ import { isHq } from '@/data/branches';
 import {
   ROLE_LADDER,
   Role,
+  emailBlocker,
   hiringScope,
   isCentralStore,
   isCrossBranch,
@@ -85,6 +86,7 @@ export default function NewUser() {
     });
   };
   const [customId, setCustomId] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -98,7 +100,7 @@ export default function NewUser() {
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   const submit = async () => {
-    const blocked = newUserBlocker(users, name, id) ?? payrollBlocker(id);
+    const blocked = newUserBlocker(users, name, id) ?? payrollBlocker(id) ?? emailBlocker(email);
     if (blocked) {
       setError(blocked);
       return;
@@ -115,6 +117,7 @@ export default function NewUser() {
         role,
         branchId: posting.branchId,
         extraBranchIds: posting.extraBranchIds,
+        email: email.trim() || null,
       });
       if (!result.ok) {
         setError(
@@ -305,6 +308,27 @@ export default function NewUser() {
           />
           <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
             {branchMode ? t('no_pekerja_dari_hr') : t('biarkan_kosong_guna_id', { id: suggestedId })}
+          </Text>
+        </Card>
+
+        <Card className="p-[15px] mt-2.5">
+          <MonoLabel>{t('emel_pilihan')}</MonoLabel>
+          <TextInput
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              setError(null);
+            }}
+            placeholder={t('contoh_emel')}
+            placeholderTextColor={C.ink6}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoComplete="email"
+            className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
+          />
+          <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+            {t('emel_hint')}
           </Text>
         </Card>
 

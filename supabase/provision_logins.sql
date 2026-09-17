@@ -23,13 +23,13 @@ SET search_path = public, extensions;
 DO $$
 DECLARE
   email_domain   text := 'checklist.local';
-  start_password text := 'Checklist2026!';
+  start_password text := '123456';
   staff          record;
   new_uid        uuid;
   made           int := 0;
 BEGIN
   FOR staff IN
-    SELECT id FROM users WHERE active AND auth_user_id IS NULL ORDER BY id
+    SELECT id, email FROM users WHERE active AND auth_user_id IS NULL ORDER BY id
   LOOP
     new_uid := gen_random_uuid();
 
@@ -49,7 +49,8 @@ BEGIN
       new_uid,
       'authenticated',
       'authenticated',
-      lower(staff.id) || '@' || email_domain,
+      -- The real address when the directory has one; the synthetic one otherwise.
+      COALESCE(lower(staff.email), lower(staff.id) || '@' || email_domain),
       crypt(start_password, gen_salt('bf')),
       -- Confirmed on creation: these addresses receive no mail, so a
       -- confirmation link would never arrive.
@@ -66,7 +67,7 @@ BEGIN
     ) VALUES (
       new_uid, new_uid,
       jsonb_build_object('sub', new_uid::text,
-                         'email', lower(staff.id) || '@' || email_domain,
+                         'email', COALESCE(lower(staff.email), lower(staff.id) || '@' || email_domain),
                          'email_verified', true),
       'email', now(), now(), now()
     );

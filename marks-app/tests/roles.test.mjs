@@ -12,6 +12,7 @@ import {
   branchChangeBlocker,
   deactivateBlocker,
   demotionsFor,
+  emailBlocker,
   hiringScope,
   postingFor,
   newUserBlocker,
@@ -183,4 +184,15 @@ test('every other role gets exactly one outlet, extras dropped', () => {
 test('nothing picked is a null posting, not a crash', () => {
   assert.deepEqual(postingFor('staff', []), { branchId: null, extraBranchIds: [] });
   assert.deepEqual(postingFor('area_manager', []), { branchId: null, extraBranchIds: [] });
+});
+
+// --- the e-mail on a directory row is optional, but must be an address when given
+
+test('an e-mail is optional, but has to look like one', () => {
+  assert.equal(emailBlocker(''), null);
+  assert.equal(emailBlocker('   '), null);
+  assert.equal(emailBlocker('nama@contoh.com'), null);
+  assert.match(emailBlocker('nama'), /E-mel/);
+  assert.match(emailBlocker('nama@contoh'), /E-mel/);
+  assert.match(emailBlocker('nama contoh@x.com'), /E-mel/);
 });

@@ -12,7 +12,10 @@ const db = new PGlite();
 
 await db.exec(`
   CREATE SCHEMA IF NOT EXISTS auth;
-  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text);
+  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text, updated_at timestamptz);
+  CREATE TABLE auth.identities (
+    user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb, updated_at timestamptz
+  );
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
@@ -54,6 +57,7 @@ const MIGRATIONS = [
   '20260910030100_reminders.sql',
   '20260916010000_branch_staff_management.sql',
   '20260916020000_tighten_grants.sql',
+  '20260917010000_user_email.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

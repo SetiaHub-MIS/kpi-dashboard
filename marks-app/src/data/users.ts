@@ -157,6 +157,8 @@ export type User = {
    * every other role — mirrors the user_branches table.
    */
   branchIds?: string[];
+  /** Real address for password resets. Absent means admin resets by hand. */
+  email?: string | null;
   active: boolean;
   /** Staff-checklist history: % per week, null = belum dinilai. */
   w: (number | null)[];
@@ -315,6 +317,14 @@ export function newUserBlocker(users: User[], name: string, id: string): string 
   if (users.some((u) => u.id.toLowerCase() === id.trim().toLowerCase())) {
     return `No. pekerja ${id.trim()} sudah wujud.`;
   }
+  return null;
+}
+
+/** Why an e-mail address is unusable, or null when it is fine — or blank, which is allowed. */
+export function emailBlocker(email: string): string | null {
+  const v = email.trim();
+  if (!v) return null;
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return 'E-mel seperti nama@contoh.com.';
   return null;
 }
 

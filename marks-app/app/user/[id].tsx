@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
@@ -16,6 +16,7 @@ import {
   Role,
   deactivateBlocker,
   demotionsFor,
+  emailBlocker,
   isCentralStore,
   isCrossBranch,
   isMarked,
@@ -37,6 +38,7 @@ export default function UserDetail() {
   const setRole = useUsers((s) => s.setRole);
   const setPosting = useUsers((s) => s.setPosting);
   const setActive = useUsers((s) => s.setActive);
+  const setEmail = useUsers((s) => s.setEmail);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
@@ -45,6 +47,7 @@ export default function UserDetail() {
   const t = useT();
   const locale = useLocale((s) => s.locale);
   const [saving, setSaving] = useState(false);
+  const [emailDraft, setEmailDraft] = useState<string | null>(null);
 
   const user = findUser(users, id);
 
@@ -134,6 +137,21 @@ export default function UserDetail() {
       }
     }
     void persist(() => setActive(user.id, !user.active));
+  };
+
+  const emailValue = emailDraft ?? user.email ?? '';
+  const emailDirty = emailValue.trim().toLowerCase() !== (user.email ?? '');
+  const saveEmail = () => {
+    const blocked = emailBlocker(emailValue);
+    if (blocked) {
+      Alert.alert(t('perubahan_tak_disimpan'), blocked);
+      return;
+    }
+    void persist(async () => {
+      const result = await setEmail(user.id, emailValue.trim() || null);
+      if (result.ok) setEmailDraft(null);
+      return result;
+    });
   };
 
   const marks = user.w
@@ -304,6 +322,39 @@ export default function UserDetail() {
             )}
           </>
         )}
+      </Card>
+
+      <Card className="p-[15px] mt-2.5">
+        <MonoLabel>{t('emel')}</MonoLabel>
+        <TextInput
+          value={emailValue}
+          onChangeText={setEmailDraft}
+          placeholder={t('contoh_emel')}
+          placeholderTextColor={C.ink6}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          autoComplete="email"
+          editable={!saving}
+          className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
+        />
+        <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+          {user.email ? t('emel_hint') : t('tiada_emel')}
+        </Text>
+        <Pressable
+          onPress={saveEmail}
+          disabled={!emailDirty || saving}
+          accessibilityRole="button"
+          className="mt-3 py-2.5 rounded-[10px] items-center"
+          style={{ backgroundColor: emailDirty && !saving ? C.ink : C.line }}
+        >
+          <Text
+            className="font-sans-semi text-[12.5px]"
+            style={{ color: emailDirty && !saving ? '#fff' : C.ink6 }}
+          >
+            {t('simpan_emel')}
+          </Text>
+        </Pressable>
       </Card>
 
       {isMarked(user.role) ? (

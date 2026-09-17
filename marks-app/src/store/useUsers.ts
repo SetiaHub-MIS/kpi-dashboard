@@ -18,6 +18,7 @@ import {
   WriteResult,
   createUser,
   updateUserActive,
+  updateUserEmail,
   updateUserPosting,
   updateUserRole,
 } from '@/lib/directory';
@@ -47,6 +48,7 @@ type UsersState = {
     branchId: string | null;
     /** Further outlets an Area Manager covers, beyond `branchId`. */
     extraBranchIds?: string[];
+    email?: string | null;
   }) => Promise<CreateUserResult>;
   /**
    * Every edit below is written to Postgres first and applied locally only
@@ -62,6 +64,7 @@ type UsersState = {
     changedBy: string | null
   ) => Promise<WriteResult>;
   setActive: (id: string, active: boolean) => Promise<WriteResult>;
+  setEmail: (id: string, email: string | null) => Promise<WriteResult>;
 };
 
 export const useUsers = create<UsersState>((set, get) => ({
@@ -71,7 +74,7 @@ export const useUsers = create<UsersState>((set, get) => ({
   hydrate: (users) => set({ users }),
   hydrateHistory: (history) => set({ history }),
 
-  addUser: async ({ name, id, role, branchId, extraBranchIds = [] }) => {
+  addUser: async ({ name, id, role, branchId, extraBranchIds = [], email = null }) => {
     const user: User = {
       id: id.trim().toUpperCase(),
       name: name.trim(),
@@ -80,6 +83,7 @@ export const useUsers = create<UsersState>((set, get) => ({
       role,
       branchId,
       ...(extraBranchIds.length > 0 ? { branchIds: extraBranchIds } : {}),
+      email: email?.trim() ? email.trim().toLowerCase() : null,
       active: true,
       w: [null, null, null, null],
       perkara: [0, 0, 0, 0, 0, 0, 0],
@@ -153,6 +157,16 @@ export const useUsers = create<UsersState>((set, get) => ({
       if (!result.ok) return result;
     }
     set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, active } : u)) }));
+    return { ok: true };
+  },
+
+  setEmail: async (id, email) => {
+    const value = email?.trim() ? email.trim().toLowerCase() : null;
+    if (isSupabaseConfigured) {
+      const result = await updateUserEmail(id, value);
+      if (!result.ok) return result;
+    }
+    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
     return { ok: true };
   },
 }));

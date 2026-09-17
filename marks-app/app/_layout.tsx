@@ -26,6 +26,9 @@ import { useSession } from '@/store/useSession';
 
 SplashScreen.preventAutoHideAsync();
 
+/** Reachable with nobody signed in: the way in, and the way back in. */
+const PUBLIC_ROUTES = new Set(['/', '/lupa-kata-laluan', '/reset-password']);
+
 /** A rejection has to name a person months later, so the label is resolved now. */
 const nameOf = (userId: string) =>
   findUser(useUsers.getState().users, userId)?.short ?? userId;
@@ -65,11 +68,13 @@ export default function RootLayout() {
     };
   }, [restore]);
 
-  // Every screen but the sign-in one requires a session. RLS already refuses
+  // Every screen but the way-in ones requires a session. RLS already refuses
   // the data underneath it — a supervisor querying another branch gets zero
   // rows — but that is not the same as the UI never having offered the
   // screen at all. A deep link straight to /admin with nobody signed in used
   // to render that screen's empty shell; now it bounces to sign-in instead.
+  // /reset-password stays open so an expired link can say so, rather than
+  // silently landing on the sign-in form.
   const status = useSession((s) => s.status);
   const currentUserId = useSession((s) => s.currentUserId);
   const pathname = usePathname();
@@ -77,7 +82,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isSupabaseConfigured) return; // demo mode has no real session to check
     if (status === 'restoring') return; // a stored session may still resolve
-    if (!currentUserId && pathname !== '/') router.replace('/');
+    if (!currentUserId && !PUBLIC_ROUTES.has(pathname)) router.replace('/');
   }, [status, currentUserId, pathname, router]);
 
   if (!loaded && !error) return null;

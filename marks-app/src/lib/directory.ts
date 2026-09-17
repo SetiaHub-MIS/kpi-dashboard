@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabase';
  */
 
 /** Column list kept in one place so the row type and the select cannot drift. */
-const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, active';
+const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, email, active';
 
 const UNIQUE_VIOLATION = '23505';
 const RLS_REFUSED = '42501';
@@ -40,7 +40,7 @@ export type CreateUserResult =
  * whole thing would only hit 'duplicate'.
  */
 export async function createUser(
-  user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId'>,
+  user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId' | 'email'>,
   extraBranchIds: string[] = []
 ): Promise<CreateUserResult> {
   const { error } = await supabase.from('users').insert({
@@ -50,6 +50,7 @@ export async function createUser(
     initials: user.init,
     role: user.role,
     branch_id: user.branchId,
+    email: user.email ?? null,
   });
 
   if (error) {
@@ -155,6 +156,19 @@ export async function updateUserActive(id: string, active: boolean): Promise<Wri
   return asResult(error);
 }
 
+/**
+ * Records or clears the real address. The database keeps the login's address
+ * in step (users_sync_auth_email), so a reset link goes to the right place
+ * from the moment this returns. A duplicate is the table's answer, not ours.
+ */
+export async function updateUserEmail(id: string, email: string | null): Promise<WriteResult> {
+  const { error } = await supabase.from('users').update({ email }).eq('id', id);
+  if (error?.code === UNIQUE_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: 'E-mel ini sudah digunakan oleh akaun lain.' };
+  }
+  return asResult(error);
+}
+
 /** Promotions and demotions on record, newest first. Admin-only under RLS. */
 export async function fetchRoleChanges(): Promise<
   { userId: string; from: Role; to: Role; changedAt: string }[]
@@ -257,6 +271,7 @@ export async function fetchStaff(
         init: u.initials,
         role: u.role as Role,
         branchId: u.branch_id,
+        email: u.email ?? null,
         active: u.active,
         w,
         perkara: perkara[u.id] ?? emptyPerkara(u.role as Role),

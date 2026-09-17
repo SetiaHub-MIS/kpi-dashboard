@@ -1,3 +1,4 @@
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { Role } from '@/data/users';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
@@ -5,15 +6,20 @@ import { isSupabaseConfigured, supabase } from '@/lib/supabase';
  * Sign-in, keyed on the payroll number.
  *
  * Staff know their payroll number — KP0093 is printed on everything they
- * handle — and most have no work email. Supabase Auth wants an email, so one is
- * synthesised from the number against a domain that never receives mail. The
- * number stays the identity; the address is plumbing, and never shown.
+ * handle — and many have no work email. Supabase Auth wants an email, so one
+ * is synthesised from the number against a domain that never receives mail.
+ * Since 20260917 a person with a real address in the directory signs in
+ * under that instead — which is what makes "forgot password" possible — and
+ * the payroll-auth Edge Function decides which, so no address is ever shown
+ * to, or guessable from, the phone. The number stays the identity.
  *
  * `users.auth_user_id` is what actually links the login to the directory row,
  * so the address could change tomorrow without touching a single mark.
  */
 export const AUTH_EMAIL_DOMAIN =
   process.env.EXPO_PUBLIC_AUTH_EMAIL_DOMAIN ?? 'checklist.local';
+
+const WRONG_CREDENTIALS = 'Nombor pekerja atau kata laluan salah.';
 
 export const emailForPayroll = (id: string) =>
   `${id.trim().toLowerCase()}@${AUTH_EMAIL_DOMAIN}`;
@@ -62,20 +68,8 @@ export async function signInWithPayroll(
   if (blocked) return { ok: false, message: blocked };
   if (!password) return { ok: false, message: 'Masukkan kata laluan.' };
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: emailForPayroll(id),
-    password,
-  });
-
-  if (error) {
-    // Supabase does not distinguish a wrong password from an unknown account,
-    // and neither should the message — saying which would confirm who exists.
-    const unknown = /invalid login credentials/i.test(error.message);
-    return {
-      ok: false,
-      message: unknown ? 'Nombor pekerja atau kata laluan salah.' : error.message,
-    };
-  }
+  const failed = await establishSession(id, password);
+  if (failed) return { ok: false, message: failed };
 
   const staff = await fetchSignedInStaff();
   if (!staff) {
@@ -87,6 +81,72 @@ export async function signInWithPayroll(
   }
 
   return { ok: true, staff };
+}
+
+/**
+ * Turns a payroll number and password into a session. Returns the message to
+ * show on failure, or null once the session is in place.
+ *
+ * The Edge Function resolves the login address; the phone never learns it.
+ * If the function is unreachable — not deployed yet, or the network dropped
+ * between the phone and it — the old direct route under the synthetic
+ * address is tried, so nobody without a real e-mail is locked out by a
+ * deploy that has not happened.
+ */
+async function establishSession(id: string, password: string): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke('payroll-auth', {
+    body: { action: 'sign-in', payrollId: id, password },
+  });
+
+  if (!error && data?.access_token && data?.refresh_token) {
+    const { error: sessionErr } = await supabase.auth.setSession({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+    });
+    return sessionErr ? sessionErr.message : null;
+  }
+
+  if (error instanceof FunctionsHttpError) {
+    const status: number = error.context?.status ?? 0;
+    if (status === 401) return WRONG_CREDENTIALS;
+    if (status === 400) {
+      const body = await error.context.json().catch(() => null);
+      if (body?.error === 'invalid_payroll') return 'Nombor pekerja seperti KP0093 atau WS0001.';
+    }
+    // Any other status — including the 404 of a function not deployed yet —
+    // falls through to the direct route.
+  }
+
+  const { error: directErr } = await supabase.auth.signInWithPassword({
+    email: emailForPayroll(id),
+    password,
+  });
+  if (!directErr) return null;
+  // Supabase does not distinguish a wrong password from an unknown account,
+  // and neither should the message — saying which would confirm who exists.
+  return /invalid login credentials/i.test(directErr.message) ? WRONG_CREDENTIALS : directErr.message;
+}
+
+/**
+ * Asks for a reset link. Always resolves: the reply from the function is the
+ * same whether or not the number exists or has an address, and so is the
+ * screen — the person is told to check their e-mail, and to see admin if
+ * none arrives.
+ */
+export async function requestPasswordReset(payrollId: string, redirectTo?: string): Promise<void> {
+  if (!isSupabaseConfigured) return;
+  await supabase.functions
+    .invoke('payroll-auth', {
+      body: { action: 'request-reset', payrollId: payrollId.trim().toUpperCase(), redirectTo },
+    })
+    .catch(() => undefined);
+}
+
+/** Sets a new password on the current session — from a reset link, or by choice. */
+export async function updatePassword(password: string): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { error } = await supabase.auth.updateUser({ password });
+  return error ? error.message : null;
 }
 
 /**

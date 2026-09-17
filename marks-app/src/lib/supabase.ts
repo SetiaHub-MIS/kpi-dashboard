@@ -2,6 +2,7 @@ import 'react-native-url-polyfill/auto';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -26,8 +27,9 @@ export const supabase = createClient(url ?? 'http://localhost', anonKey ?? 'anon
     storage: AsyncStorage,
     persistSession: true,
     autoRefreshToken: true,
-    // Mobile has no URL bar to read a callback out of.
-    detectSessionInUrl: false,
+    // A password-reset link lands on the web app with its token in the URL
+    // fragment; on the phone there is no URL bar to read a callback out of.
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
 
