@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
+import { MyEmailCard } from '@/components/MyEmailCard';
 import { Screen } from '@/components/Screen';
 import { currentUser, useSession } from '@/store/useSession';
 import { useMyWeeks } from '@/store/useMyWeeks';
@@ -63,6 +64,8 @@ export default function Profil() {
           </View>
         </View>
       </Card>
+
+      <MyEmailCard />
 
       <SignOutButton />
     </Screen>

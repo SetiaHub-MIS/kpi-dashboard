@@ -43,18 +43,16 @@ export function SignOutButton() {
         </Text>
       )}
 
-      {isSupabaseConfigured && (
-        <Pressable
-          onPress={() => router.push('/reset-password')}
-          hitSlop={8}
-          accessibilityRole="link"
-          className="mb-4 self-start active:opacity-60"
-        >
-          <Text className="font-sans-med text-[13px] text-ink-3 underline">
-            {t('tukar_kata_laluan')}
-          </Text>
-        </Pressable>
-      )}
+      <Pressable
+        onPress={() => router.push('/akaun')}
+        hitSlop={8}
+        accessibilityRole="link"
+        className="mb-4 self-start active:opacity-60"
+      >
+        <Text className="font-sans-med text-[13px] text-ink-3 underline">
+          {t('akaun_saya_link')}
+        </Text>
+      </Pressable>
 
       {pending.length > 0 && (
         <Text className="font-sans text-[12px] leading-[18px] mb-2.5" style={{ color: C.warn }}>

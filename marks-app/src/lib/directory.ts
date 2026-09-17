@@ -169,6 +169,25 @@ export async function updateUserEmail(id: string, email: string | null): Promise
   return asResult(error);
 }
 
+const CHECK_VIOLATION = '23514';
+
+/**
+ * The signed-in person's own address, through set_my_email() — the one
+ * write a non-admin may make to users. The table's format check and unique
+ * index answer for bad input; both are turned into words here.
+ */
+export async function updateMyEmail(email: string | null): Promise<WriteResult> {
+  const { error } = await supabase.rpc('set_my_email', { new_email: email ?? '' });
+  if (!error) return { ok: true };
+  if (error.code === UNIQUE_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: 'E-mel ini sudah digunakan oleh akaun lain.' };
+  }
+  if (error.code === CHECK_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: 'E-mel seperti nama@contoh.com.' };
+  }
+  return asResult(error);
+}
+
 /** Promotions and demotions on record, newest first. Admin-only under RLS. */
 export async function fetchRoleChanges(): Promise<
   { userId: string; from: Role; to: Role; changedAt: string }[]

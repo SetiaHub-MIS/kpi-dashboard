@@ -52,6 +52,7 @@ for (const m of [
   'supabase/migrations/20260916010000_branch_staff_management.sql',
   'supabase/migrations/20260916020000_tighten_grants.sql',
   'supabase/migrations/20260917010000_user_email.sql',
+  'supabase/migrations/20260917020000_set_my_email.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -789,6 +790,43 @@ console.log('\n=== a real e-mail on the directory row becomes the login\'s addre
   await db.exec(`UPDATE users SET auth_user_id = 'dddddddd-dddd-dddd-dddd-dddddddddddd' WHERE id = 'KP0910'`);
   check('...and once a login is linked, it carries the real address',
     await loginEmail('KP0910'), 'baharu@example.com');
+}
+
+console.log('\n=== a person keeps their own e-mail current, and nothing else ===');
+{
+  const loginEmail = async (payroll) =>
+    (await db.query(`SELECT a.email FROM users u JOIN auth.users a ON a.id = u.auth_user_id WHERE u.id = '${payroll}'`)).rows[0]?.email ?? null;
+
+  check('a pekerja may set their own e-mail through set_my_email',
+    await tryWrite(ACCOUNTS.putri[0], `SELECT set_my_email('  Putri.W@Example.com ')`), 'allowed');
+  check('...trimmed and lower-cased on the directory row',
+    (await as(ACCOUNTS.admin[0], `SELECT email FROM users WHERE id='KP0103'`)).rows[0].email, 'putri.w@example.com');
+  check('...and the login address followed it', await loginEmail('KP0103'), 'putri.w@example.com');
+
+  check('blank clears it',
+    await tryWrite(ACCOUNTS.putri[0], `SELECT set_my_email('')`), 'allowed');
+  check('...and the login falls back to the synthetic address', await loginEmail('KP0103'), 'kp0103@checklist.local');
+
+  check('a malformed address is refused',
+    await tryWrite(ACCOUNTS.putri[0], `SELECT set_my_email('not-an-address')`), 'blocked');
+
+  await as(ACCOUNTS.admin[0], `UPDATE users SET email = 'taken@example.com' WHERE id = 'KP0093'`);
+  check('an address already on someone else is refused',
+    await tryWrite(ACCOUNTS.putri[0], `SELECT set_my_email('TAKEN@example.com')`), 'blocked');
+
+  // The function has no "whose" parameter — it can only ever land on the
+  // caller's own row — but the point is worth pinning down.
+  await as(ACCOUNTS.putri[0], `SELECT set_my_email('mine@example.com')`);
+  check('...it never touches anyone else\'s row',
+    (await as(ACCOUNTS.admin[0], `SELECT email FROM users WHERE id='KP0093'`)).rows[0].email, 'taken@example.com');
+
+  await as(ACCOUNTS.putri[0], `UPDATE users SET email = 'direct@example.com', role = 'admin' WHERE id = 'KP0103'`);
+  const row = (await as(ACCOUNTS.admin[0], `SELECT email, role FROM users WHERE id='KP0103'`)).rows[0];
+  check('a direct UPDATE on their own row still changes nothing — not the e-mail, not the role',
+    [row.email, row.role], ['mine@example.com', 'staff']);
+
+  check('anon cannot call it at all',
+    await tryWrite('00000000-0000-0000-0000-000000000000', `SELECT set_my_email('x@example.com')`), 'blocked');
 }
 
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);

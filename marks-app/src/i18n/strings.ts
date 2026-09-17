@@ -819,6 +819,21 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   },
   simpan_emel: { ms: 'Simpan e-mel', en: 'Save e-mail' },
   tiada_emel: { ms: 'Tiada e-mel — set semula oleh admin.', en: 'No e-mail — reset by admin.' },
+  akaun_saya: { ms: 'Akaun saya', en: 'My account' },
+  akaun_saya_link: { ms: 'Akaun saya · e-mel & kata laluan', en: 'My account · e-mail & password' },
+  emel_saya_hint: {
+    ms: 'Pautan set semula kata laluan dihantar ke alamat ini.',
+    en: 'Password reset links are sent to this address.',
+  },
+  emel_saya_kosong: {
+    ms: 'Tiada e-mel lagi. Tambah satu untuk set semula kata laluan sendiri.',
+    en: 'No e-mail yet. Add one to reset your own password.',
+  },
+  emel_disimpan: { ms: 'E-mel disimpan', en: 'E-mail saved' },
+  emel_disimpan_body: {
+    ms: 'Pautan set semula kata laluan akan dihantar ke alamat ini mulai sekarang.',
+    en: 'Password reset links will go to this address from now on.',
+  },
 
   // ------------------------------------------------ password reset & change
   lupa_kata_laluan: { ms: 'Lupa kata laluan?', en: 'Forgot password?' },

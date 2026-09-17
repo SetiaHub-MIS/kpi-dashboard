@@ -18,6 +18,7 @@ import {
   WriteResult,
   createUser,
   updateUserActive,
+  updateMyEmail,
   updateUserEmail,
   updateUserPosting,
   updateUserRole,
@@ -65,6 +66,8 @@ type UsersState = {
   ) => Promise<WriteResult>;
   setActive: (id: string, active: boolean) => Promise<WriteResult>;
   setEmail: (id: string, email: string | null) => Promise<WriteResult>;
+  /** The signed-in person's own address — no admin needed. */
+  setMyEmail: (id: string, email: string | null) => Promise<WriteResult>;
 };
 
 export const useUsers = create<UsersState>((set, get) => ({
@@ -164,6 +167,16 @@ export const useUsers = create<UsersState>((set, get) => ({
     const value = email?.trim() ? email.trim().toLowerCase() : null;
     if (isSupabaseConfigured) {
       const result = await updateUserEmail(id, value);
+      if (!result.ok) return result;
+    }
+    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
+    return { ok: true };
+  },
+
+  setMyEmail: async (id, email) => {
+    const value = email?.trim() ? email.trim().toLowerCase() : null;
+    if (isSupabaseConfigured) {
+      const result = await updateMyEmail(value);
       if (!result.ok) return result;
     }
     set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
