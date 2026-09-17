@@ -90,7 +90,17 @@ Deno.serve(async (req: Request) => {
       const redirectTo = typeof body.redirectTo === 'string' ? body.redirectTo : undefined;
       // Supabase refuses a redirect that is not on the project's allow-list,
       // so this cannot be turned into an open redirect from the request body.
-      await anon.auth.resetPasswordForEmail(loginEmail, redirectTo ? { redirectTo } : undefined);
+      const { error } = await anon.auth.resetPasswordForEmail(
+        loginEmail,
+        redirectTo ? { redirectTo } : undefined,
+      );
+      // The phone hears nothing either way, so this line is the only record
+      // of a send that Supabase refused — an address its mailer will not
+      // deliver to, a rate limit. Dashboard → Edge Functions → payroll-auth
+      // → Logs. The payroll number is logged, the address is not.
+      if (error) {
+        console.error(`request-reset ${payrollId}: ${error.status ?? '-'} ${error.code ?? '-'} ${error.message}`);
+      }
     }
     return json({ ok: true });
   }
