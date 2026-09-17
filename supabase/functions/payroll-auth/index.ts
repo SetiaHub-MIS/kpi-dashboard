@@ -60,11 +60,17 @@ Deno.serve(async (req: Request) => {
   // Anon: the same client a phone would use, so the sign-in is an ordinary one.
   const anon = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, noSession);
 
-  const { data: row } = await admin
+  const { data: row, error: lookupError } = await admin
     .from('users')
     .select('email, auth_user_id, active')
     .eq('id', payrollId)
     .maybeSingle();
+  // A failed read is not "no such person": it means the service role could
+  // not see the directory at all, and every account would quietly fall back
+  // to its synthetic address. Logged so it can be told apart; never returned.
+  if (lookupError) {
+    console.error(`lookup ${payrollId}: ${lookupError.code ?? '-'} ${lookupError.message}`);
+  }
 
   const loginEmail = row?.email
     ? String(row.email).toLowerCase()
