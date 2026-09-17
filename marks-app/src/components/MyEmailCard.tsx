@@ -8,9 +8,9 @@ import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 /**
- * The signed-in person's own e-mail. Where the reset link goes, so it is
- * theirs to keep current — the same way the password is. Blank clears it,
- * which hands resets back to admin.
+ * The signed-in person's own e-mail, kept on their record for whatever it
+ * is needed for later — nothing in the app sends to it today. Theirs to
+ * keep current, the same way the password is; blank clears it.
  */
 export function MyEmailCard() {
   const users = useUsers((s) => s.users);

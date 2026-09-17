@@ -814,25 +814,25 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   emel_pilihan: { ms: 'E-mel (pilihan)', en: 'E-mail (optional)' },
   contoh_emel: { ms: 'cth: nama@contoh.com', en: 'e.g. name@example.com' },
   emel_hint: {
-    ms: 'Untuk set semula kata laluan sendiri. Tanpa e-mel, admin yang set semula.',
-    en: 'Lets them reset their own password. Without one, admin resets it.',
+    ms: 'Disimpan dalam rekod pekerja untuk kegunaan akan datang.',
+    en: 'Kept on the staff record for future use.',
   },
   simpan_emel: { ms: 'Simpan e-mel', en: 'Save e-mail' },
-  tiada_emel: { ms: 'Tiada e-mel — set semula oleh admin.', en: 'No e-mail — reset by admin.' },
+  tiada_emel: { ms: 'Tiada e-mel.', en: 'No e-mail.' },
   akaun_saya: { ms: 'Akaun saya', en: 'My account' },
   akaun_saya_link: { ms: 'Akaun saya · e-mel & kata laluan', en: 'My account · e-mail & password' },
   emel_saya_hint: {
-    ms: 'Pautan set semula kata laluan dihantar ke alamat ini.',
-    en: 'Password reset links are sent to this address.',
+    ms: 'Alamat ini disimpan dalam rekod anda.',
+    en: 'This address is kept on your record.',
   },
   emel_saya_kosong: {
-    ms: 'Tiada e-mel lagi. Tambah satu untuk set semula kata laluan sendiri.',
-    en: 'No e-mail yet. Add one to reset your own password.',
+    ms: 'Tiada e-mel lagi. Tambah alamat anda jika ada.',
+    en: 'No e-mail yet. Add yours if you have one.',
   },
   emel_disimpan: { ms: 'E-mel disimpan', en: 'E-mail saved' },
   emel_disimpan_body: {
-    ms: 'Pautan set semula kata laluan akan dihantar ke alamat ini mulai sekarang.',
-    en: 'Password reset links will go to this address from now on.',
+    ms: 'Alamat ini kini disimpan dalam rekod anda.',
+    en: 'This address is now kept on your record.',
   },
 
   // ------------------------------------------------ password reset & change
