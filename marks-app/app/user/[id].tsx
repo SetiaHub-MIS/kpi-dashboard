@@ -1,44 +1,50 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
-import { todayShort } from '@/data/period';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
+import { isHq } from '@/data/branches';
 import { WEEK_COLS } from '@/data/checklist';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import {
   branchChangeBlocker,
+  branchesOf,
   ROLE_LADDER,
   ROLE_LEVEL,
   Role,
   deactivateBlocker,
   demotionsFor,
+  isCentralStore,
+  isCrossBranch,
   isMarked,
   promotionsFor,
   roleChangeBlocker,
   transfersFor,
 } from '@/data/users';
 import { formLabel, roleBlurb, roleLabel } from '@/i18n/labels';
+import { WriteResult } from '@/lib/directory';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { useLocale, useT } from '@/store/useLocale';
+import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { C, pctColor } from '@/theme/scoring';
-
-
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const users = useUsers((s) => s.users);
   const setRole = useUsers((s) => s.setRole);
-  const setBranch = useUsers((s) => s.setBranch);
+  const setPosting = useUsers((s) => s.setPosting);
   const setActive = useUsers((s) => s.setActive);
+  const me = currentUser(users, useSession((s) => s.currentUserId));
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
-  const branches = useActiveBranches();
+  const allBranches = useActiveBranches();
   const branchLabel = useBranchLabel();
   const t = useT();
   const locale = useLocale((s) => s.locale);
+  const [saving, setSaving] = useState(false);
 
   const user = findUser(users, id);
 
@@ -62,22 +68,61 @@ export default function UserDetail() {
   // Highest rung first; a rung can hold peer roles (pekerja kedai and stor).
   const levels = [...new Set(ROLE_LADDER.map((r) => ROLE_LEVEL[r]))].sort((a, b) => b - a);
 
+  // Every write goes to Postgres before the screen changes, so a refusal is
+  // shown rather than silently reverted on the next reload.
+  const persist = async (write: () => Promise<WriteResult>) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const result = await write();
+      if (!result.ok) {
+        Alert.alert(
+          t('perubahan_tak_disimpan'),
+          result.reason === 'forbidden' ? t('perubahan_ditolak_pelayan') : result.message
+        );
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const change = (next: Role) => {
     const blocked = roleChangeBlocker(users, user.id, next);
     if (blocked) {
       Alert.alert(t('tak_boleh_tukar_peranan'), blocked);
       return;
     }
-    setRole(user.id, next, todayShort());
+    void persist(() => setRole(user.id, next, me?.id ?? null));
   };
 
-  const moveBranch = (next: string) => {
-    const blocked = branchChangeBlocker(users, user.id, next);
-    if (blocked) {
-      Alert.alert(t('tak_boleh_tukar_cawangan'), blocked);
-      return;
+  // Which outlets this person may be posted to: the stor team to HQ alone,
+  // everyone with a kedai posting to the kedai list. Same rule as creation.
+  const branches = allBranches.filter((b) => isHq(b.id) === isCentralStore(user.role));
+  const multi = user.role === 'area_manager';
+  const covered = branchesOf(user);
+
+  const tapBranch = (next: string) => {
+    let picked: string[];
+    if (!multi) {
+      picked = [next];
+    } else if (covered.includes(next)) {
+      picked = covered.filter((b) => b !== next);
+      if (picked.length === 0) {
+        Alert.alert(t('tak_boleh_tukar_cawangan'), t('cawangan_terakhir'));
+        return;
+      }
+    } else {
+      picked = [...covered, next];
     }
-    setBranch(user.id, next);
+    const [home, ...extras] = picked;
+    if (home !== user.branchId) {
+      const blocked = branchChangeBlocker(users, user.id, home);
+      if (blocked) {
+        Alert.alert(t('tak_boleh_tukar_cawangan'), blocked);
+        return;
+      }
+    }
+    void persist(() => setPosting(user.id, home, extras, me?.id ?? null));
   };
 
   const toggleActive = () => {
@@ -88,7 +133,7 @@ export default function UserDetail() {
         return;
       }
     }
-    setActive(user.id, !user.active);
+    void persist(() => setActive(user.id, !user.active));
   };
 
   const marks = user.w
@@ -162,6 +207,7 @@ export default function UserDetail() {
               <Pressable
                 key={r}
                 onPress={() => change(r)}
+                disabled={saving}
                 accessibilityRole="button"
                 className="flex-1 py-3 rounded-[10px] items-center bg-ink active:opacity-80"
               >
@@ -179,6 +225,7 @@ export default function UserDetail() {
               <Pressable
                 key={r}
                 onPress={() => change(r)}
+                disabled={saving}
                 accessibilityRole="button"
                 className="flex-1 py-3 rounded-[10px] border border-line items-center bg-card active:opacity-70"
               >
@@ -196,6 +243,7 @@ export default function UserDetail() {
               <Pressable
                 key={r}
                 onPress={() => change(r)}
+                disabled={saving}
                 accessibilityRole="button"
                 className="flex-1 py-3 rounded-[10px] border border-line items-center bg-card active:opacity-70"
               >
@@ -208,35 +256,55 @@ export default function UserDetail() {
         )}
       </Card>
 
-      {user.role !== 'admin' && (
-        <Card className="p-[15px] mt-2.5">
-          <MonoLabel>{t('tab_cawangan')}</MonoLabel>
-          <View className="flex-row flex-wrap gap-1.5 mt-3">
-            {branches.map((b) => {
-              const on = user.branchId === b.id;
-              return (
-                <Pressable
-                  key={b.id}
-                  onPress={() => moveBranch(b.id)}
-                  accessibilityRole="button"
-                  className="flex-1 py-2.5 rounded-lg border items-center"
-                  style={{
-                    borderColor: on ? 'transparent' : C.line,
-                    backgroundColor: on ? C.ink : C.card,
-                  }}
-                >
-                  <Text
-                    className="font-sans-med text-[12.5px]"
-                    style={{ color: on ? '#fff' : C.ink3 }}
+      <Card className="p-[15px] mt-2.5">
+        <MonoLabel>{t('tab_cawangan')}</MonoLabel>
+        {isCrossBranch(user.role) ? (
+          <Text className="font-sans text-[12.5px] leading-[19px] text-ink-4 mt-2.5">
+            {t('semua_cawangan_hint')}
+          </Text>
+        ) : (
+          <>
+            <View className="flex-row flex-wrap gap-1.5 mt-3">
+              {branches.map((b) => {
+                const on = covered.includes(b.id);
+                const home = multi && on && user.branchId === b.id;
+                return (
+                  <Pressable
+                    key={b.id}
+                    onPress={() => tapBranch(b.id)}
+                    disabled={saving}
+                    accessibilityRole={multi ? 'checkbox' : 'radio'}
+                    accessibilityState={multi ? { checked: on } : { selected: on }}
+                    className="px-3 py-2 rounded-lg border items-center"
+                    style={{
+                      borderColor: on ? 'transparent' : C.line,
+                      backgroundColor: on ? C.ink : C.card,
+                      opacity: saving ? 0.6 : 1,
+                    }}
                   >
-                    {b.short}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
-      )}
+                    <Text
+                      className="font-sans-med text-[12.5px]"
+                      style={{ color: on ? '#fff' : C.ink3 }}
+                    >
+                      {b.short}
+                    </Text>
+                    {home && (
+                      <Text className="font-mono-semi text-[8px] mt-0.5" style={{ color: C.ink7 }}>
+                        {t('cawangan_utama_badge')}
+                      </Text>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+            {multi && (
+              <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+                {t('liputan_edit_hint')}
+              </Text>
+            )}
+          </>
+        )}
+      </Card>
 
       {isMarked(user.role) ? (
         <Card className="p-[15px] mt-2.5">
@@ -290,6 +358,7 @@ export default function UserDetail() {
 
       <Pressable
         onPress={toggleActive}
+        disabled={saving}
         accessibilityRole="button"
         className="mt-2.5 py-3.5 rounded-xl border items-center bg-card active:opacity-70"
         style={{ borderColor: user.active ? '#D6D6D2' : C.pass }}

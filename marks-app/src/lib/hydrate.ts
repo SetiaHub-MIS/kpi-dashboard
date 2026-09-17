@@ -1,6 +1,6 @@
-import { currentPeriod } from '@/data/period';
+import { currentPeriod, todayShort } from '@/data/period';
 import { fetchAssets } from '@/lib/assets';
-import { fetchDirectory } from '@/lib/directory';
+import { fetchDirectory, fetchRoleChanges } from '@/lib/directory';
 import { fetchMyReminders } from '@/lib/reminders';
 import { fetchReturns } from '@/lib/returns';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -38,6 +38,23 @@ export async function hydrateDirectory(): Promise<boolean> {
     useMarks.getState().noteWeekNotes(dir.notes);
     useMarks.getState().noteAdjusted(dir.adjusted);
     useMarks.getState().noteMarkMax(dir.markMax);
+
+    // Promotion history is admin's alone; anyone else is refused and keeps
+    // an empty list, which is the right answer for them anyway.
+    try {
+      const names = new Map(dir.users.map((u) => [u.id, u.name]));
+      useUsers.getState().hydrateHistory(
+        (await fetchRoleChanges()).map((r) => ({
+          id: r.userId,
+          name: names.get(r.userId) ?? r.userId,
+          from: r.from,
+          to: r.to,
+          at: todayShort(new Date(r.changedAt)),
+        }))
+      );
+    } catch {
+      // Not admin.
+    }
 
     // Returns are read separately: a role with no access to them still needs
     // the directory, and a refusal here must not empty the staff list.

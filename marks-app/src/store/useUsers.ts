@@ -1,16 +1,26 @@
 import { create } from 'zustand';
+import { todayShort } from '@/data/period';
 import {
   Role,
   SEED_USERS,
   User,
+  branchesOf,
   canSeeBranch,
   initialsOf,
   isMarked,
   marksRoles,
+  postingFor,
   seesStoreOps,
   shortOf,
 } from '@/data/users';
-import { CreateUserResult, createUser } from '@/lib/directory';
+import {
+  CreateUserResult,
+  WriteResult,
+  createUser,
+  updateUserActive,
+  updateUserPosting,
+  updateUserRole,
+} from '@/lib/directory';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 export type RoleChange = {
@@ -23,10 +33,11 @@ export type RoleChange = {
 
 type UsersState = {
   users: User[];
-  /** Most recent first — promotions and demotions made in-app. */
+  /** Most recent first — promotions and demotions on record. */
   history: RoleChange[];
   /** Replaces the seed with rows read from Postgres. */
   hydrate: (users: User[]) => void;
+  hydrateHistory: (history: RoleChange[]) => void;
 
   /** Written to Postgres first; the local list only grows once the row is accepted. */
   addUser: (input: {
@@ -37,16 +48,28 @@ type UsersState = {
     /** Further outlets an Area Manager covers, beyond `branchId`. */
     extraBranchIds?: string[];
   }) => Promise<CreateUserResult>;
-  setRole: (id: string, role: Role, at: string) => void;
-  setBranch: (id: string, branchId: string | null) => void;
-  setActive: (id: string, active: boolean) => void;
+  /**
+   * Every edit below is written to Postgres first and applied locally only
+   * once accepted, so what the admin sees is what the database holds. The
+   * posting that follows a role change comes from postingFor(): head office
+   * drops its branch, anyone leaving area_manager drops their extra outlets.
+   */
+  setRole: (id: string, role: Role, changedBy: string | null) => Promise<WriteResult>;
+  setPosting: (
+    id: string,
+    branchId: string | null,
+    extraBranchIds: string[],
+    changedBy: string | null
+  ) => Promise<WriteResult>;
+  setActive: (id: string, active: boolean) => Promise<WriteResult>;
 };
 
-export const useUsers = create<UsersState>((set) => ({
+export const useUsers = create<UsersState>((set, get) => ({
   users: SEED_USERS,
   history: [],
 
   hydrate: (users) => set({ users }),
+  hydrateHistory: (history) => set({ history }),
 
   addUser: async ({ name, id, role, branchId, extraBranchIds = [] }) => {
     const user: User = {
@@ -74,21 +97,64 @@ export const useUsers = create<UsersState>((set) => ({
     return { ok: true };
   },
 
-  setRole: (id, role, at) =>
-    set((s) => {
-      const user = s.users.find((u) => u.id === id);
-      if (!user || user.role === role) return s;
-      return {
-        users: s.users.map((u) => (u.id === id ? { ...u, role } : u)),
-        history: [{ id, name: user.name, from: user.role, to: role, at }, ...s.history],
-      };
-    }),
+  setRole: async (id, role, changedBy) => {
+    const user = get().users.find((u) => u.id === id);
+    if (!user || user.role === role) return { ok: true };
+    const posting = postingFor(role, branchesOf(user));
+    if (isSupabaseConfigured) {
+      const result = await updateUserRole({ id, from: user.role, to: role, ...posting, changedBy });
+      if (!result.ok) return result;
+    }
+    set((s) => ({
+      users: s.users.map((u) =>
+        u.id === id
+          ? {
+              ...u,
+              role,
+              branchId: posting.branchId,
+              branchIds: posting.extraBranchIds.length > 0 ? posting.extraBranchIds : undefined,
+            }
+          : u
+      ),
+      history: [
+        { id, name: user.name, from: user.role, to: role, at: todayShort() },
+        ...s.history,
+      ],
+    }));
+    return { ok: true };
+  },
 
-  setBranch: (id, branchId) =>
-    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, branchId } : u)) })),
+  setPosting: async (id, branchId, extraBranchIds, changedBy) => {
+    const user = get().users.find((u) => u.id === id);
+    if (!user) return { ok: true };
+    if (isSupabaseConfigured) {
+      const result = await updateUserPosting({
+        id,
+        fromBranchId: user.branchId,
+        branchId,
+        extraBranchIds,
+        changedBy,
+      });
+      if (!result.ok) return result;
+    }
+    set((s) => ({
+      users: s.users.map((u) =>
+        u.id === id
+          ? { ...u, branchId, branchIds: extraBranchIds.length > 0 ? extraBranchIds : undefined }
+          : u
+      ),
+    }));
+    return { ok: true };
+  },
 
-  setActive: (id, active) =>
-    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, active } : u)) })),
+  setActive: async (id, active) => {
+    if (isSupabaseConfigured) {
+      const result = await updateUserActive(id, active);
+      if (!result.ok) return result;
+    }
+    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, active } : u)) }));
+    return { ok: true };
+  },
 }));
 
 export const findUser = (users: User[], id?: string): User | undefined =>

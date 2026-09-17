@@ -808,6 +808,21 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: '{name} wujud di {home}, tetapi cawangan tambahan gagal disimpan. Hubungi admin sistem.',
     en: '{name} exists at {home}, but the extra outlets did not save. Contact the system admin.',
   },
+
+  // ---------------------------------------------------- user/[id], editing
+  liputan_edit_hint: {
+    ms: 'Ketik untuk tambah atau tanggal cawangan. Yang pertama ialah cawangan utama.',
+    en: 'Tap to add or remove an outlet. The first one is the home posting.',
+  },
+  cawangan_terakhir: {
+    ms: 'Sekurang-kurangnya satu cawangan diperlukan.',
+    en: 'At least one outlet is required.',
+  },
+  perubahan_tak_disimpan: { ms: 'Perubahan tidak disimpan', en: 'Change not saved' },
+  perubahan_ditolak_pelayan: {
+    ms: 'Pelayan menolak perubahan ini. Hanya admin boleh mengubah akaun.',
+    en: 'The server refused this change. Only admin may edit accounts.',
+  },
 };
 
 /**

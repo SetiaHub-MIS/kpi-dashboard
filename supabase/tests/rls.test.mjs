@@ -686,5 +686,58 @@ console.log('\n=== SV/AS and Area Managers hire pekerja kedai into their own out
     (await as(ACCOUNTS.admin[0], `SELECT role FROM users WHERE id='KP0901'`)).rows[0].role, 'staff');
 }
 
+console.log('\n=== editing a person: role, posting and coverage are admin\'s, and demotion must drop coverage ===');
+{
+  const seenBy = async (uuid) =>
+    (await as(uuid, `SELECT DISTINCT branch_id FROM users WHERE branch_id IS NOT NULL ORDER BY 1`))
+      .rows.map((x) => x.branch_id);
+
+  check('Herdi starts by covering both his outlets', await seenBy(ACCOUNTS.herdi[0]), ['DKB', 'DMC']);
+
+  check('admin may demote him to supervisor',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET role = 'supervisor' WHERE id = 'AM0001'`), 'allowed');
+
+  // This is the trap the app guards against. The user_branches trigger checks
+  // the role on INSERT and UPDATE of *that* table; a role change on users
+  // does not touch it, so the stale row still grants the second outlet.
+  check('...and with the coverage row left behind he STILL reaches Kota Bharu',
+    await seenBy(ACCOUNTS.herdi[0]), ['DKB', 'DMC']);
+
+  check('admin clears the coverage, as updateUserRole() does',
+    await tryWrite(ACCOUNTS.admin[0], `DELETE FROM user_branches WHERE user_id = 'AM0001'`), 'allowed');
+
+  check('...and only now is he confined to Machang', await seenBy(ACCOUNTS.herdi[0]), ['DMC']);
+
+  check('the demotion is on record',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO role_changes (user_id, from_role, to_role, changed_by)
+       VALUES ('AM0001', 'area_manager', 'supervisor', 'AD0001')`), 'allowed');
+
+  check('a supervisor may NOT write that record',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO role_changes (user_id, from_role, to_role, changed_by)
+       VALUES ('WS0001', 'supervisor', 'area_manager', 'WS0001')`), 'blocked');
+
+  // A supervisor's UPDATE on users filters to zero rows rather than throwing,
+  // so it is proven by reading back, as the reminders section notes.
+  await as(ACCOUNTS.syahirah[0], `UPDATE users SET role = 'area_manager' WHERE id = 'WS0001'`);
+  check('a supervisor cannot promote themselves',
+    (await as(ACCOUNTS.admin[0], `SELECT role FROM users WHERE id='WS0001'`)).rows[0].role, 'supervisor');
+
+  await as(ACCOUNTS.syahirah[0], `UPDATE users SET active = false WHERE id = 'KP0093'`);
+  check('...nor deactivate their own staff — that stays with admin',
+    (await as(ACCOUNTS.admin[0], `SELECT active FROM users WHERE id='KP0093'`)).rows[0].active, true);
+
+  await as(ACCOUNTS.admin[0], `UPDATE users SET active = false WHERE id = 'KP0901'`);
+  check('admin may deactivate, and it sticks',
+    (await as(ACCOUNTS.admin[0], `SELECT active FROM users WHERE id='KP0901'`)).rows[0].active, false);
+
+  // Put Herdi back the way the seed has him, for anything that runs after.
+  await as(ACCOUNTS.admin[0], `UPDATE users SET role = 'area_manager' WHERE id = 'AM0001'`);
+  await as(ACCOUNTS.admin[0], `INSERT INTO user_branches (user_id, branch_id) VALUES ('AM0001', 'DKB')`);
+  check('restored: promoting back and re-adding coverage takes effect at once',
+    await seenBy(ACCOUNTS.herdi[0]), ['DKB', 'DMC']);
+}
+
 console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

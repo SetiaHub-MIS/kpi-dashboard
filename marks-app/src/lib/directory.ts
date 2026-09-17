@@ -67,6 +67,111 @@ export async function createUser(
   return coverageErr ? { ok: true, coverageError: coverageErr.message } : { ok: true };
 }
 
+export type WriteResult =
+  | { ok: true }
+  | { ok: false; reason: 'forbidden' | 'unknown'; message: string };
+
+const asResult = (error: { code?: string; message: string } | null): WriteResult =>
+  !error
+    ? { ok: true }
+    : { ok: false, reason: error.code === RLS_REFUSED ? 'forbidden' : 'unknown', message: error.message };
+
+/**
+ * Replaces an Area Manager's extra outlets wholesale. Rows in user_branches
+ * are what app_can_see_branch() reads, and nothing in the database prunes
+ * them when a role changes — the trigger guards writes *to* the table, not
+ * the role on the person — so every caller that can change a role must call
+ * this, with an empty list, or a demoted Area Manager keeps reaching outlets
+ * they no longer cover.
+ */
+async function replaceCoverage(userId: string, extraBranchIds: string[]): Promise<WriteResult> {
+  const { error: delErr } = await supabase.from('user_branches').delete().eq('user_id', userId);
+  if (delErr) return asResult(delErr);
+  if (extraBranchIds.length === 0) return { ok: true };
+  const { error } = await supabase
+    .from('user_branches')
+    .insert(extraBranchIds.map((branchId) => ({ user_id: userId, branch_id: branchId })));
+  return asResult(error);
+}
+
+/** A promotion, demotion or transfer, with the audit row the schema keeps for it. */
+export async function updateUserRole(input: {
+  id: string;
+  from: Role;
+  to: Role;
+  branchId: string | null;
+  extraBranchIds: string[];
+  changedBy: string | null;
+}): Promise<WriteResult> {
+  const { error } = await supabase
+    .from('users')
+    .update({ role: input.to, branch_id: input.branchId })
+    .eq('id', input.id);
+  if (error) return asResult(error);
+
+  // After the role update: the trigger only admits extra outlets for an
+  // area_manager, so a promotion into that role has to land first.
+  const coverage = await replaceCoverage(input.id, input.extraBranchIds);
+  if (!coverage.ok) return coverage;
+
+  const { error: auditErr } = await supabase.from('role_changes').insert({
+    user_id: input.id,
+    from_role: input.from,
+    to_role: input.to,
+    changed_by: input.changedBy,
+  });
+  return asResult(auditErr);
+}
+
+/** Moves a person's home outlet and/or the extra outlets an Area Manager covers. */
+export async function updateUserPosting(input: {
+  id: string;
+  fromBranchId: string | null;
+  branchId: string | null;
+  extraBranchIds: string[];
+  changedBy: string | null;
+}): Promise<WriteResult> {
+  const { error } = await supabase
+    .from('users')
+    .update({ branch_id: input.branchId })
+    .eq('id', input.id);
+  if (error) return asResult(error);
+
+  const coverage = await replaceCoverage(input.id, input.extraBranchIds);
+  if (!coverage.ok) return coverage;
+
+  if (input.fromBranchId === input.branchId) return { ok: true };
+  const { error: auditErr } = await supabase.from('branch_changes').insert({
+    user_id: input.id,
+    from_branch_id: input.fromBranchId,
+    to_branch_id: input.branchId,
+    changed_by: input.changedBy,
+  });
+  return asResult(auditErr);
+}
+
+export async function updateUserActive(id: string, active: boolean): Promise<WriteResult> {
+  const { error } = await supabase.from('users').update({ active }).eq('id', id);
+  return asResult(error);
+}
+
+/** Promotions and demotions on record, newest first. Admin-only under RLS. */
+export async function fetchRoleChanges(): Promise<
+  { userId: string; from: Role; to: Role; changedAt: string }[]
+> {
+  const { data, error } = await supabase
+    .from('role_changes')
+    .select('user_id, from_role, to_role, changed_at')
+    .order('changed_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    userId: r.user_id,
+    from: r.from_role as Role,
+    to: r.to_role as Role,
+    changedAt: r.changed_at,
+  }));
+}
+
 export async function fetchBranches(): Promise<Branch[]> {
   const { data, error } = await supabase
     .from('branches')
