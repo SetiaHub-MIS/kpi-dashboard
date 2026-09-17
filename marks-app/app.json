@@ -40,7 +40,11 @@
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "lang": "ms",
+      "shortName": "Checklist",
+      "themeColor": "#F4F4F2",
+      "backgroundColor": "#F4F4F2"
     },
     "extra": {
       "router": {},
