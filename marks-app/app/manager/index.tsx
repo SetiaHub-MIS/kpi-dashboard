@@ -8,8 +8,9 @@ import { ACTIVE_WEEK, FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } fro
 import { notify } from '@/lib/dialog';
 import { exportMonthXlsx } from '@/lib/export';
 import { assetsOfBranch, useAssets } from '@/store/useAssets';
-import { useBranchLabel } from '@/store/useBranches';
-import { branchesOf } from '@/data/users';
+import { isHq } from '@/data/branches';
+import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
+import { branchesOf, isCrossBranch } from '@/data/users';
 import { roleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
@@ -61,10 +62,15 @@ export default function ManagerHome() {
   const crew = visibleStaff(users, manager);
   const branchLabel = useBranchLabel();
   // An Area Manager can cover more than one outlet, so the header names them
-  // all rather than only the home posting.
+  // all rather than only the home posting. The Manager covers every outlet.
   const covered = manager ? branchesOf(manager) : [];
-  const scopeLabel =
-    covered.length > 1 ? covered.map(branchLabel).join(' · ') : branchLabel(branchId);
+  const crossBranch = manager != null && isCrossBranch(manager.role);
+  const outlets = useActiveBranches().filter((b) => !isHq(b.id));
+  const scopeLabel = crossBranch
+    ? t('semua_cawangan')
+    : covered.length > 1
+      ? covered.map(branchLabel).join(' · ')
+      : branchLabel(branchId);
 
   const stats = monthStats(crew, submitted);
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
@@ -90,9 +96,15 @@ export default function ManagerHome() {
   const svPending = myQueue.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
 
   const tugasanEntriesByMonth = useTugasan((s) => s.entriesByMonth);
-  const tugasanTotal = WEEK_COLS.length * TUGASAN_ITEMS.length;
-  const tugasanDone = WEEK_COLS.reduce(
-    (n, _, i) => n + tugasanDoneCount(tugasanEntriesByMonth, tugasanScope(branchId, monthIdx), i),
+  // Tugasan is per outlet: one outlet's eight ticks for an Area Manager, every
+  // outlet's for the Manager.
+  const tugasanScopes = crossBranch
+    ? outlets.map((b) => tugasanScope(b.id, monthIdx))
+    : [tugasanScope(branchId, monthIdx)];
+  const tugasanTotal = tugasanScopes.length * WEEK_COLS.length * TUGASAN_ITEMS.length;
+  const tugasanDone = tugasanScopes.reduce(
+    (sum, scope) =>
+      sum + WEEK_COLS.reduce((n, _, i) => n + tugasanDoneCount(tugasanEntriesByMonth, scope, i), 0),
     0
   );
 

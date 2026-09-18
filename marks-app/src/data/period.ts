@@ -16,7 +16,7 @@ const MONTH_NAMES = [
   'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER',
 ];
 
-const pad = (n: number) => String(n).padStart(2, '0');
+export const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Today as YYYY-MM-DD in the device's own timezone. */
 export function todayIso(now: Date = new Date()): string {

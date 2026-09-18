@@ -6,10 +6,11 @@ import { MonoLabel } from '@/components/Card';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { HOME_ROUTE, SignInForm } from '@/components/SignInForm';
 import { HQ_BRANCH_ID, isHq } from '@/data/branches';
+import { notify } from '@/lib/dialog';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useActiveBranches } from '@/store/useBranches';
 import { ME_ID } from '@/data/crew';
-import { Role } from '@/data/users';
+import { Role, isReportsOnly } from '@/data/users';
 import { roleBlurb, roleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
@@ -34,15 +35,13 @@ const STORE_ROLES: { role: Role; href: Href }[] = [
 ];
 
 /**
- * Head office. These four hold no branch, so they are listed apart from the
- * outlet roles. Admin gets the administration console; manager and general
- * manager get the outlet report, which names no one. HR goes further — it reads
- * individual marking sheets and the returns flow — so it has its own area.
+ * Head office. These hold no branch, so they are listed apart from the outlet
+ * roles. The Manager works the Area Manager's screens across every outlet;
+ * admin gets the administration console. The General Manager and HR are not
+ * offered: they read the company through the reporting web app.
  */
 const HQ_ROLES: { role: Role; href: Href }[] = [
-  { role: 'manager', href: '/hq' },
-  { role: 'general_manager', href: '/hq' },
-  { role: 'human_resources', href: '/hr' },
+  { role: 'manager', href: '/manager' },
   { role: 'admin', href: '/admin' },
 ];
 
@@ -56,15 +55,24 @@ export default function RolePicker() {
   const status = useSession((s) => s.status);
   const signedInStaff = useSession((s) => s.staff);
 
-  // A restored session should land on the person's own screen, not on a login
-  // form asking them to prove what the device already knows.
-  useEffect(() => {
-    if (signedInStaff) router.replace(HOME_ROUTE[signedInStaff.role] as Href);
-  }, [signedInStaff]);
   const users = useUsers((s) => s.users);
   const signIn = useSession((s) => s.signIn);
   const t = useT();
   const locale = useLocale((s) => s.locale);
+
+  // A restored session should land on the person's own screen, not on a login
+  // form asking them to prove what the device already knows.
+  useEffect(() => {
+    if (!signedInStaff) return;
+    if (isReportsOnly(signedInStaff.role)) {
+      // A GM/HR session left over from before the split: end it here rather
+      // than park them on a sign-in form while signed in.
+      void useSession.getState().signOut();
+      notify(t('guna_aplikasi_laporan'), t('guna_aplikasi_laporan_body'));
+      return;
+    }
+    router.replace(HOME_ROUTE[signedInStaff.role] as Href);
+  }, [signedInStaff, t]);
   const branches = useActiveBranches();
   const outlets = branches.filter((b) => !isHq(b.id));
   const [selected, setSelected] = useState<string | null>(null);

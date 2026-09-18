@@ -86,9 +86,9 @@ export const ROLE_BLURB: Record<Role, string> = {
   clerk: 'Stor pusat HQ. Uruskan panggilan pembekal dan pungutan barang pulangan.',
   supervisor: 'Menilai pekerja kedai dan stor setiap minggu.',
   area_manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
-  manager: 'Laporan semua cawangan, bahagian kedai sahaja. Tiada pulangan atau markah stor.',
-  general_manager: 'Laporan semua cawangan — markah kedai, markah stor dan KPI pulangan.',
-  human_resources: 'Semua cawangan — markah setiap pekerja, KPI stor dan aliran pulangan.',
+  manager: 'Seperti Area Manager, di semua cawangan. Tiada pulangan atau markah stor.',
+  general_manager: 'Laporan dan muat turun di aplikasi laporan web, bukan aplikasi ini.',
+  human_resources: 'Laporan dan muat turun di aplikasi laporan web; kemas kini pekerja melalui akaun admin.',
   admin: 'Pentadbiran sahaja — akaun, peranan, cawangan. Tiada akses pulangan.',
 };
 
@@ -120,7 +120,17 @@ export const isMarked = (role: Role) => MARKED_ROLES.includes(role);
 export const MARKS_ROLES: Partial<Record<Role, Role[]>> = {
   supervisor: ['staff', 'store'],
   area_manager: ['supervisor'],
+  // The Manager is an Area Manager over every outlet (RLS: app_manages_outlets).
+  manager: ['supervisor'],
 };
+
+/**
+ * Roles that read the company through the reporting web app rather than
+ * this one. They keep their place in the directory and in RLS — admin still
+ * creates and assigns them — but a sign-in here is turned away.
+ */
+export const isReportsOnly = (role: Role) =>
+  role === 'general_manager' || role === 'human_resources';
 
 /** The roles this account is responsible for marking. Empty for most. */
 export const marksRoles = (role: Role | undefined): Role[] =>

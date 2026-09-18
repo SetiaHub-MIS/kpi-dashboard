@@ -46,13 +46,18 @@ export const TUGASAN_SEED_ENTRIES: Record<
   [tugasanKey('x_report', 3)]: { done: true, note: 'SALES OK', tarikh: '' },
 };
 
-/** Sign-off row, recorded once per week (spans both duties), not once a month. */
+/**
+ * Sign-off row, recorded once per week (spans both duties), not once a month.
+ * Who filled and who checked are payroll numbers — the workbook wrote "HERDI",
+ * the database writes AM0001 (tugasan_signoffs.filled_by is a foreign key)
+ * and the screen shows the name. DIPERIKSA OLEH was blank all year.
+ */
 export const TUGASAN_SEED_SIGNOFF: Record<
   number,
-  { diisikanOleh: string; diperiksaOleh: string; tarikh: string }
+  { filledBy: string | null; checkedBy: string | null; tarikh: string }
 > = {
-  0: { diisikanOleh: 'HERDI', diperiksaOleh: '', tarikh: '2/8/2026' },
-  1: { diisikanOleh: 'HERDI', diperiksaOleh: '', tarikh: '9/8/2026' },
-  2: { diisikanOleh: 'HERDI', diperiksaOleh: '', tarikh: '16/8/2026' },
-  3: { diisikanOleh: 'HERDI', diperiksaOleh: '', tarikh: '23/8/2026' },
+  0: { filledBy: 'AM0001', checkedBy: null, tarikh: '2/8/2026' },
+  1: { filledBy: 'AM0001', checkedBy: null, tarikh: '9/8/2026' },
+  2: { filledBy: 'AM0001', checkedBy: null, tarikh: '16/8/2026' },
+  3: { filledBy: 'AM0001', checkedBy: null, tarikh: '23/8/2026' },
 };

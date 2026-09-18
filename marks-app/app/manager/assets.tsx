@@ -61,7 +61,7 @@ export default function Assets() {
       <Text className="font-sans-semi text-[22px] text-ink">{t('keadaan_aset_kedai')}</Text>
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
         {t('aset_dikemaskini', {
-          branch: branchLabel(branchId),
+          branch: branchId ? branchLabel(branchId) : t('semua_cawangan'),
           name: me?.name ?? roleLabel('area_manager', locale),
         })}
       </Text>

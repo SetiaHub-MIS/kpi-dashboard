@@ -40,9 +40,9 @@ const ROLE_BLURB_EN: Record<Role, string> = {
   clerk: 'Central store at HQ. Handles supplier calls and pickup of returned goods.',
   supervisor: 'Scores shop and store staff every week.',
   area_manager: 'Signs off SV/AS scores, monitors assets and their own tugasan.',
-  manager: 'All-branch report, shop side only. No returns or store scores.',
-  general_manager: 'All-branch report — shop scores, store scores and returns KPI.',
-  human_resources: 'Every branch — every staff member’s scores, store KPI and returns flow.',
+  manager: 'As an Area Manager, over every outlet. No returns or store scores.',
+  general_manager: 'Reports and downloads in the reporting web app, not this one.',
+  human_resources: 'Reports and downloads in the reporting web app; staff updates through an admin account.',
   admin: 'Administration only — accounts, roles, branches. No returns access.',
 };
 

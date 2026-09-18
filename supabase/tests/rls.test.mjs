@@ -70,6 +70,7 @@ for (const m of [
   'supabase/migrations/20260917030000_service_role_reads_users.sql',
   'supabase/migrations/20260918010000_auto_provision_logins.sql',
   'supabase/migrations/20260918020000_payroll_number_changes.sql',
+  'supabase/migrations/20260918030000_manager_manages_outlets.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -338,11 +339,43 @@ console.log('\n=== manager is cross-branch on kedai, and blind to the stor side 
   const kpi = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM return_ageing`);
   check('...nor the ageing KPI built on them', kpi.rows[0].n, 0);
 
-  // Still a manager, so the kedai side is fully writable across branches.
-  check('manager may NOT insert a mark (that pass belongs to SV and head office)',
+  // Since 20260918030000 the Manager acts as an Area Manager over every
+  // outlet: scores SV/AS, verifies, fills Tugasan, tracks assets, sends
+  // reminders — at any outlet, without a user_branches row.
+  check('manager may score a supervisor at any outlet (20260918030000)',
     await tryWrite(ACCOUNTS.manager[0],
-      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
-       VALUES ('KP0201','DKB','kedai',2026,9,2,90,110)`), 'blocked');
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score,scored_by)
+       VALUES ('WS0012','DKB','sv',2026,9,1,70,85,'MG0001')`), 'allowed');
+  check('...and write the per-perkara lines behind it',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO mark_lines (mark_id, line_id, score)
+       SELECT m.id, l.id, 4 FROM marks m, checklist_lines l
+        JOIN checklist_categories c ON c.id = l.category_id
+        WHERE m.user_id = 'WS0012' AND m.period_month = 9 AND m.week_no = 1
+          AND c.form_key = 'sv' AND c.position = 1 AND l.position = 1`), 'allowed');
+  check('...and correct a kedai mark at an outlet nobody assigned to them',
+    await tryWrite(ACCOUNTS.manager[0],
+      `UPDATE marks SET note = 'disemak pengurus' WHERE user_id = 'KP0201' AND period_month = 9 AND week_no = 1`), 'allowed');
+  check('...and verify one',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO mark_verifications (mark_id, verified_by)
+       SELECT m.id, 'MG0001' FROM marks m
+        WHERE m.form_key = 'kedai' AND m.branch_id = 'DKB'
+          AND NOT EXISTS (SELECT 1 FROM mark_verifications v WHERE v.mark_id = m.id) LIMIT 1`), 'allowed');
+  check('...and fill Tugasan at any outlet',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
+       VALUES ('DKB',2026,9,3,'x_report',true,'ok',DATE '2026-09-18')`), 'allowed');
+  check('...and send a reminder',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO reminders (branch_id, recipient_id, sent_by, message)
+       VALUES ('DKB', 'WS0012', 'MG0001', 'Minggu 3 belum dinilai')`), 'allowed');
+
+  // The stor side stays shut even for writes: no scoring a pekerja stor.
+  check('...but still may NOT score a pekerja stor — the stor side stays shut',
+    await tryWrite(ACCOUNTS.manager[0],
+      `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score,scored_by)
+       VALUES ('ST0002','HQ','stor',2026,9,4,60,85,'MG0001')`), 'blocked');
 }
 
 console.log('\n=== general manager and HR write operational data anywhere ===');

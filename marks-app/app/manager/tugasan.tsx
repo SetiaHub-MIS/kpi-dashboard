@@ -4,7 +4,9 @@ import { Card, MonoLabel } from '@/components/Card';
 import { todayShort } from '@/data/period';
 import { MONTHS, WEEK_COLS } from '@/data/checklist';
 import { roleLabel } from '@/i18n/labels';
-import { useBranchLabel } from '@/store/useBranches';
+import { isHq } from '@/data/branches';
+import { isCrossBranch } from '@/data/users';
+import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
@@ -36,11 +38,16 @@ export default function Tugasan() {
   const t = useT();
   const locale = useLocale((s) => s.locale);
   const managerName = manager?.name ?? roleLabel('area_manager', locale);
-  const branchId = manager?.branchId ?? null;
-  // The self-check is the Area Manager's own. Head office reads whether it was
-  // done and never fills it in, which is what the RLS policy enforces too — so
-  // an account that reached this screen by URL gets it read-only.
-  const canFill = manager?.role === 'area_manager' || manager?.role === 'admin';
+  // The self-check is per outlet. An Area Manager fills their own outlet's;
+  // the Manager, who has no home outlet, picks one — the same list the
+  // policies let them write to (every outlet). Admin may fill in too; other
+  // head-office roles that reach this screen by URL get it read-only.
+  const crossBranch = manager != null && isCrossBranch(manager.role);
+  const outlets = useActiveBranches().filter((b) => !isHq(b.id));
+  const [pickedBranch, setPickedBranch] = useState<string | null>(null);
+  const branchId = crossBranch ? pickedBranch : (manager?.branchId ?? null);
+  const canFill =
+    manager?.role === 'area_manager' || manager?.role === 'manager' || manager?.role === 'admin';
   const scope = tugasanScope(branchId, monthIdx);
   const branchLabel = useBranchLabel();
 
@@ -54,8 +61,43 @@ export default function Tugasan() {
 
   return (
     <Screen>
-      <MonoLabel>{t('tugasan_am_label', { branch: branchLabel(branchId) })}</MonoLabel>
+      <MonoLabel>
+        {t('tugasan_am_label', { branch: branchId ? branchLabel(branchId) : t('semua_cawangan') })}
+      </MonoLabel>
       <Text className="font-sans-semi text-2xl text-ink mt-2">{MONTHS[monthIdx]}</Text>
+
+      {crossBranch && (
+        <View className="mt-3">
+          <Text className="font-sans text-[12.5px] leading-[18px] text-ink-4">
+            {t('pilih_cawangan_tugasan')}
+          </Text>
+          <View className="flex-row flex-wrap gap-1.5 mt-2">
+            {outlets.map((b) => {
+              const on = pickedBranch === b.id;
+              return (
+                <Pressable
+                  key={b.id}
+                  onPress={() => setPickedBranch(b.id)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  className="px-3 py-2 rounded-lg border items-center"
+                  style={{
+                    borderColor: on ? 'transparent' : C.line,
+                    backgroundColor: on ? C.ink : C.card,
+                  }}
+                >
+                  <Text className="font-sans-med text-[12.5px]" style={{ color: on ? '#fff' : C.ink3 }}>
+                    {b.short}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      )}
+
+      {crossBranch && !branchId ? null : (
+      <>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
         {canFill ? t('pemeriksaan_sendiri_nama', { name: managerName }) : t('pemeriksaan_sendiri_am')}
         {t('tugasan_status_suffix', { done: doneTicks, total: totalTicks })}
@@ -215,6 +257,8 @@ export default function Tugasan() {
           {t('tugasan_signoff_hint')}
         </Text>
       </Card>
+      </>
+      )}
 
       <SignOutButton />
     </Screen>

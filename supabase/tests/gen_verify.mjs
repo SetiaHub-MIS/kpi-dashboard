@@ -76,6 +76,7 @@ const MIGRATIONS = [
   '20260917030000_service_role_reads_users.sql',
   '20260918010000_auto_provision_logins.sql',
   '20260918020000_payroll_number_changes.sql',
+  '20260918030000_manager_manages_outlets.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

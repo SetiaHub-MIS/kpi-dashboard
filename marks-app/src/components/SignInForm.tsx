@@ -2,8 +2,9 @@ import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { MonoLabel } from '@/components/Card';
-import { Role } from '@/data/users';
+import { Role, isReportsOnly } from '@/data/users';
 import { AUTH_EMAIL_DOMAIN } from '@/lib/auth';
+import { notify } from '@/lib/dialog';
 import { useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
 import { C } from '@/theme/scoring';
@@ -15,9 +16,12 @@ export const HOME_ROUTE: Record<Role, string> = {
   clerk: '/pulangan',
   supervisor: '/supervisor',
   area_manager: '/manager',
-  manager: '/hq',
-  general_manager: '/hq',
-  human_resources: '/hr',
+  // The Manager works the Area Manager's screens over every outlet.
+  manager: '/manager',
+  // GM and HR use the reporting web app; a sign-in here is turned away
+  // (see SignInForm) and a restored session is signed out (see app/index).
+  general_manager: '/',
+  human_resources: '/',
   admin: '/admin',
 };
 
@@ -46,6 +50,11 @@ export function SignInForm() {
     try {
       const staff = await signInWithPassword(payrollId, password);
       if (!staff) return;
+      if (isReportsOnly(staff.role)) {
+        await useSession.getState().signOut();
+        notify(t('guna_aplikasi_laporan'), t('guna_aplikasi_laporan_body'));
+        return;
+      }
 
       // Loaded here rather than at boot: before sign-in there is no session, and
       // every policy is written for `authenticated`, so the queries would come

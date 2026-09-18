@@ -65,63 +65,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ---------------------------------------------------------- outlet report
   semua_cawangan: { ms: 'Semua cawangan', en: 'All branches' },
-  laporan_cawangan: { ms: 'Laporan cawangan', en: 'Branch report' },
-  report_period: {
-    ms: '{month} · {count} cawangan berdata{quiet}',
-    en: '{month} · {count} branches with data{quiet}',
-  },
-  report_quiet_suffix: {
-    ms: ' · {count} lagi belum ada pekerja atau pulangan',
-    en: ' · {count} more with no staff or returns yet',
-  },
-  markah_kedai: { ms: 'Markah kedai', en: 'Shop score' },
-  penilaian_pekerja: { ms: '{marked} penilaian · {people} pekerja', en: '{marked} scored · {people} staff' },
-  markah_stor_hq: { ms: 'Markah stor · HQ', en: 'Store score · HQ' },
-  penilaian_pekerja_stor: {
-    ms: '{marked} penilaian · {people} pekerja stor pusat',
-    en: '{marked} scored · {people} central store staff',
-  },
   belum_dinilai: { ms: 'Belum dinilai', en: 'Not yet scored' },
-  daripada_minggu_pekerja: { ms: 'daripada {total} minggu × pekerja', en: 'out of {total} week × staff cells' },
   hantar_ke_kerani: { ms: 'Hantar ke kerani', en: 'Sent to clerk' },
-  bil_diterima: { ms: '{count} bil diterima', en: '{count} bills received' },
-  bil_melebihi_2_bulan: {
-    ms: '{count} bil melebihi 2 bulan merentas semua cawangan',
-    en: '{count} bills over 2 months old across every branch',
-  },
-  ageing_overdue: {
-    ms: '{overdue} sudah lepas tempoh seminggu untuk clear. Tertua {days} hari.',
-    en: '{overdue} already past the week allowed to clear. Oldest is {days} days.',
-  },
-  ageing_breach: {
-    ms: 'Masih dalam tempoh seminggu untuk clear. Tertua {days} hari.',
-    en: 'Still inside the week allowed to clear. Oldest is {days} days.',
-  },
-  peranan_stor_blind: {
-    ms: 'Peranan {role} tidak merangkumi bahagian stor — markah stor dan pulangan tidak dipaparkan.',
-    en: 'The {role} role does not cover the stor side — store scores and returns are not shown.',
-  },
-  ikut_cawangan: { ms: 'Ikut cawangan', en: 'By branch' },
-  weakest_summary: {
-    ms: '{outlet} paling rendah pada {avg}% markah kedai, {diff} mata di bawah {best}.',
-    en: '{outlet} is lowest at {avg}% shop score, {diff} points below {best}.',
-  },
-  n_pekerja: { ms: '{count} pekerja', en: '{count} staff' },
-  tiada_penilaian_bulan_ini: { ms: 'Tiada penilaian direkod bulan ini.', en: 'No scores recorded this month.' },
-  kedai: { ms: 'Kedai', en: 'Shop' },
-  stor: { ms: 'Stor', en: 'Store' },
-  hantar_status: { ms: 'Hantar', en: 'Sent' },
-  bil_melebihi_2_bulan_short: {
-    ms: '{count} bil melebihi 2 bulan{overdue} · tertua {days} hari',
-    en: '{count} bills over 2 months{overdue} · oldest {days} days',
-  },
-  overdue_suffix: { ms: ', {count} lepas tempoh clear', en: ', {count} past the clear-by date' },
-  bil_terbuka_dalam_tempoh: {
-    ms: '{count} bil terbuka, semua dalam tempoh 2 bulan.',
-    en: '{count} open bills, all within 2 months.',
-  },
-  bahagian_stor: { ms: 'Bahagian stor', en: 'Stor side' },
-  tiada_dalam_bidang: { ms: 'Tiada dalam bidang peranan ini', en: 'Not part of this role' },
 
   // ------------------------------------------------------------- queue banner
   markah_gagal_simpan: { ms: 'Markah tidak dapat disimpan', en: 'Score could not be saved' },
@@ -188,7 +133,6 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   // Tab label only — five tabs at 375pt truncate "Tugasan saya"; the screen
   // heading keeps the full name.
   tab_tugasan_saya: { ms: 'Tugasan', en: 'Tugasan' },
-  tab_markah: { ms: 'Markah', en: 'Scores' },
   tab_pulangan: { ms: 'Pulangan', en: 'Returns' },
   tab_admin: { ms: 'Admin', en: 'Admin' },
   tab_cawangan: { ms: 'Cawangan', en: 'Branches' },
@@ -361,59 +305,22 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   laporkan_isu: { ms: 'Laporkan isu', en: 'Report an issue' },
   terangkan_isu: { ms: 'Terangkan isu ini…', en: 'Describe the issue…' },
 
-  // -------------------------------------------------------------------- hq/hr
-  tab_laporan: { ms: 'Laporan', en: 'Report' },
-  log_masuk_manager: {
-    ms: 'Log masuk sebagai Manager atau General Manager untuk melihat laporan cawangan.',
-    en: 'Sign in as Manager or General Manager to see the branch report.',
+  // ---------------------------------------------------- reports-only roles
+  guna_aplikasi_laporan: { ms: 'Guna aplikasi laporan', en: 'Use the reporting app' },
+  guna_aplikasi_laporan_body: {
+    ms: 'Akaun General Manager dan Human Resources melihat laporan di aplikasi laporan web, bukan di sini. Untuk kemas kini pekerja, gunakan akaun admin.',
+    en: 'General Manager and Human Resources accounts see reports in the reporting web app, not here. To update staff, use an admin account.',
   },
-  log_masuk_hr: {
-    ms: 'Log masuk sebagai Human Resources untuk melihat laporan cawangan.',
-    en: 'Sign in as Human Resources to see the branch report.',
+  pilih_cawangan_tugasan: {
+    ms: 'Pilih cawangan untuk tugasan minggu ini.',
+    en: 'Pick the outlet for this week\x27s tugasan.',
   },
 
-  // ---------------------------------------------------------------- hr/markah
-  markah_pekerja: { ms: 'Markah pekerja', en: 'Staff scores' },
-  markah_pekerja_intro: {
-    ms: '{month} · paparan sahaja, penilaian dibuat oleh SV/AS.',
-    en: '{month} · view only, scored by SV/AS.',
-  },
-  kpi_stor_semua_cawangan: { ms: 'KPI pekerja stor · semua cawangan', en: 'Store staff KPI · every branch' },
-  kpi_stor_summary: {
-    ms: '{marked} penilaian daripada {total} minggu × pekerja · {gaps} belum dinilai',
-    en: '{marked} scored out of {total} week × staff cells · {gaps} not yet scored',
-  },
-  rekod_nama_a11y: { ms: 'Rekod {name}', en: '{name}’s record' },
 
   // -------------------------------------------------------------- hr/pulangan
-  semua_cawangan_hr: { ms: 'Semua cawangan · Human Resources', en: 'Every branch · Human Resources' },
-  umur_pulangan: { ms: 'Umur pulangan', en: 'Return ageing' },
-  umur_pulangan_intro: {
-    ms: 'Masa terima → pelarasan stok merentas semua cawangan. Area Manager tidak melihat laporan ini — skop mereka outlet sahaja.',
-    en: 'Time from received to stock adjustment, across every branch. Area Managers do not see this report — their scope is outlet only.',
-  },
-  purata_clear: { ms: 'Purata clear', en: 'Average clear time' },
   hari: { ms: 'hari', en: 'days' },
-  n_bil_selesai: { ms: '{count} bil selesai', en: '{count} bills cleared' },
-  masih_terbuka: { ms: 'Masih terbuka', en: 'Still open' },
   bil: { ms: 'bil', en: 'bills' },
   tertua_n_hari: { ms: 'tertua {days} hari', en: 'oldest {days} days' },
-  umur_bil_terbuka: { ms: 'Umur bil terbuka', en: 'Age of open bills' },
-  bil_dalam_kategori: {
-    ms: '{count} bil sudah dalam kategori {bucket}.',
-    en: '{count} bills are already in the {bucket} band.',
-  },
-  masa_setiap_langkah: { ms: 'Masa setiap langkah', en: 'Time per step' },
-  langkah_paling_lambat: {
-    ms: 'Langkah paling lambat: {from} → {to}, purata {avg} hari.',
-    en: 'Slowest step: {from} → {to}, averaging {avg} days.',
-  },
-  col_cawangan: { ms: 'Cawangan', en: 'Branch' },
-  col_buka: { ms: 'Buka', en: 'Open' },
-  col_purata: { ms: 'Purata', en: 'Average' },
-  col_tertua: { ms: 'Tertua', en: 'Oldest' },
-  tiada_rekod_pulangan: { ms: 'Tiada rekod pulangan.', en: 'No return records.' },
-  paling_lama_terbuka: { ms: 'Paling lama terbuka', en: 'Open the longest' },
 
   // --------------------------------------------------------------- admin/users
   tab_pengguna: { ms: 'Pengguna', en: 'Users' },

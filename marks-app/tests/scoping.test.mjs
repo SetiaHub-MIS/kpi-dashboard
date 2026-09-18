@@ -94,6 +94,7 @@ test('isCrossBranch names exactly the four head-office roles, not area_manager',
 test('marking is a relation: supervisor marks staff and store, Area Manager marks supervisor', () => {
   assert.deepEqual(marksRoles('supervisor').sort(), ['staff', 'store'].sort());
   assert.deepEqual(marksRoles('area_manager'), ['supervisor']);
+  assert.deepEqual(marksRoles('manager'), ['supervisor'], 'the Manager marks SV/AS too, company-wide');
 });
 
 test('a role nobody marks under returns an empty queue, not undefined behaviour', () => {
