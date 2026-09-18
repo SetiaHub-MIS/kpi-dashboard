@@ -16,7 +16,6 @@ import {
   hiringScope,
   postingFor,
   newUserBlocker,
-  nextIdFor,
   promotionsFor,
   roleChangeBlocker,
   transfersFor,
@@ -116,17 +115,6 @@ test('a new account needs a name, a payroll number, and no clash — case-insens
   assert.match(newUserBlocker(existing, 'Someone', ''), /pekerja/);
   assert.match(newUserBlocker(existing, 'Someone', 'kp0093'), /sudah wujud/);
   assert.equal(newUserBlocker(existing, 'Someone', 'KP0099'), null);
-});
-
-test('the next free ID is one past the highest in that role\'s own series', () => {
-  const users = [
-    mkUser({ id: 'KP0093', role: 'staff' }),
-    mkUser({ id: 'KP0111', role: 'staff' }),
-    mkUser({ id: 'WS0001', role: 'supervisor' }),
-  ];
-  assert.equal(nextIdFor(users, 'staff'), 'KP0112');
-  assert.equal(nextIdFor(users, 'supervisor'), 'WS0002');
-  assert.equal(nextIdFor(users, 'admin'), 'AD0001', 'an empty series starts at 1');
 });
 
 // --- who may hire whom, mirroring users_insert_branch_staff in RLS

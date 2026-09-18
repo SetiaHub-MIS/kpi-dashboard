@@ -22,7 +22,6 @@ import {
   isCentralStore,
   isCrossBranch,
   newUserBlocker,
-  nextIdFor,
   postingFor,
 } from '@/data/users';
 import { roleBlurb, roleLabel } from '@/i18n/labels';
@@ -90,12 +89,11 @@ export default function NewUser() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Admin sees the whole directory, so the next free number is a safe default.
-  // A supervisor sees one outlet, so any guess could collide with a number
-  // already issued elsewhere: they type the one HR gave, and the primary key
-  // has the final say.
-  const suggestedId = scope.kind === 'any' ? nextIdFor(users, role) : '';
-  const id = (customId.trim() || suggestedId).toUpperCase();
+  // Never generated: the number is payroll's, and its prefix follows the
+  // outlet and position (MC for a DMC pekerja, KP for BKP, HQ for head
+  // office), not the role. Whoever adds the person types the one HR issued,
+  // and the primary key has the final say on collisions.
+  const id = customId.trim().toUpperCase();
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
@@ -300,14 +298,14 @@ export default function NewUser() {
               setCustomId(text);
               setError(null);
             }}
-            placeholder={branchMode ? t('contoh_no_pekerja') : suggestedId}
+            placeholder={t('contoh_no_pekerja')}
             placeholderTextColor={C.ink6}
             autoCapitalize="characters"
             autoCorrect={false}
             className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-mono text-[13px] text-ink"
           />
           <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
-            {branchMode ? t('no_pekerja_dari_hr') : t('biarkan_kosong_guna_id', { id: suggestedId })}
+            {t('no_pekerja_dari_hr')}
           </Text>
         </Card>
 

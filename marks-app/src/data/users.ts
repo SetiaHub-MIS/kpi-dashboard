@@ -126,22 +126,6 @@ export const MARKS_ROLES: Partial<Record<Role, Role[]>> = {
 export const marksRoles = (role: Role | undefined): Role[] =>
   role ? (MARKS_ROLES[role] ?? []) : [];
 
-/**
- * ID series follow the source workbooks: KP/MY are kedai staff numbers and WS
- * are supervisor numbers. AM/MG/GM/HR/AD are new — the workbooks never numbered
- * the Area Manager, head office or an admin.
- */
-export const ROLE_PREFIX: Record<Role, string> = {
-  staff: 'KP',
-  store: 'ST',
-  clerk: 'KR',
-  supervisor: 'WS',
-  area_manager: 'AM',
-  manager: 'MG',
-  general_manager: 'GM',
-  human_resources: 'HR',
-  admin: 'AD',
-};
 
 export type User = {
   /** Payroll number — permanent, keeps mark history attached across role changes. */
@@ -242,17 +226,6 @@ export function shortOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) return name.trim();
   return `${parts[0]} ${parts[1][0]}.`;
-}
-
-/** Next free number in a role's ID series, e.g. WS0013. */
-export function nextIdFor(users: User[], role: Role): string {
-  const prefix = ROLE_PREFIX[role];
-  const highest = users
-    .filter((u) => u.id.startsWith(prefix))
-    .map((u) => Number.parseInt(u.id.slice(prefix.length), 10))
-    .filter((n) => Number.isFinite(n))
-    .reduce((a, b) => Math.max(a, b), 0);
-  return `${prefix}${String(highest + 1).padStart(4, '0')}`;
 }
 
 const rolesAtLevel = (level: number): Role[] =>
