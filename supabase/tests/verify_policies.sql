@@ -37,6 +37,7 @@ expected_rls(tbl) AS (VALUES
   ('mark_queries'),
   ('mark_verifications'),
   ('marks'),
+  ('payroll_id_changes'),
   ('reminders'),
   ('return_events'),
   ('return_photos'),
@@ -62,6 +63,7 @@ expected_grant(tbl, privs) AS (VALUES
   ('mark_queries', 'DELETE,INSERT,SELECT,UPDATE'),
   ('mark_verifications', 'DELETE,INSERT,SELECT,UPDATE'),
   ('marks', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('payroll_id_changes', 'DELETE,INSERT,SELECT,UPDATE'),
   ('reminders', 'DELETE,INSERT,SELECT,UPDATE'),
   ('return_ageing', 'DELETE,INSERT,SELECT,UPDATE'),
   ('return_events', 'DELETE,INSERT,SELECT,UPDATE'),
@@ -105,6 +107,8 @@ expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('marks', 'marks_insert', 'INSERT', 'app_can_score,app_can_see_mark', ''),
   ('marks', 'marks_read', 'SELECT', 'app_can_see_mark', ''),
   ('marks', 'marks_update', 'UPDATE', 'app_can_see_mark,app_is_exec,app_role', 'area_manager,supervisor'),
+  ('payroll_id_changes', 'payroll_id_changes_read', 'SELECT', 'app_is_admin', ''),
+  ('payroll_id_changes', 'payroll_id_changes_write', 'INSERT', 'app_is_admin', ''),
   ('reminders', 'reminders_insert', 'INSERT', 'app_can_see_branch,app_is_exec,app_role,app_user_id', 'area_manager'),
   ('reminders', 'reminders_mark_read', 'UPDATE', 'app_user_id', ''),
   ('reminders', 'reminders_read', 'SELECT', 'app_is_exec,app_user_id', ''),
@@ -249,5 +253,15 @@ SELECT * FROM (
     FROM actual_pol a
     LEFT JOIN expected_pol e ON e.tbl = a.tbl AND e.pol = a.pol
    WHERE e.pol IS NULL
+
+  UNION ALL
+  -- 5. a payroll number can change, and every reference follows it. Every
+  --    foreign key to users(id) — including any added after 20260918020000 —
+  --    must cascade on update, or a transfer's new number is refused.
+  SELECT 5, 'fk ' || c.conrelid::regclass || '.' || c.conname || ' cascades on update',
+         CASE WHEN c.confupdtype = 'c' THEN 'PASS' ELSE 'NO CASCADE' END,
+         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype END
+    FROM pg_constraint c
+   WHERE c.contype = 'f' AND c.confrelid = 'public.users'::regclass
 ) x
 ORDER BY CASE result WHEN 'PASS' THEN 9 ELSE 0 END, ord, item;

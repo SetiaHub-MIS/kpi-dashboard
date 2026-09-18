@@ -69,6 +69,7 @@ for (const m of [
   'supabase/migrations/20260917020000_set_my_email.sql',
   'supabase/migrations/20260917030000_service_role_reads_users.sql',
   'supabase/migrations/20260918010000_auto_provision_logins.sql',
+  'supabase/migrations/20260918020000_payroll_number_changes.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -862,6 +863,56 @@ console.log('\n=== a login is issued the moment a person is added (2026091801000
     /no starting password is set/.test(refused) &&
       (await db.query(`SELECT count(*)::int AS n FROM users WHERE id = 'KP0912'`)).rows[0].n === 0, true);
   await db.exec(`INSERT INTO login_settings (start_password) VALUES ('123456')`);
+}
+
+console.log('\n=== a payroll number can change, and the person\'s history follows it (20260918020000) ===');
+{
+  // Syazana, KP0093, is transferred and payroll issues MC0093. Everything
+  // about her — marks, the login, her session — has to come along.
+  const marksOf = async (id) =>
+    (await db.query(`SELECT count(*)::int AS n FROM marks WHERE user_id = '${id}'`)).rows[0].n;
+  const before = await marksOf('KP0093');
+  check('the fixture has marks to carry across', before > 0, true);
+
+  check('admin may change a payroll number',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC0093' WHERE id = 'KP0093'`), 'allowed');
+  check('...and every mark follows it — none left behind under the old number',
+    [await marksOf('MC0093'), await marksOf('KP0093')], [before, 0]);
+
+  const login = (await db.query(
+    `SELECT email, raw_user_meta_data->>'payroll_id' AS payroll_id FROM auth.users WHERE id = '${ACCOUNTS.syazana[0]}'`)).rows[0];
+  check('...the login address is rewritten to the new number',
+    [login.email, login.payroll_id], ['mc0093@checklist.local', 'MC0093']);
+  check('...and her existing session simply sees the new number',
+    (await as(ACCOUNTS.syazana[0], `SELECT app_user_id() AS id`)).rows[0].id, 'MC0093');
+
+  check('the change is recorded, admin-only, like a role change',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO payroll_id_changes (user_id, from_id, to_id, changed_by) VALUES ('MC0093', 'KP0093', 'MC0093', 'AD0001')`), 'allowed');
+  check('...and a supervisor cannot read that audit',
+    await tryWrite(ACCOUNTS.syahirah[0], `SELECT * FROM payroll_id_changes`) === 'blocked'
+      || (await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int AS n FROM payroll_id_changes`)).rows[0].n === 0, true);
+
+  // A real e-mail is the login address and stays so; only the synthetic one
+  // is derived from the number.
+  const putriEmail = (await db.query(`SELECT email FROM users WHERE id = 'KP0103'`)).rows[0].email;
+  check('the fixture person has a real e-mail on file', putriEmail != null, true);
+  await as(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC0103' WHERE id = 'KP0103'`);
+  check('a person with a real e-mail keeps it as their login through the change',
+    (await db.query(`SELECT email FROM auth.users WHERE id = '${ACCOUNTS.putri[0]}'`)).rows[0].email, putriEmail);
+
+  await as(ACCOUNTS.syahirah[0], `UPDATE users SET id = 'MC0111' WHERE id = 'KP0111'`);
+  check('a supervisor cannot change a number — editing a person stays admin\'s',
+    (await db.query(`SELECT count(*)::int AS n FROM users WHERE id = 'KP0111'`)).rows[0].n, 1);
+
+  check('a number the login could never use is refused at the table',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC93' WHERE id = 'MC0093'`), 'blocked');
+  check('...and so is one somebody else already holds',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'KP0111' WHERE id = 'MC0093'`), 'blocked');
+
+  // Put the fixture back for anything that runs after.
+  await as(ACCOUNTS.admin[0], `UPDATE users SET id = 'KP0093' WHERE id = 'MC0093'`);
+  await as(ACCOUNTS.admin[0], `UPDATE users SET id = 'KP0103' WHERE id = 'MC0103'`);
 }
 
 console.log('\n=== a person keeps their own e-mail current, and nothing else ===');

@@ -25,7 +25,11 @@ import {
   transfersFor,
 } from '@/data/users';
 import { formLabel, roleBlurb, roleLabel } from '@/i18n/labels';
+import { payrollBlocker } from '@/lib/auth';
+import { confirmAction, notify } from '@/lib/dialog';
 import { WriteResult } from '@/lib/directory';
+import { hydrateDirectory } from '@/lib/hydrate';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
@@ -39,6 +43,7 @@ export default function UserDetail() {
   const setPosting = useUsers((s) => s.setPosting);
   const setActive = useUsers((s) => s.setActive);
   const setEmail = useUsers((s) => s.setEmail);
+  const setId = useUsers((s) => s.setId);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
@@ -48,6 +53,7 @@ export default function UserDetail() {
   const locale = useLocale((s) => s.locale);
   const [saving, setSaving] = useState(false);
   const [emailDraft, setEmailDraft] = useState<string | null>(null);
+  const [idDraft, setIdDraft] = useState<string | null>(null);
 
   const user = findUser(users, id);
 
@@ -150,6 +156,42 @@ export default function UserDetail() {
     void persist(async () => {
       const result = await setEmail(user.id, emailValue.trim() || null);
       if (result.ok) setEmailDraft(null);
+      return result;
+    });
+  };
+
+  // A new payroll number. Consequential enough to confirm first: every record
+  // follows it, the person signs in under it from now on, and the old number
+  // stops working the moment it lands.
+  const idValue = idDraft ?? user.id;
+  const nextId = idValue.trim().toUpperCase();
+  const idDirty = nextId !== user.id;
+  const saveId = async () => {
+    const blocked =
+      payrollBlocker(nextId) ??
+      (findUser(users, nextId) ? t('no_pekerja_sudah_digunakan', { id: nextId }) : null);
+    if (blocked) {
+      notify(t('perubahan_tak_disimpan'), blocked);
+      return;
+    }
+    const sure = await confirmAction(
+      t('sahkan_tukar_no_pekerja'),
+      t('sahkan_tukar_no_pekerja_body', { from: user.id, to: nextId }),
+      { confirm: t('tukar_no_pekerja'), cancel: t('batal') }
+    );
+    if (!sure) return;
+    const from = user.id;
+    void persist(async () => {
+      const result = await setId(from, nextId, me?.id ?? null);
+      if (!result.ok) return result;
+      if (isSupabaseConfigured) {
+        // Marks and everything keyed on the number are re-read under it; an
+        // admin who renumbered themselves gets their session row refreshed.
+        await hydrateDirectory();
+        if (me?.id === from) await useSession.getState().restore();
+      }
+      setIdDraft(null);
+      router.replace(`/user/${nextId}`);
       return result;
     });
   };
@@ -322,6 +364,37 @@ export default function UserDetail() {
             )}
           </>
         )}
+      </Card>
+
+      <Card className="p-[15px] mt-2.5">
+        <MonoLabel>{t('no_pekerja')}</MonoLabel>
+        <TextInput
+          value={idValue}
+          onChangeText={setIdDraft}
+          placeholder={t('contoh_no_pekerja')}
+          placeholderTextColor={C.ink6}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          editable={!saving}
+          className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-mono text-[13px] text-ink"
+        />
+        <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+          {t('tukar_no_pekerja_hint')}
+        </Text>
+        <Pressable
+          onPress={() => void saveId()}
+          disabled={!idDirty || saving}
+          accessibilityRole="button"
+          className="mt-3 py-2.5 rounded-[10px] items-center"
+          style={{ backgroundColor: idDirty && !saving ? C.ink : C.line }}
+        >
+          <Text
+            className="font-sans-semi text-[12.5px]"
+            style={{ color: idDirty && !saving ? '#fff' : C.ink6 }}
+          >
+            {t('tukar_no_pekerja')}
+          </Text>
+        </Pressable>
       </Card>
 
       <Card className="p-[15px] mt-2.5">

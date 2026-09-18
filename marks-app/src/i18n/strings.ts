@@ -785,6 +785,16 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'No. pekerja {id} sudah digunakan.',
     en: 'Payroll number {id} is already in use.',
   },
+  tukar_no_pekerja: { ms: 'Tukar no. pekerja', en: 'Change payroll number' },
+  tukar_no_pekerja_hint: {
+    ms: 'Tukar hanya bila HR mengeluarkan nombor baharu, cth. selepas pindah cawangan. Semua markah dan rekod ikut nombor baharu; nombor lama tidak boleh log masuk lagi.',
+    en: 'Change only when HR issues a new number, e.g. after a transfer. Every mark and record follows the new number; the old one can no longer sign in.',
+  },
+  sahkan_tukar_no_pekerja: { ms: 'Tukar no. pekerja?', en: 'Change payroll number?' },
+  sahkan_tukar_no_pekerja_body: {
+    ms: '{from} menjadi {to}. Orang ini log masuk dengan {to} mulai sekarang; kata laluan tidak berubah.',
+    en: '{from} becomes {to}. This person signs in as {to} from now on; the password is unchanged.',
+  },
   tambah_ditolak_pelayan: {
     ms: 'Pelayan menolak: anda tidak dibenarkan menambah akaun ini.',
     en: 'Refused by the server: you may not add this account.',

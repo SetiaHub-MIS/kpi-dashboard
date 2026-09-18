@@ -188,6 +188,38 @@ export async function updateMyEmail(email: string | null): Promise<WriteResult> 
   return asResult(error);
 }
 
+/**
+ * A new payroll number for a person — payroll issues them per outlet and
+ * position, so a transfer can bring one. The database carries every mark,
+ * query, reminder and audit row across in the same statement and rewrites
+ * the login address (20260918020000); the audit row is ours to write, as it
+ * is for a role change. The table answers for a clash or a bad shape.
+ */
+export async function updateUserId(input: {
+  from: string;
+  to: string;
+  changedBy: string | null;
+}): Promise<WriteResult> {
+  const { error } = await supabase.from('users').update({ id: input.to }).eq('id', input.from);
+  if (error?.code === UNIQUE_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: `No. pekerja ${input.to} sudah digunakan.` };
+  }
+  if (error?.code === CHECK_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: 'Nombor pekerja seperti KP0093 atau WS0001.' };
+  }
+  if (error) return asResult(error);
+
+  const { error: auditErr } = await supabase.from('payroll_id_changes').insert({
+    user_id: input.to,
+    from_id: input.from,
+    to_id: input.to,
+    // Already renumbered if the admin changed their own; the reference
+    // cascaded with everything else.
+    changed_by: input.changedBy === input.from ? input.to : input.changedBy,
+  });
+  return asResult(auditErr);
+}
+
 /** Promotions and demotions on record, newest first. Admin-only under RLS. */
 export async function fetchRoleChanges(): Promise<
   { userId: string; from: Role; to: Role; changedAt: string }[]

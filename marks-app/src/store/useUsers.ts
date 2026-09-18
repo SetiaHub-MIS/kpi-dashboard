@@ -20,6 +20,7 @@ import {
   updateUserActive,
   updateMyEmail,
   updateUserEmail,
+  updateUserId,
   updateUserPosting,
   updateUserRole,
 } from '@/lib/directory';
@@ -66,6 +67,8 @@ type UsersState = {
   ) => Promise<WriteResult>;
   setActive: (id: string, active: boolean) => Promise<WriteResult>;
   setEmail: (id: string, email: string | null) => Promise<WriteResult>;
+  /** A new payroll number; every record follows it. */
+  setId: (from: string, to: string, changedBy: string | null) => Promise<WriteResult>;
   /** The signed-in person's own address — no admin needed. */
   setMyEmail: (id: string, email: string | null) => Promise<WriteResult>;
 };
@@ -170,6 +173,18 @@ export const useUsers = create<UsersState>((set, get) => ({
       if (!result.ok) return result;
     }
     set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
+    return { ok: true };
+  },
+
+  setId: async (from, to, changedBy) => {
+    if (isSupabaseConfigured) {
+      const result = await updateUserId({ from, to, changedBy });
+      if (!result.ok) return result;
+    }
+    set((s) => ({
+      users: s.users.map((u) => (u.id === from ? { ...u, id: to } : u)),
+      history: s.history.map((h) => (h.id === from ? { ...h, id: to } : h)),
+    }));
     return { ok: true };
   },
 

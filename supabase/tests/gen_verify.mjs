@@ -75,6 +75,7 @@ const MIGRATIONS = [
   '20260917020000_set_my_email.sql',
   '20260917030000_service_role_reads_users.sql',
   '20260918010000_auto_provision_logins.sql',
+  '20260918020000_payroll_number_changes.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));
@@ -273,6 +274,16 @@ SELECT * FROM (
     FROM actual_pol a
     LEFT JOIN expected_pol e ON e.tbl = a.tbl AND e.pol = a.pol
    WHERE e.pol IS NULL
+
+  UNION ALL
+  -- 5. a payroll number can change, and every reference follows it. Every
+  --    foreign key to users(id) — including any added after 20260918020000 —
+  --    must cascade on update, or a transfer's new number is refused.
+  SELECT 5, 'fk ' || c.conrelid::regclass || '.' || c.conname || ' cascades on update',
+         CASE WHEN c.confupdtype = 'c' THEN 'PASS' ELSE 'NO CASCADE' END,
+         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype END
+    FROM pg_constraint c
+   WHERE c.contype = 'f' AND c.confrelid = 'public.users'::regclass
 ) x
 ORDER BY CASE result WHEN 'PASS' THEN 9 ELSE 0 END, ord, item;
 `;
