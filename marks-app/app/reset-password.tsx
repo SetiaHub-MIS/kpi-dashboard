@@ -2,7 +2,6 @@ import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,6 +14,7 @@ import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { HOME_ROUTE } from '@/components/SignInForm';
 import { updatePassword } from '@/lib/auth';
+import { notify } from '@/lib/dialog';
 import { hydrateDirectory } from '@/lib/hydrate';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useT } from '@/store/useLocale';
@@ -80,7 +80,7 @@ export default function ResetPassword() {
         setError(failed);
         return;
       }
-      Alert.alert(t('kata_laluan_disimpan'), t('kata_laluan_disimpan_body'));
+      notify(t('kata_laluan_disimpan'), t('kata_laluan_disimpan_body'));
       // A recovery session is a real session: load the directory under it and
       // carry on into the app rather than bouncing back to sign-in.
       await hydrateDirectory();

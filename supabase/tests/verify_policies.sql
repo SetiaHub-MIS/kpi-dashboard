@@ -260,7 +260,7 @@ SELECT * FROM (
   --    must cascade on update, or a transfer's new number is refused.
   SELECT 5, 'fk ' || c.conrelid::regclass || '.' || c.conname || ' cascades on update',
          CASE WHEN c.confupdtype = 'c' THEN 'PASS' ELSE 'NO CASCADE' END,
-         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype END
+         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype::text END
     FROM pg_constraint c
    WHERE c.contype = 'f' AND c.confrelid = 'public.users'::regclass
 ) x

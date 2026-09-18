@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput } from 'react-native';
+import { Pressable, Text, TextInput } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { emailBlocker } from '@/data/users';
+import { notify } from '@/lib/dialog';
 import { useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { useUsers } from '@/store/useUsers';
@@ -28,18 +29,18 @@ export function MyEmailCard() {
   const save = async () => {
     const blocked = emailBlocker(value);
     if (blocked) {
-      Alert.alert(t('perubahan_tak_disimpan'), blocked);
+      notify(t('perubahan_tak_disimpan'), blocked);
       return;
     }
     setBusy(true);
     try {
       const result = await setMyEmail(me.id, value.trim() || null);
       if (!result.ok) {
-        Alert.alert(t('perubahan_tak_disimpan'), result.message);
+        notify(t('perubahan_tak_disimpan'), result.message);
         return;
       }
       setDraft(null);
-      Alert.alert(t('emel_disimpan'), t('emel_disimpan_body'));
+      notify(t('emel_disimpan'), t('emel_disimpan_body'));
     } finally {
       setBusy(false);
     }

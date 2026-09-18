@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { ReturnPhotos } from '@/components/ReturnPhotos';
@@ -17,6 +17,7 @@ import {
   turnaroundDays,
 } from '@/data/returns';
 import { dispositionLabel, reasonLabel, roleLabel, stageLabel } from '@/i18n/labels';
+import { notify } from '@/lib/dialog';
 import { useReturns } from '@/store/useReturns';
 import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
@@ -56,7 +57,7 @@ export default function ReturnDetail() {
   const act = () => {
     if (!stage) return;
     if (!canAct) {
-      Alert.alert(
+      notify(
         t('bukan_tindakan_anda'),
         t('stage_direkod_oleh', {
           stage: stageLabel(stage, locale),
@@ -143,7 +144,7 @@ export default function ReturnDetail() {
                 key={d}
                 onPress={() => {
                   if (myOwner !== 'store') {
-                    Alert.alert(t('bukan_tindakan_anda'), t('pengasingan_bukan_anda'));
+                    notify(t('bukan_tindakan_anda'), t('pengasingan_bukan_anda'));
                     return;
                   }
                   segregate(record.id, d, TODAY_ISO, me?.id);

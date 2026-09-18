@@ -1,12 +1,13 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { closeBranchBlocker, findBranch } from '@/data/branches';
 import { roleLabel } from '@/i18n/labels';
+import { notify } from '@/lib/dialog';
 import { useBranches } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
@@ -43,7 +44,7 @@ export default function BranchDetail() {
     if (branch.active) {
       const blocked = closeBranchBlocker(assigned.length);
       if (blocked) {
-        Alert.alert(t('tak_boleh_tutup_cawangan'), blocked);
+        notify(t('tak_boleh_tutup_cawangan'), blocked);
         return;
       }
     }

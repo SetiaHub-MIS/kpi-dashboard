@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -26,6 +25,7 @@ import {
 } from '@/data/users';
 import { roleBlurb, roleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
+import { notify } from '@/lib/dialog';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
@@ -128,7 +128,7 @@ export default function NewUser() {
         return;
       }
       if (result.coverageError) {
-        Alert.alert(
+        notify(
           t('liputan_gagal_title'),
           t('liputan_gagal_body', { name: name.trim(), home: branchLabel(posting.branchId) })
         );

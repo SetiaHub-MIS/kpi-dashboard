@@ -281,12 +281,26 @@ SELECT * FROM (
   --    must cascade on update, or a transfer's new number is refused.
   SELECT 5, 'fk ' || c.conrelid::regclass || '.' || c.conname || ' cascades on update',
          CASE WHEN c.confupdtype = 'c' THEN 'PASS' ELSE 'NO CASCADE' END,
-         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype END
+         CASE WHEN c.confupdtype = 'c' THEN '' ELSE 'ON UPDATE rule is ' || c.confupdtype::text END
     FROM pg_constraint c
    WHERE c.contype = 'f' AND c.confrelid = 'public.users'::regclass
 ) x
 ORDER BY CASE result WHEN 'PASS' THEN 9 ELSE 0 END, ord, item;
 `;
 
+// The script is meant for a database this process never sees, so the least
+// it can do is prove it parses and runs — against the very database it was
+// generated from, where every row must read PASS. A generator slip (an
+// ambiguous cast, a column that is not there) is caught here rather than in
+// the SQL editor. The dynamic sections (5.) find their rows at run time, so
+// a non-PASS on this database is a generator bug, not drift.
+const dryRun = await db.query(sql);
+const notPass = dryRun.rows.filter((r) => r.result !== 'PASS');
+if (notPass.length > 0) {
+  console.error('verify_policies.sql does not pass against its own source database:');
+  for (const r of notPass) console.error(`  ${r.result.padEnd(12)} ${r.item}  ${r.detail}`);
+  process.exit(1);
+}
+
 writeFileSync(`${ROOT}supabase/tests/verify_policies.sql`, sql);
-console.log(`policies: ${rows.length}, functions: ${fns.rows.length}, rls tables: ${rls.rows.length}, granted tables: ${grants.rows.length}`);
+console.log(`policies: ${rows.length}, functions: ${fns.rows.length}, rls tables: ${rls.rows.length}, granted tables: ${grants.rows.length}, checks: ${dryRun.rows.length} (all PASS here)`);

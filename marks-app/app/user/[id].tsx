@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
@@ -85,7 +85,7 @@ export default function UserDetail() {
     try {
       const result = await write();
       if (!result.ok) {
-        Alert.alert(
+        notify(
           t('perubahan_tak_disimpan'),
           result.reason === 'forbidden' ? t('perubahan_ditolak_pelayan') : result.message
         );
@@ -98,7 +98,7 @@ export default function UserDetail() {
   const change = (next: Role) => {
     const blocked = roleChangeBlocker(users, user.id, next);
     if (blocked) {
-      Alert.alert(t('tak_boleh_tukar_peranan'), blocked);
+      notify(t('tak_boleh_tukar_peranan'), blocked);
       return;
     }
     void persist(() => setRole(user.id, next, me?.id ?? null));
@@ -117,7 +117,7 @@ export default function UserDetail() {
     } else if (covered.includes(next)) {
       picked = covered.filter((b) => b !== next);
       if (picked.length === 0) {
-        Alert.alert(t('tak_boleh_tukar_cawangan'), t('cawangan_terakhir'));
+        notify(t('tak_boleh_tukar_cawangan'), t('cawangan_terakhir'));
         return;
       }
     } else {
@@ -127,7 +127,7 @@ export default function UserDetail() {
     if (home !== user.branchId) {
       const blocked = branchChangeBlocker(users, user.id, home);
       if (blocked) {
-        Alert.alert(t('tak_boleh_tukar_cawangan'), blocked);
+        notify(t('tak_boleh_tukar_cawangan'), blocked);
         return;
       }
     }
@@ -138,7 +138,7 @@ export default function UserDetail() {
     if (user.active) {
       const blocked = deactivateBlocker(users, user.id);
       if (blocked) {
-        Alert.alert(t('tak_boleh_nyahaktif'), blocked);
+        notify(t('tak_boleh_nyahaktif'), blocked);
         return;
       }
     }
@@ -150,7 +150,7 @@ export default function UserDetail() {
   const saveEmail = () => {
     const blocked = emailBlocker(emailValue);
     if (blocked) {
-      Alert.alert(t('perubahan_tak_disimpan'), blocked);
+      notify(t('perubahan_tak_disimpan'), blocked);
       return;
     }
     void persist(async () => {

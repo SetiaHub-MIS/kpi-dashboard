@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { ACTIVE_WEEK, FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
+import { notify } from '@/lib/dialog';
 import { exportMonthXlsx } from '@/lib/export';
 import { assetsOfBranch, useAssets } from '@/store/useAssets';
 import { useBranchLabel } from '@/store/useBranches';
@@ -42,13 +43,13 @@ export default function ManagerHome() {
       // exactly like nothing having happened at all, so this says so
       // explicitly and names where the file actually landed.
       if (!result.shared) {
-        Alert.alert(
+        notify(
           t('fail_sedia_tiada_kongsi'),
           t('fail_sedia_detail', { filename: result.filename, uri: result.uri })
         );
       }
     } catch (e: any) {
-      Alert.alert(t('eksport_gagal'), e?.message ?? t('cuba_lagi_sebentar'));
+      notify(t('eksport_gagal'), e?.message ?? t('cuba_lagi_sebentar'));
     } finally {
       setExporting(false);
     }
