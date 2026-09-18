@@ -21,6 +21,7 @@ import {
   updateMyEmail,
   updateUserEmail,
   updateUserId,
+  updateUserName,
   updateUserPosting,
   updateUserRole,
 } from '@/lib/directory';
@@ -69,6 +70,8 @@ type UsersState = {
   setEmail: (id: string, email: string | null) => Promise<WriteResult>;
   /** A new payroll number; every record follows it. */
   setId: (from: string, to: string, changedBy: string | null) => Promise<WriteResult>;
+  /** Full name and initials; the short form on cards follows the name. */
+  setName: (id: string, name: string, init: string) => Promise<WriteResult>;
   /** The signed-in person's own address — no admin needed. */
   setMyEmail: (id: string, email: string | null) => Promise<WriteResult>;
 };
@@ -173,6 +176,21 @@ export const useUsers = create<UsersState>((set, get) => ({
       if (!result.ok) return result;
     }
     set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
+    return { ok: true };
+  },
+
+  setName: async (id, name, init) => {
+    const full = name.trim();
+    const short = shortOf(full);
+    const initials = init.trim().toUpperCase();
+    if (isSupabaseConfigured) {
+      const result = await updateUserName({ id, name: full, short, init: initials });
+      if (!result.ok) return result;
+    }
+    set((s) => ({
+      users: s.users.map((u) => (u.id === id ? { ...u, name: full, short, init: initials } : u)),
+      history: s.history.map((h) => (h.id === id ? { ...h, name: full } : h)),
+    }));
     return { ok: true };
   },
 

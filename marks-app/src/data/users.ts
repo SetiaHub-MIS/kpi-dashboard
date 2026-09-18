@@ -294,6 +294,15 @@ export function branchChangeBlocker(users: User[], id: string, next: string | nu
 }
 
 /** Why a new account is invalid, or null when it can be created. */
+/** Why a name change is unusable, or null when it is fine. */
+export function nameChangeBlocker(name: string, init: string): string | null {
+  if (!name.trim()) return 'Nama diperlukan.';
+  const i = init.trim();
+  if (!i) return 'Inisial diperlukan.';
+  if (!/^[A-Za-z]{1,3}$/.test(i)) return 'Inisial: 1 hingga 3 huruf.';
+  return null;
+}
+
 export function newUserBlocker(users: User[], name: string, id: string): string | null {
   if (!name.trim()) return 'Nama diperlukan.';
   if (!id.trim()) return 'No. pekerja diperlukan.';

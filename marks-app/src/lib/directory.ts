@@ -151,6 +151,24 @@ export async function updateUserPosting(input: {
   return asResult(auditErr);
 }
 
+/**
+ * A corrected or changed name. The short form used on cards is derived from
+ * the full name; the initials are the admin's to set, since a derived pair
+ * is often wrong for a Malay name (bin/binti) or a one-word one.
+ */
+export async function updateUserName(input: {
+  id: string;
+  name: string;
+  short: string;
+  init: string;
+}): Promise<WriteResult> {
+  const { error } = await supabase
+    .from('users')
+    .update({ name: input.name, short_name: input.short, initials: input.init })
+    .eq('id', input.id);
+  return asResult(error);
+}
+
 export async function updateUserActive(id: string, active: boolean): Promise<WriteResult> {
   const { error } = await supabase.from('users').update({ active }).eq('id', id);
   return asResult(error);

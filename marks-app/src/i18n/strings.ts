@@ -659,6 +659,12 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'Use the payroll number HR issued — it follows outlet and position, is permanent, and appears on every record.',
   },
   nama_penuh: { ms: 'Nama penuh', en: 'Full name' },
+  nama: { ms: 'Nama', en: 'Name' },
+  inisial: { ms: 'Inisial', en: 'Initials' },
+  nama_hint: {
+    ms: 'Nama pendek pada kad ikut nama penuh. Inisial dicadangkan daripada nama — tukar jika perlu.',
+    en: 'The short name on cards follows the full name. Initials are suggested from the name — change them if needed.',
+  },
   contoh_nama_penuh: { ms: 'cth: Nurul Ain binti Rahim', en: 'e.g. Nurul Ain binti Rahim' },
   cawangan_hint_sv: {
     ms: 'SV/AS dan Area Manager hanya nampak pekerja di cawangan ini.',

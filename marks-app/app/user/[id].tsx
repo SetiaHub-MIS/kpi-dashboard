@@ -17,7 +17,9 @@ import {
   deactivateBlocker,
   demotionsFor,
   emailBlocker,
+  initialsOf,
   isCentralStore,
+  nameChangeBlocker,
   isCrossBranch,
   isMarked,
   promotionsFor,
@@ -44,6 +46,7 @@ export default function UserDetail() {
   const setActive = useUsers((s) => s.setActive);
   const setEmail = useUsers((s) => s.setEmail);
   const setId = useUsers((s) => s.setId);
+  const setName = useUsers((s) => s.setName);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
@@ -54,6 +57,8 @@ export default function UserDetail() {
   const [saving, setSaving] = useState(false);
   const [emailDraft, setEmailDraft] = useState<string | null>(null);
   const [idDraft, setIdDraft] = useState<string | null>(null);
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
+  const [initDraft, setInitDraft] = useState<string | null>(null);
 
   const user = findUser(users, id);
 
@@ -145,6 +150,27 @@ export default function UserDetail() {
     void persist(() => setActive(user.id, !user.active));
   };
 
+  // Name and initials. The initials follow the typed name until the admin
+  // touches them — a derived pair is often wrong (bin/binti, one-word names).
+  const nameValue = nameDraft ?? user.name;
+  const initValue = initDraft ?? (nameDraft != null ? initialsOf(nameDraft) : user.init);
+  const nameDirty = nameValue.trim() !== user.name || initValue.trim().toUpperCase() !== user.init;
+  const saveName = () => {
+    const blocked = nameChangeBlocker(nameValue, initValue);
+    if (blocked) {
+      notify(t('perubahan_tak_disimpan'), blocked);
+      return;
+    }
+    void persist(async () => {
+      const result = await setName(user.id, nameValue, initValue);
+      if (result.ok) {
+        setNameDraft(null);
+        setInitDraft(null);
+      }
+      return result;
+    });
+  };
+
   const emailValue = emailDraft ?? user.email ?? '';
   const emailDirty = emailValue.trim().toLowerCase() !== (user.email ?? '');
   const saveEmail = () => {
@@ -216,6 +242,56 @@ export default function UserDetail() {
       </View>
 
       <Card className="p-[15px] mt-4">
+        <MonoLabel>{t('nama')}</MonoLabel>
+        <TextInput
+          value={nameValue}
+          onChangeText={setNameDraft}
+          placeholder={t('contoh_nama_penuh')}
+          placeholderTextColor={C.ink6}
+          autoCapitalize="words"
+          autoCorrect={false}
+          editable={!saving}
+          className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 mt-2.5 font-sans text-[13.5px] text-ink"
+        />
+        <View className="flex-row items-center gap-3 mt-2.5">
+          <View className="flex-1">
+            <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mb-1.5">
+              {t('inisial')}
+            </Text>
+            <TextInput
+              value={initValue}
+              onChangeText={setInitDraft}
+              placeholder="AB"
+              placeholderTextColor={C.ink6}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              maxLength={3}
+              editable={!saving}
+              className="bg-app border border-[#EAEAE7] rounded-[10px] px-3 py-2.5 font-mono text-[13px] text-ink"
+            />
+          </View>
+          <Avatar init={initValue.trim().toUpperCase() || '?'} size={40} />
+        </View>
+        <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
+          {t('nama_hint')}
+        </Text>
+        <Pressable
+          onPress={saveName}
+          disabled={!nameDirty || saving}
+          accessibilityRole="button"
+          className="mt-3 py-2.5 rounded-[10px] items-center"
+          style={{ backgroundColor: nameDirty && !saving ? C.ink : C.line }}
+        >
+          <Text
+            className="font-sans-semi text-[12.5px]"
+            style={{ color: nameDirty && !saving ? '#fff' : C.ink6 }}
+          >
+            {t('simpan_nama')}
+          </Text>
+        </Pressable>
+      </Card>
+
+      <Card className="p-[15px] mt-2.5">
         <MonoLabel>{t('tab_peranan')}</MonoLabel>
         <View className="gap-1.5 mt-3">
           {levels.map((level) => (
