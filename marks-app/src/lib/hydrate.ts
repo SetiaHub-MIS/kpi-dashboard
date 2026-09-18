@@ -1,10 +1,12 @@
 import { currentPeriod, todayShort } from '@/data/period';
 import { fetchAssets } from '@/lib/assets';
+import { fetchTugasan } from '@/lib/tugasan';
 import { fetchDirectory, fetchRoleChanges } from '@/lib/directory';
 import { fetchMyReminders } from '@/lib/reminders';
 import { fetchReturns } from '@/lib/returns';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useAssets } from '@/store/useAssets';
+import { useTugasan } from '@/store/useTugasan';
 import { useBranches } from '@/store/useBranches';
 import { useMarks } from '@/store/useMarks';
 import { useMyWeeks } from '@/store/useMyWeeks';
@@ -72,6 +74,12 @@ export async function hydrateDirectory(): Promise<boolean> {
     }
 
     try {
+      useTugasan.getState().hydrate(await fetchTugasan());
+    } catch {
+      // Same: nothing to see, or refused. The seed block stays for demo mode only.
+    }
+
+    try {
       useReminders.getState().hydrate(await fetchMyReminders());
     } catch {
       // Nobody has ever sent this account one, or the read was refused.
@@ -105,6 +113,7 @@ export async function signOutAndClear(): Promise<void> {
   useBranches.getState().hydrate([]);
   useReturns.getState().hydrate([], {});
   useAssets.getState().hydrate([]);
+  useTugasan.getState().hydrate({ entries: {}, signoffs: {} });
   useReminders.getState().hydrate([]);
   useMarks.getState().reset();
   useMyWeeks.getState().reset();

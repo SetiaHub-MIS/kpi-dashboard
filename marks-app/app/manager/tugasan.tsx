@@ -8,17 +8,19 @@ import { isHq } from '@/data/branches';
 import { isCrossBranch } from '@/data/users';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
-import { useUsers } from '@/store/useUsers';
+import { findUser, useUsers } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
 import { Screen } from '@/components/Screen';
 import { useMarks } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import {
+  WeekSignOff,
   tugasanDoneCount,
   tugasanEntry,
   tugasanSignOff,
   useTugasan,
 } from '@/store/useTugasan';
+import { notify } from '@/lib/dialog';
 import { C } from '@/theme/scoring';
 import { SignOutButton } from '@/components/SignOutButton';
 
@@ -31,7 +33,8 @@ export default function Tugasan() {
   const toggle = useTugasan((s) => s.toggle);
   const setNote = useTugasan((s) => s.setNote);
   const setTarikh = useTugasan((s) => s.setTarikh);
-  const setDiperiksaOleh = useTugasan((s) => s.setDiperiksaOleh);
+  const commitEntry = useTugasan((s) => s.commitEntry);
+  const stampChecked = useTugasan((s) => s.stampChecked);
 
   const users = useUsers((s) => s.users);
   const manager = currentUser(users, useSession((s) => s.currentUserId));
@@ -50,6 +53,10 @@ export default function Tugasan() {
     manager?.role === 'area_manager' || manager?.role === 'manager' || manager?.role === 'admin';
   const scope = tugasanScope(branchId, monthIdx);
   const branchLabel = useBranchLabel();
+  const report = (result: { ok: boolean; message?: string }) => {
+    if (!result.ok) notify(t('perubahan_tak_disimpan'), result.message);
+  };
+  const nameOf = (id: string | null) => (id ? (findUser(users, id)?.name ?? id) : '');
 
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -158,7 +165,7 @@ export default function Tugasan() {
                       >
                         <Pressable
                           onPress={() =>
-                            toggle(scope, item.key, weekIdx, todayShort(), managerName)
+                            void toggle(scope, item.key, weekIdx, todayShort(), manager?.id ?? null).then(report)
                           }
                           disabled={!canFill}
                           accessibilityRole="checkbox"
@@ -200,6 +207,8 @@ export default function Tugasan() {
                             <TextInput
                               value={entry.note}
                               onChangeText={(text) => setNote(scope, item.key, weekIdx, text)}
+                              onBlur={() => void commitEntry(scope, item.key, weekIdx).then(report)}
+                              editable={canFill}
                               placeholder={
                                 item.noteKind === 'amount' ? t('contoh_rm') : t('contoh_sales_ok')
                               }
@@ -214,6 +223,8 @@ export default function Tugasan() {
                             <TextInput
                               value={entry.tarikh}
                               onChangeText={(text) => setTarikh(scope, item.key, weekIdx, text)}
+                              onBlur={() => void commitEntry(scope, item.key, weekIdx).then(report)}
+                              editable={canFill}
                               placeholder={todayShort()}
                               placeholderTextColor={C.ink6}
                               className="bg-card border border-line rounded-lg px-2.5 py-2 font-mono text-[12px] text-ink-2"
@@ -243,15 +254,22 @@ export default function Tugasan() {
           ))}
         </View>
 
-        <SignOffRow label={t('diisikan_oleh')} scope={scope} field="diisikanOleh" />
+        <SignOffRow label={t('diisikan_oleh')} scope={scope} render={(so) => nameOf(so.filledBy)} />
+        {/* DIPERIKSA OLEH is a stamp, not a typed name: the checker records the
+            week under their own number, as a verifier does for a mark. Only a
+            week somebody has filled can be checked, and not by that person. */}
         <SignOffRow
           label={t('diperiksa_oleh')}
           scope={scope}
-          field="diperiksaOleh"
-          editable
-          onEdit={setDiperiksaOleh}
+          render={(so) => nameOf(so.checkedBy)}
+          action={(so, weekIdx) =>
+            canFill && so.filledBy && !so.checkedBy && manager && so.filledBy !== manager.id
+              ? () => void stampChecked(scope, weekIdx, manager.id).then(report)
+              : undefined
+          }
+          actionLabel={t('sahkan')}
         />
-        <SignOffRow label={t('tarikh')} scope={scope} field="tarikh" />
+        <SignOffRow label={t('tarikh')} scope={scope} render={(so) => so.tarikh} />
 
         <Text className="font-sans text-xs leading-[17px] text-ink-4 mt-3.5 pt-3 border-t border-rule">
           {t('tugasan_signoff_hint')}
@@ -268,15 +286,16 @@ export default function Tugasan() {
 function SignOffRow({
   label,
   scope,
-  field,
-  editable,
-  onEdit,
+  render,
+  action,
+  actionLabel,
 }: {
   label: string;
   scope: string;
-  field: 'diisikanOleh' | 'diperiksaOleh' | 'tarikh';
-  editable?: boolean;
-  onEdit?: (scope: string, weekIdx: number, value: string) => void;
+  render: (so: WeekSignOff) => string;
+  /** A button in place of the value, when this week can be acted on. */
+  action?: (so: WeekSignOff, weekIdx: number) => (() => void) | undefined;
+  actionLabel?: string;
 }) {
   const signOffByMonth = useTugasan((s) => s.signOffByMonth);
 
@@ -287,17 +306,19 @@ function SignOffRow({
       </Text>
       {WEEK_COLS.map((_, weekIdx) => {
         const so = tugasanSignOff(signOffByMonth, scope, weekIdx);
-        const value = so[field];
-        if (editable) {
+        const value = render(so);
+        const act = action?.(so, weekIdx);
+        if (act) {
           return (
-            <TextInput
+            <Pressable
               key={weekIdx}
-              value={value}
-              onChangeText={(text) => onEdit?.(scope, weekIdx, text)}
-              placeholder="—"
-              placeholderTextColor={C.ink6}
-              className="flex-1 text-center border-b border-line py-1 font-sans text-[11px] text-ink-2"
-            />
+              onPress={act}
+              accessibilityRole="button"
+              className="flex-1 items-center rounded-md py-1"
+              style={{ backgroundColor: C.ink }}
+            >
+              <Text className="font-sans-semi text-[10.5px] text-white">{actionLabel}</Text>
+            </Pressable>
           );
         }
         return (

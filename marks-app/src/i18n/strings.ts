@@ -235,9 +235,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   diperiksa_oleh: { ms: 'Diperiksa oleh', en: 'Checked by' },
   tarikh: { ms: 'Tarikh', en: 'Date' },
   tugasan_signoff_hint: {
-    ms: 'Diisikan oleh diisi automatik apabila tugasan minggu itu ditanda. Diperiksa oleh kekal kosong sehingga disahkan — sama seperti lajur MANAGER pada checklist lain.',
-    en: 'Filled by is set automatically when that week’s tugasan is ticked. Checked by stays blank until confirmed — the same as the MANAGER column on the other checklists.',
+    ms: 'Diisikan oleh direkod automatik apabila tugasan minggu itu ditanda. Diperiksa oleh kekal kosong sehingga orang lain menekan Sahkan — sama seperti lajur MANAGER pada checklist lain.',
+    en: 'Filled by is recorded automatically when that week’s tugasan is ticked. Checked by stays blank until someone else presses Confirm — the same as the MANAGER column on the other checklists.',
   },
+  sahkan: { ms: 'Sahkan', en: 'Confirm' },
 
   // ------------------------------------------------------------- manager home
   tiada_area_manager: { ms: 'Tiada Area Manager', en: 'No Area Manager' },
