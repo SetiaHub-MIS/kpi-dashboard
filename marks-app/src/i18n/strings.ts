@@ -772,8 +772,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'From the payslip or HR. Two letters and four digits.',
   },
   login_dibuat_admin: {
-    ms: 'Login dibuat oleh admin selepas akaun wujud — beritahu mereka.',
-    en: 'Admin issues the login once the account exists — let them know.',
+    ms: 'Login dibuat serta-merta dengan kata laluan permulaan. Minta mereka tukar selepas log masuk pertama.',
+    en: 'The login is created at once, on the starting password. Ask them to change it after their first sign-in.',
   },
   tambah_pekerja: { ms: '+ Tambah pekerja', en: '+ Add staff' },
   tambah_pekerja_a11y: { ms: 'Tambah pekerja', en: 'Add staff member' },

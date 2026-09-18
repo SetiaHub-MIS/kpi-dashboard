@@ -4,18 +4,31 @@
  * script that compares a live database against that snapshot.
  */
 import { PGlite } from '@electric-sql/pglite';
+import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
-const db = new PGlite();
+const db = new PGlite({ extensions: { pgcrypto } });
 
 await db.exec(`
   CREATE SCHEMA IF NOT EXISTS auth;
-  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text, updated_at timestamptz);
-  CREATE TABLE auth.identities (
-    user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb, updated_at timestamptz
+  -- The columns provision_login() writes, plus what the e-mail sync touches.
+  CREATE TABLE auth.users (
+    id uuid PRIMARY KEY, instance_id uuid, aud text, role text, email text,
+    encrypted_password text, email_confirmed_at timestamptz,
+    raw_app_meta_data jsonb, raw_user_meta_data jsonb,
+    confirmation_token text, recovery_token text, email_change text, email_change_token_new text,
+    created_at timestamptz, updated_at timestamptz
   );
+  CREATE TABLE auth.identities (
+    provider_id text, user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb,
+    last_sign_in_at timestamptz, created_at timestamptz, updated_at timestamptz
+  );
+  -- pgcrypto sits in the extensions schema on Supabase; the migrations that
+  -- hash passwords put that schema on their search_path and nothing else.
+  CREATE SCHEMA IF NOT EXISTS extensions;
+  CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
     SELECT NULLIF(current_setting('request.jwt.claims', true)::json->>'sub','')::uuid
   $$;
@@ -61,6 +74,7 @@ const MIGRATIONS = [
   '20260917010000_user_email.sql',
   '20260917020000_set_my_email.sql',
   '20260917030000_service_role_reads_users.sql',
+  '20260918010000_auto_provision_logins.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));
@@ -96,6 +110,19 @@ const grants = await db.query(`
    GROUP BY table_name ORDER BY table_name
 `);
 
+// Tables the app must not reach at all — no grant to either app role in the
+// migrations (login_settings holds the starting password). Held to "nothing",
+// which "grant on <tbl>" cannot express.
+const privateTables = await db.query(`
+  SELECT c.relname
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+   WHERE n.nspname = 'public' AND c.relkind = 'r'
+     AND NOT EXISTS (SELECT 1 FROM information_schema.role_table_grants g
+                      WHERE g.table_schema = 'public' AND g.table_name = c.relname
+                        AND g.grantee IN ('authenticated', 'anon'))
+   ORDER BY 1
+`);
+
 const rls = await db.query(`
   SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
    WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity ORDER BY 1
@@ -122,6 +149,9 @@ ${rls.rows.map((r) => `  (${q(r.relname)})`).join(',\n')}
 ),
 expected_grant(tbl, privs) AS (VALUES
 ${grants.rows.map((r) => `  (${q(r.table_name)}, ${q(r.privs)})`).join(',\n')}
+),
+expected_private(tbl) AS (VALUES
+${privateTables.rows.map((r) => `  (${q(r.relname)})`).join(',\n')}
 ),
 expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
 ${rows.map((r) => `  (${q(r.tablename)}, ${q(r.policyname)}, ${q(r.cmd)}, ${q(r.fns)}, ${q(r.roles)})`).join(',\n')}
@@ -184,6 +214,21 @@ SELECT * FROM (
       SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
         FROM information_schema.role_table_grants
        WHERE table_schema = 'public' AND grantee = 'anon'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
+
+  UNION ALL
+  -- 2c'. some tables the app must not reach at all — no grant to either app
+  --      role, whatever Supabase's default privileges hand out to new tables.
+  SELECT 2, 'app roles hold nothing on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'PASS' ELSE 'OVER-GRANTED' END,
+         CASE WHEN a.privs IS NULL THEN '' ELSE 'has [' || a.privs || ']' END
+    FROM expected_private e
+    LEFT JOIN (
+      SELECT table_name,
+             string_agg(DISTINCT grantee || ':' || privilege_type, ',' ORDER BY grantee || ':' || privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee IN ('authenticated', 'anon')
        GROUP BY table_name
     ) a ON a.table_name = e.tbl
 

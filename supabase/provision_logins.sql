@@ -1,20 +1,18 @@
--- Issue a login for every staff row that has none, and link the two.
+-- Backfill: issue a login for every active staff row that still has none.
+--
+-- Since 20260918010000 the database does this itself the moment a person is
+-- added (provision_login(), on INSERT and on activation), so in normal use
+-- this script finds nothing to do. It remains for rows that predate the
+-- trigger, or were created while it could not run — the same mechanics, the
+-- same starting password, read from login_settings rather than typed here.
 --
 -- Sign-in is keyed on the payroll number: the app turns KP0093 into
--- kp0093@checklist.local and sends that to Supabase Auth. The address is
--- plumbing and is never shown; users.auth_user_id is the real link, which is
--- why a mark's history survives any change to it.
+-- kp0093@checklist.local (or the real e-mail when the directory has one)
+-- and sends that to Supabase Auth. users.auth_user_id is the real link.
 --
--- Paste into the Supabase SQL editor and run. It is idempotent — anyone who
--- already has an account is skipped — so re-run it after adding staff.
---
---   1. Set the two settings below.
---   2. Run.
---   3. Tell people their password and have them change it.
---
--- The starting password is the same for everyone, which is only acceptable
--- because nobody has real data in front of them yet. Change it before pilot,
--- and make first-login password change part of handing the app over.
+-- Paste into the Supabase SQL editor and run. Idempotent — anyone who
+-- already has an account is skipped. Tell the people it lists their
+-- starting password and have them change it on first sign-in.
 
 -- pgcrypto lives in the extensions schema on Supabase, so crypt() and
 -- gen_salt() are not reachable unqualified until it is on the search path.
@@ -23,11 +21,15 @@ SET search_path = public, extensions;
 DO $$
 DECLARE
   email_domain   text := 'checklist.local';
-  start_password text := '123456';
+  start_password text := (SELECT s.start_password FROM login_settings s);
   staff          record;
   new_uid        uuid;
   made           int := 0;
 BEGIN
+  IF start_password IS NULL THEN
+    RAISE EXCEPTION 'no starting password is set — first run: INSERT INTO login_settings (start_password) VALUES (''…'')';
+  END IF;
+
   FOR staff IN
     SELECT id, email FROM users WHERE active AND auth_user_id IS NULL ORDER BY id
   LOOP

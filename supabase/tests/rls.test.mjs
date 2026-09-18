@@ -1,18 +1,31 @@
 import { PGlite } from '@electric-sql/pglite';
+import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
-const db = new PGlite();
+const db = new PGlite({ extensions: { pgcrypto } });
 
 // --- stub what Supabase provides: the auth schema, auth.uid(), and the roles.
 await db.exec(`
   CREATE SCHEMA IF NOT EXISTS auth;
   CREATE SCHEMA IF NOT EXISTS storage;
-  CREATE TABLE auth.users (id uuid PRIMARY KEY, email text, updated_at timestamptz);
-  CREATE TABLE auth.identities (
-    user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb, updated_at timestamptz
+  -- The columns provision_login() writes, plus what the e-mail sync touches.
+  CREATE TABLE auth.users (
+    id uuid PRIMARY KEY, instance_id uuid, aud text, role text, email text,
+    encrypted_password text, email_confirmed_at timestamptz,
+    raw_app_meta_data jsonb, raw_user_meta_data jsonb,
+    confirmation_token text, recovery_token text, email_change text, email_change_token_new text,
+    created_at timestamptz, updated_at timestamptz
   );
+  CREATE TABLE auth.identities (
+    provider_id text, user_id uuid, provider text, identity_data jsonb DEFAULT '{}'::jsonb,
+    last_sign_in_at timestamptz, created_at timestamptz, updated_at timestamptz
+  );
+  -- pgcrypto sits in the extensions schema on Supabase; the migrations that
+  -- hash passwords put that schema on their search_path and nothing else.
+  CREATE SCHEMA IF NOT EXISTS extensions;
+  CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
   -- Enough of Supabase Storage to hold the bucket and its policies.
   CREATE TABLE storage.buckets (
     id text PRIMARY KEY, name text, public boolean,
@@ -55,10 +68,15 @@ for (const m of [
   'supabase/migrations/20260917010000_user_email.sql',
   'supabase/migrations/20260917020000_set_my_email.sql',
   'supabase/migrations/20260917030000_service_role_reads_users.sql',
+  'supabase/migrations/20260918010000_auto_provision_logins.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
 }
+// What admin does once, live, after 20260918010000: without it every INSERT
+// into users — the seed included — refuses to create a person with no login.
+await db.exec(`INSERT INTO login_settings (start_password) VALUES ('123456');`);
+
 try { await db.exec(file('supabase/seed.sql')); console.log('OK   seed.sql'); }
 catch (e) { console.log(`FAIL seed.sql\n     ${e.message}`); process.exit(1); }
 
@@ -783,15 +801,67 @@ console.log('\n=== a real e-mail on the directory row becomes the login\'s addre
     await tryWrite(ACCOUNTS.syahirah[0],
       `INSERT INTO users (id, name, short_name, initials, role, branch_id, email)
        VALUES ('KP0910', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC', 'baharu@example.com')`), 'allowed');
-  check('with no login yet, there is nothing for the trigger to update — and nothing breaks',
-    await loginEmail('KP0910'), null);
+  check('...and the login issued on the spot (20260918010000) already carries that address',
+    await loginEmail('KP0910'), 'baharu@example.com');
 
-  // Linking a login later (what provision_logins.sql does) fires the same
-  // trigger through auth_user_id, so the address is right from the start.
+  // Re-linking a login by hand (what provision_logins.sql does for rows that
+  // predate the trigger) fires the same sync through auth_user_id.
   await db.exec(`INSERT INTO auth.users (id, email) VALUES ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'placeholder')`);
   await db.exec(`UPDATE users SET auth_user_id = 'dddddddd-dddd-dddd-dddd-dddddddddddd' WHERE id = 'KP0910'`);
-  check('...and once a login is linked, it carries the real address',
+  check('...and a login linked by hand later is given the real address too',
     await loginEmail('KP0910'), 'baharu@example.com');
+}
+
+console.log('\n=== a login is issued the moment a person is added (20260918010000) ===');
+{
+  const login = async (id) => (await db.query(
+    `SELECT a.id IS NOT NULL AS issued, a.email,
+            a.encrypted_password = extensions.crypt('123456', a.encrypted_password) AS password_ok,
+            (SELECT count(*)::int FROM auth.identities i WHERE i.user_id = a.id AND i.provider = 'email') AS identities,
+            a.raw_user_meta_data->>'payroll_id' AS payroll_id
+       FROM users u LEFT JOIN auth.users a ON a.id = u.auth_user_id
+      WHERE u.id = '${id}'`)).rows[0];
+
+  // KP0901 was added by the Machang SV, KP0909 by admin, earlier in this run.
+  const sv = await login('KP0901');
+  check('the person a supervisor added can sign in at once, on the starting password',
+    [sv.issued, sv.email, sv.password_ok, sv.identities, sv.payroll_id],
+    [true, 'kp0901@checklist.local', true, 1, 'KP0901']);
+  check('...and so can the one admin added — same trigger, same result',
+    (await login('KP0909')).password_ok, true);
+
+  check('the starting password itself is unreadable from the app — even by admin',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT start_password FROM login_settings`), 'blocked');
+
+  await as(ACCOUNTS.admin[0],
+    `INSERT INTO users (id, name, short_name, initials, role, branch_id, active)
+     VALUES ('KP0911', 'Belum Mula', 'Belum', 'BM', 'staff', 'DMC', false)`);
+  check('someone added inactive gets no login yet',
+    (await login('KP0911')).issued, false);
+  await as(ACCOUNTS.admin[0], `UPDATE users SET active = true WHERE id = 'KP0911'`);
+  check('...and gets one the moment they are switched on',
+    (await login('KP0911')).password_ok, true);
+
+  await as(ACCOUNTS.admin[0], `UPDATE users SET active = false WHERE id = 'KP0093'`);
+  await as(ACCOUNTS.admin[0], `UPDATE users SET active = true WHERE id = 'KP0093'`);
+  check('toggling someone who already has a login leaves that login alone',
+    (await db.query(`SELECT auth_user_id FROM users WHERE id = 'KP0093'`)).rows[0].auth_user_id,
+    ACCOUNTS.syazana[0]);
+
+  // The failure mode this migration exists to remove must not come back
+  // quietly: with no starting password set, adding a person is refused with
+  // a message that says what to do, not silently created without a login.
+  await db.exec(`DELETE FROM login_settings`);
+  let refused = '';
+  try {
+    await as(ACCOUNTS.syahirah[0],
+      `INSERT INTO users (id, name, short_name, initials, role, branch_id)
+       VALUES ('KP0912', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC')`);
+  } catch (e) { refused = e.message; }
+  check('with no starting password set, adding a person is refused outright',
+    /no starting password is set/.test(refused) &&
+      (await db.query(`SELECT count(*)::int AS n FROM users WHERE id = 'KP0912'`)).rows[0].n === 0, true);
+  await db.exec(`INSERT INTO login_settings (start_password) VALUES ('123456')`);
 }
 
 console.log('\n=== a person keeps their own e-mail current, and nothing else ===');

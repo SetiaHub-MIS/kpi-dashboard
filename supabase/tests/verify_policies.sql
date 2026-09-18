@@ -32,6 +32,7 @@ expected_rls(tbl) AS (VALUES
   ('checklist_categories'),
   ('checklist_forms'),
   ('checklist_lines'),
+  ('login_settings'),
   ('mark_lines'),
   ('mark_queries'),
   ('mark_verifications'),
@@ -78,6 +79,9 @@ expected_grant(tbl, privs) AS (VALUES
   ('tugasan_signoffs', 'DELETE,INSERT,SELECT,UPDATE'),
   ('user_branches', 'DELETE,INSERT,SELECT,UPDATE'),
   ('users', 'DELETE,INSERT,SELECT,UPDATE')
+),
+expected_private(tbl) AS (VALUES
+  ('login_settings')
 ),
 expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('assets', 'assets_read', 'SELECT', 'app_can_see_branch', ''),
@@ -186,6 +190,21 @@ SELECT * FROM (
       SELECT table_name, string_agg(DISTINCT privilege_type, ',' ORDER BY privilege_type) AS privs
         FROM information_schema.role_table_grants
        WHERE table_schema = 'public' AND grantee = 'anon'
+       GROUP BY table_name
+    ) a ON a.table_name = e.tbl
+
+  UNION ALL
+  -- 2c'. some tables the app must not reach at all — no grant to either app
+  --      role, whatever Supabase's default privileges hand out to new tables.
+  SELECT 2, 'app roles hold nothing on ' || e.tbl,
+         CASE WHEN a.privs IS NULL THEN 'PASS' ELSE 'OVER-GRANTED' END,
+         CASE WHEN a.privs IS NULL THEN '' ELSE 'has [' || a.privs || ']' END
+    FROM expected_private e
+    LEFT JOIN (
+      SELECT table_name,
+             string_agg(DISTINCT grantee || ':' || privilege_type, ',' ORDER BY grantee || ':' || privilege_type) AS privs
+        FROM information_schema.role_table_grants
+       WHERE table_schema = 'public' AND grantee IN ('authenticated', 'anon')
        GROUP BY table_name
     ) a ON a.table_name = e.tbl
 
