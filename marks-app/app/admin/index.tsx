@@ -122,20 +122,11 @@ export default function AdminUsers() {
                 <Text className="font-sans-semi text-[13.5px] text-ink" numberOfLines={1}>
                   {u.name}
                 </Text>
-                <Text className="font-mono text-[11px] text-ink-5 mt-1">
-                  {u.id} · {u.branchId ?? 'HQ'}
+                {/* Number, outlet and role on one line: on a wide screen a
+                    badge at the card's far edge is out of the eye's path. */}
+                <Text className="font-mono text-[11px] text-ink-5 mt-1" numberOfLines={1}>
+                  {u.id} · {u.branchId ?? 'HQ'} · {roleLabel(u.role, locale)}
                   {u.active ? '' : t('nyahaktif_suffix')}
-                </Text>
-              </View>
-              <View
-                className="px-2.5 py-[6px] rounded-lg"
-                style={{ backgroundColor: u.role === 'admin' ? C.passBg : C.rule }}
-              >
-                <Text
-                  className="font-mono-semi text-[10px]"
-                  style={{ color: u.role === 'admin' ? C.pass : C.ink3 }}
-                >
-                  {roleLabel(u.role, locale).toUpperCase()}
                 </Text>
               </View>
             </View>
