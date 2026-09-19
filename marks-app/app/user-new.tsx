@@ -123,7 +123,7 @@ export default function NewUser() {
             ? t('no_pekerja_sudah_digunakan', { id })
             : result.reason === 'forbidden'
               ? t('tambah_ditolak_pelayan')
-              : t('tambah_gagal')
+              : `${t('tambah_gagal')} ${result.message}`
         );
         return;
       }

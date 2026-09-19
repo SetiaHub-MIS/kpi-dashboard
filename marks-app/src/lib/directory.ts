@@ -18,6 +18,7 @@ const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, email, ac
 
 const UNIQUE_VIOLATION = '23505';
 const RLS_REFUSED = '42501';
+const CHECK_VIOLATION = '23514';
 
 export type CreateUserResult =
   /** `coverageError` is set when the person exists but their extra outlets did not save. */
@@ -56,6 +57,11 @@ export async function createUser(
   if (error) {
     if (error.code === UNIQUE_VIOLATION) return { ok: false, reason: 'duplicate', message: error.message };
     if (error.code === RLS_REFUSED) return { ok: false, reason: 'forbidden', message: error.message };
+    // The table refusing the row itself — in practice the payroll-number
+    // shape check, when the database is behind the app on that rule.
+    if (error.code === CHECK_VIOLATION) {
+      return { ok: false, reason: 'unknown', message: `Pangkalan data menolak nombor pekerja ${user.id}: ${error.message}` };
+    }
     return { ok: false, reason: 'unknown', message: error.message };
   }
 
@@ -186,8 +192,6 @@ export async function updateUserEmail(id: string, email: string | null): Promise
   }
   return asResult(error);
 }
-
-const CHECK_VIOLATION = '23514';
 
 /**
  * The signed-in person's own address, through set_my_email() — the one
