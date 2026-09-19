@@ -9,7 +9,7 @@ export type Kategori = {
 /** The 7 kategori / 22 perkara of the KP staff checklist, labels verbatim from the form. */
 export const FORM: Kategori[] = [
   { no: 1, name: 'KEDATANGAN', lines: ['KEDATANGAN'] },
-  { no: 2, name: 'DISPLIN', lines: ['DISPLIN'] },
+  { no: 2, name: 'DISIPLIN', lines: ['DISIPLIN'] },
   {
     no: 3,
     name: 'KEBERSIHAN BAHAGIAN',
@@ -27,7 +27,7 @@ export const FORM: Kategori[] = [
   },
   {
     no: 6,
-    name: 'PENYUSUAN BARANG',
+    name: 'PENYUSUNAN BARANG',
     lines: [
       'A) PASTIKAN SETIAP BARANG SUSUN DI ATAS RAK',
       "B) 'FIRST IN FIRST OUT'",
@@ -115,12 +115,12 @@ export const STOR_FORM: Kategori[] = [
  */
 export const SV_FORM: Kategori[] = [
   { no: 1, name: 'KEDATANGAN', lines: ['KEDATANGAN'] },
-  { no: 2, name: 'DISPLIN', lines: ['DISPLIN'] },
+  { no: 2, name: 'DISIPLIN', lines: ['DISIPLIN'] },
   { no: 3, name: 'KEBERSIHAN KEDAI', lines: ['KEBERSIHAN KEDAI'] },
   { no: 4, name: 'KEKEMASAN KEDAI', lines: ['KEKEMASAN KEDAI'] },
   { no: 5, name: 'KEROSAKAN ASET KEDAI', lines: ['KEROSAKAN ASET KEDAI'] },
   { no: 6, name: 'KEBOCORAN AIR', lines: ['KEBOCORAN AIR'] },
-  { no: 7, name: 'KEAADAAN KEDAI', lines: ['KEAADAAN KEDAI'] },
+  { no: 7, name: 'KEADAAN KEDAI', lines: ['KEADAAN KEDAI'] },
   { no: 8, name: 'BARANG RETURN & TARIKH LUPUT', lines: ['BARANG RETURN & TARIKH LUPUT'] },
   { no: 9, name: 'STOK', lines: ['A) DISPLAY', 'B) LEBIHAN BARANG'] },
   { no: 10, name: 'JADUAL PEKERJA', lines: ['A) KEDATANGAN', 'B) JADUAL KEBERSIHAN'] },
