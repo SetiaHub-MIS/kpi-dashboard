@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 import {
-  ACTIVE_WEEK,
   FORMS,
   FormKey,
   Kategori,
   MONTHS,
+  PERIODS,
   countLines,
+  currentWeekIdx,
   lineKey,
 } from '@/data/checklist';
-import { Period, currentPeriod } from '@/data/period';
+import { Period } from '@/data/period';
 import { Answer, Totals, scoredOnly, totalsOf } from '@/data/scoring';
 import { Role, User } from '@/data/users';
 import { isRetryable } from '@/data/queue';
-import { submitMark, verifyMark } from '@/lib/marks';
+import { fetchMarkScores, submitMark, verifyMark } from '@/lib/marks';
 import { useQueue } from '@/store/useQueue';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
@@ -22,11 +23,14 @@ export const formKeyForRole = (role: Role): FormKey =>
 
 export const formForRole = (role: Role): Kategori[] => FORMS[formKeyForRole(role)];
 
+/** The store's key for one person's week in the loaded month. */
+export const weekKey = (personId: string, weekIdx: number) => `${personId}-${weekIdx}`;
+
 type Draft = {
   personId: string | null;
   /** Which checklist this draft is being scored against. */
   formKey: FormKey;
-  /** A line is a score, or 'na' where the form allows a line not to apply. */
+  /** A line is a score, or 'na' where a line does not apply. */
   scores: Record<string, Answer>;
   /** Which quick-chip is active, if the catatan came from one. */
   noteChip: string | null;
@@ -64,16 +68,21 @@ type MarksState = {
   scaleMax: number;
   verifyByManager: boolean;
 
+  /** Which of PERIODS is loaded and being marked. Changing it reloads the marks. */
   monthIdx: number;
-  /** Marks submitted in-app this session: personId -> % for ACTIVE_WEEK. */
+  /** Which of the four weeks marking lands in, 0-based. */
+  weekIdx: number;
+  /** A month's marks are on their way from Postgres. */
+  periodLoading: boolean;
+  /** Marks submitted in-app this session, keyed `${personId}-${weekIdx}`. */
   submitted: Record<string, number>;
-  /** Catatan saved alongside those marks, keyed `${personId}-${ACTIVE_WEEK}`. */
+  /** Catatan saved alongside those marks, same key. */
   submittedNotes: Record<string, string>;
-  /** Manager sign-off, keyed `${personId}-${weekIndex}`. */
+  /** Manager sign-off, keyed `${personId}-${weekIdx}`. A signed-off week is locked. */
   verified: Record<string, boolean>;
   /** marks.id for a person's week, once known. Verification needs the row id. */
   markIds: Record<string, number>;
-  /** The Area Manager's overriding percentage, keyed `${personId}-${weekIndex}`. Absent = agreed with SV/AS. */
+  /** The Area Manager's overriding percentage, same key. Absent = agreed with SV/AS. */
   adjusted: Record<string, number>;
   /** That mark's max_score, so an override can be validated against it. */
   markMax: Record<string, number>;
@@ -81,8 +90,11 @@ type MarksState = {
   saveError: string | null;
   draft: Draft;
 
-  prevMonth: () => void;
-  nextMonth: () => void;
+  setMonth: (monthIdx: number) => void;
+  setWeek: (weekIdx: number) => void;
+  setPeriodLoading: (loading: boolean) => void;
+  /** Drops everything that belongs to the loaded month, ahead of loading another. */
+  clearPeriod: () => void;
   startMarking: (personId: string, formKey: FormKey) => void;
   toggleKat: (no: number) => void;
   setScore: (key: string, value: Answer) => void;
@@ -102,25 +114,61 @@ type MarksState = {
   setRule: (rule: Partial<Pick<MarksState, 'passThreshold' | 'scaleMax' | 'verifyByManager'>>) => void;
 };
 
-export const useMarks = create<MarksState>((set, get) => ({
-  passThreshold: 80,
-  scaleMax: 5,
-  verifyByManager: true,
-
-  monthIdx: MONTHS.length - 1,
+const emptyPeriod = {
   submitted: {},
   submittedNotes: {},
   verified: {},
   markIds: {},
   adjusted: {},
   markMax: {},
+};
+
+export const useMarks = create<MarksState>((set, get) => ({
+  passThreshold: 80,
+  scaleMax: 5,
+  verifyByManager: true,
+
+  monthIdx: MONTHS.length - 1,
+  weekIdx: currentWeekIdx(),
+  periodLoading: false,
+  ...emptyPeriod,
   saveError: null,
   draft: emptyDraft,
 
-  prevMonth: () => set((s) => ({ monthIdx: Math.max(0, s.monthIdx - 1) })),
-  nextMonth: () => set((s) => ({ monthIdx: Math.min(MONTHS.length - 1, s.monthIdx + 1) })),
+  setMonth: (monthIdx) =>
+    set({ monthIdx: Math.max(0, Math.min(MONTHS.length - 1, monthIdx)) }),
 
-  startMarking: (personId, formKey) => set({ draft: { ...emptyDraft, personId, formKey } }),
+  setWeek: (weekIdx) => set({ weekIdx: Math.max(0, Math.min(3, weekIdx)) }),
+
+  setPeriodLoading: (periodLoading) => set({ periodLoading }),
+
+  clearPeriod: () => set({ ...emptyPeriod, saveError: null }),
+
+  /**
+   * Opens a draft, and where the week already holds a mark, fills it in from
+   * the lines behind that mark — a correction starts from what was scored,
+   * not from a blank form. The lines arrive after the screen has opened; if
+   * the supervisor has moved on to someone else by then they are dropped.
+   */
+  startMarking: (personId, formKey) => {
+    const s = get();
+    const key = weekKey(personId, s.weekIdx);
+    set({ draft: { ...emptyDraft, personId, formKey, noteText: s.submittedNotes[key] ?? '' } });
+
+    const markId = s.markIds[key];
+    if (!isSupabaseConfigured || markId == null) return;
+    void fetchMarkScores(markId, formKey)
+      .then((scores) => {
+        set((cur) =>
+          cur.draft.personId === personId && Object.keys(cur.draft.scores).length === 0
+            ? { draft: { ...cur.draft, scores } }
+            : cur
+        );
+      })
+      .catch(() => {
+        // The form stays blank; the supervisor can still score it afresh.
+      });
+  },
 
   toggleKat: (no) =>
     set((s) => ({
@@ -165,20 +213,24 @@ export const useMarks = create<MarksState>((set, get) => ({
    *
    * The local write is not an optimisation — it is what lets a supervisor keep
    * marking when the stockroom has no signal. A failed write leaves the mark on
-   * screen and sets saveError; Sprint 2's queue is what will retry it.
+   * screen and sets saveError; the queue is what retries it.
    */
   submitDraft: async (ctx) => {
     const s = get();
     const { personId, noteText, formKey } = s.draft;
     const t = draftTotals(s);
-    if (!personId || !t.complete) return;
+    if (!personId || !t.canSubmit) return;
+    const key = weekKey(personId, s.weekIdx);
+    // The database refuses this too; refusing here keeps the screen honest
+    // rather than showing a mark the server will never hold.
+    if (s.verified[key]) return;
 
     const note = noteText.trim();
     set({
-      submitted: { ...s.submitted, [personId]: t.pct },
+      submitted: { ...s.submitted, [key]: t.pct },
       submittedNotes: note
-        ? { ...s.submittedNotes, [`${personId}-${ACTIVE_WEEK}`]: note }
-        : s.submittedNotes,
+        ? { ...s.submittedNotes, [key]: note }
+        : Object.fromEntries(Object.entries(s.submittedNotes).filter(([k]) => k !== key)),
       saveError: null,
       draft: emptyDraft,
     });
@@ -189,8 +241,8 @@ export const useMarks = create<MarksState>((set, get) => ({
       userId: personId,
       branchId: ctx.branchId,
       formKey,
-      period: ctx.period ?? currentPeriod(),
-      weekNo: ACTIVE_WEEK + 1,
+      period: ctx.period ?? PERIODS[s.monthIdx],
+      weekNo: s.weekIdx + 1,
       scores: scoredOnly(s.draft.scores),
       maxScore: t.max,
       note,
@@ -201,7 +253,8 @@ export const useMarks = create<MarksState>((set, get) => ({
       const result = await submitMark(input);
       if (result.ok) {
         set((cur) => ({
-          markIds: { ...cur.markIds, [`${personId}-${ACTIVE_WEEK}`]: result.markId },
+          markIds: { ...cur.markIds, [key]: result.markId },
+          markMax: { ...cur.markMax, [key]: t.max },
         }));
       }
       // This write proved the network is back, so anything still queued from
@@ -255,12 +308,10 @@ export const useMarks = create<MarksState>((set, get) => ({
 
   reset: () =>
     set({
-      submitted: {},
-      submittedNotes: {},
-      verified: {},
-      markIds: {},
-      adjusted: {},
-      markMax: {},
+      monthIdx: MONTHS.length - 1,
+      weekIdx: currentWeekIdx(),
+      periodLoading: false,
+      ...emptyPeriod,
       saveError: null,
       draft: emptyDraft,
     }),
@@ -269,32 +320,30 @@ export const useMarks = create<MarksState>((set, get) => ({
 }));
 
 /**
- * A week's total. The arithmetic lives in `@/data/scoring` so the N/A rule can
- * be tested without a store around it.
+ * A week's total. The arithmetic lives in `@/data/scoring` so the blank-is-not-
+ * zero rule can be tested without a store around it.
  */
 export function draftTotals(s: Pick<MarksState, 'draft' | 'scaleMax'>): Totals {
   return totalsOf(s.draft.scores, countLines(FORMS[s.draft.formKey]), s.scaleMax);
 }
 
 /**
- * A person's mark for a week, with any mark submitted in-app taking precedence
- * over the seeded workbook value.
+ * A person's mark for a week of the loaded month, with any mark submitted
+ * in-app this session taking precedence over what was loaded.
  */
 export function weekMark(
   person: User,
   weekIdx: number,
   submitted: Record<string, number>
 ): number | null {
-  if (weekIdx === ACTIVE_WEEK && submitted[person.id] != null) {
-    return submitted[person.id];
-  }
-  return person.w[weekIdx];
+  return submitted[weekKey(person.id, weekIdx)] ?? person.w[weekIdx];
 }
 
 /**
  * Whether the Area Manager has signed a mark off. Loaded from
  * `mark_verifications` at hydration and set optimistically when they sign one
- * off in-app, so the tick appears without waiting for a round trip.
+ * off in-app, so the tick appears without waiting for a round trip. A signed-
+ * off week can no longer be re-scored — the database refuses it too.
  */
 export function isVerified(
   key: string,

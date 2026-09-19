@@ -19,7 +19,22 @@ import {
   weekIndexOf,
   weekOfMonth,
   weekRangeLabel,
+  weekStarted,
 } from '../src/data/period.ts';
+
+test('a week can be marked once its first day has arrived, never before', () => {
+  // Wednesday 16 September 2026 sits in week 3.
+  const now = new Date(2026, 8, 16);
+  const sep = { year: 2026, month: 9 };
+  assert.deepEqual([0, 1, 2, 3].map((w) => weekStarted(sep, w, now)), [true, true, true, false]);
+  // Every week of an earlier month is open; no week of a later one is.
+  assert.equal(weekStarted({ year: 2026, month: 8 }, 3, now), true);
+  assert.equal(weekStarted({ year: 2025, month: 12 }, 3, now), true);
+  assert.equal(weekStarted({ year: 2026, month: 10 }, 0, now), false);
+  assert.equal(weekStarted({ year: 2027, month: 1 }, 0, now), false);
+  // The 1st of a month opens week 1 and nothing else.
+  assert.deepEqual([0, 1].map((w) => weekStarted(sep, w, new Date(2026, 8, 1))), [true, false]);
+});
 
 test('today is read in local time, not UTC', () => {
   // 9pm in Kelantan (UTC+8) is still the 9th there and already the 10th in UTC.

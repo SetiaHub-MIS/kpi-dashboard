@@ -76,6 +76,19 @@ export function weekOfMonth(iso: string): number {
 /** The same thing as a 0-based index into a four-slot week array. */
 export const weekIndexOf = (iso: string) => weekOfMonth(iso) - 1;
 
+/**
+ * Whether a checklist week can be marked yet: its first day has arrived. Any
+ * week of an earlier month has; no week of a later month has; in the current
+ * month it is the weeks up to today's. Mirrors `report_week_of()` in the
+ * database, so what the app offers and what the reports count as due agree.
+ */
+export function weekStarted(p: Period, weekIdx: number, now: Date = new Date()): boolean {
+  const cur = currentPeriod(now);
+  if (p.year !== cur.year) return p.year < cur.year;
+  if (p.month !== cur.month) return p.month < cur.month;
+  return weekIdx <= weekIndexOf(todayIso(now));
+}
+
 /** Days between two ISO dates, positive when `to` is later. */
 export const daysBetweenIso = (from: string, to: string) =>
   Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);

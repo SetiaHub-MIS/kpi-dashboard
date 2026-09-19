@@ -154,6 +154,37 @@ export async function submitMark(
 }
 
 /**
+ * One mark's lines as the app keys them, so a week opened for correction
+ * starts from what was scored rather than from a blank form. A line the form
+ * no longer has is dropped, the mirror of what submitMark does on the way in.
+ */
+export async function fetchMarkScores(
+  markId: number,
+  formKey: FormKey
+): Promise<Record<string, number>> {
+  const [{ data, error }, index] = await Promise.all([
+    supabase.from('mark_lines').select('line_id, score').eq('mark_id', markId),
+    fetchLineIndex(),
+  ]);
+  if (error) throw error;
+
+  const prefix = `${formKey}:`;
+  const keyOfLine = new Map<number, string>();
+  index.forEach((lineId, ref) => {
+    if (!ref.startsWith(prefix)) return;
+    const [, katNo, lineIdx] = ref.split(':');
+    keyOfLine.set(lineId, `${katNo}-${lineIdx}`);
+  });
+
+  const out: Record<string, number> = {};
+  (data ?? []).forEach((row: any) => {
+    const key = keyOfLine.get(row.line_id);
+    if (key) out[key] = row.score;
+  });
+  return out;
+}
+
+/**
  * The Area Manager's pass over a mark. `adjustedTo` is set only when they
  * override the total rather than agreeing with it, which is why it is optional
  * and why its absence is not the same as agreeing to zero.

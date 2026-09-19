@@ -18,6 +18,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { hydrateDirectory } from '@/lib/hydrate';
+// Imported for its listener: Chrome fires the install offer once, early, and
+// it has to be caught before any screen has mounted.
+import '@/lib/install';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useLocale } from '@/store/useLocale';
 import { useQueue } from '@/store/useQueue';

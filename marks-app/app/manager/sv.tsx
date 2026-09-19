@@ -2,27 +2,33 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
+import { PeriodPicker } from '@/components/PeriodPicker';
 import { QueueBanner } from '@/components/QueueBanner';
 import { Screen } from '@/components/Screen';
-import { ACTIVE_WEEK } from '@/data/checklist';
-import { currentPeriod, weekRangeLabel } from '@/data/period';
+import { PERIODS } from '@/data/checklist';
+import { weekRangeLabel } from '@/data/period';
 import { roleLabel } from '@/i18n/labels';
+import { notify } from '@/lib/dialog';
 import { useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
-import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
+import { formKeyForRole, isVerified, useMarks, weekKey, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { markingQueue, useUsers } from '@/store/useUsers';
-import { pctBg, pctColor } from '@/theme/scoring';
+import { C, pctBg, pctColor } from '@/theme/scoring';
 
 /**
  * The Area Manager's own marking round: the SV/AS at each outlet they cover.
  *
  * A separate screen from the dashboard because it is a different job — the
  * dashboard is for watching, this is for filling in. It reads the same marking
- * queue the supervisors' own screen does, one rung up the relation.
+ * queue the supervisors' own screen does, one rung up the relation, and the
+ * same month and week selection.
  */
 export default function ManagerSvQueue() {
   const submitted = useMarks((s) => s.submitted);
+  const verified = useMarks((s) => s.verified);
+  const monthIdx = useMarks((s) => s.monthIdx);
+  const weekIdx = useMarks((s) => s.weekIdx);
   const passThreshold = useMarks((s) => s.passThreshold);
   const startMarking = useMarks((s) => s.startMarking);
   const users = useUsers((s) => s.users);
@@ -32,19 +38,20 @@ export default function ManagerSvQueue() {
   const locale = useLocale((s) => s.locale);
 
   const crew = markingQueue(users, manager);
-  const pending = crew.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
+  const pending = crew.filter((p) => weekMark(p, weekIdx, submitted) == null);
 
   return (
     <Screen>
       <MonoLabel>
-        {manager?.name ?? '—'} · {manager ? roleLabel(manager.role, locale) : ''}
+        {manager?.name ?? '—'} · {manager ? roleLabel(manager.role, locale) : ''} · {t('tab_checklist_sv')}
       </MonoLabel>
-      <Text className="font-sans-semi text-2xl text-ink mt-2">
-        {t('checklist_sv_minggu', { week: ACTIVE_WEEK + 1 })}
-      </Text>
-      <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-2">
+      <View className="mt-2">
+        <PeriodPicker weeks />
+      </View>
+      <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-3">
         {t('checklist_sv_status', {
-          range: weekRangeLabel(currentPeriod(), ACTIVE_WEEK + 1),
+          week: weekIdx + 1,
+          range: weekRangeLabel(PERIODS[monthIdx], weekIdx + 1),
           pending: pending.length,
           total: crew.length,
         })}
@@ -61,11 +68,16 @@ export default function ManagerSvQueue() {
       ) : (
         <View className="gap-2 mt-[18px]">
           {crew.map((p) => {
-            const v = weekMark(p, ACTIVE_WEEK, submitted);
+            const v = weekMark(p, weekIdx, submitted);
+            const locked = v != null && isVerified(weekKey(p.id, weekIdx), verified);
             return (
               <Pressable
                 key={p.id}
                 onPress={() => {
+                  if (locked) {
+                    notify(t('markah_dikunci_title'), t('markah_dikunci'));
+                    return;
+                  }
                   startMarking(p.id, formKeyForRole(p.role));
                   router.push(`/mark/${p.id}`);
                 }}
@@ -79,6 +91,7 @@ export default function ManagerSvQueue() {
                   </Text>
                   <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
                     {p.id} · {branchLabel(p.branchId)}
+                    {v != null && !locked ? ` · ${t('boleh_diubah')}` : ''}
                   </Text>
                 </View>
                 {v == null ? (
@@ -86,16 +99,25 @@ export default function ManagerSvQueue() {
                     <Text className="font-sans-semi text-[12px] text-white">{t('isi')}</Text>
                   </View>
                 ) : (
-                  <View
-                    className="px-2.5 py-[9px] rounded-[9px]"
-                    style={{ backgroundColor: pctBg(v, passThreshold) }}
-                  >
-                    <Text
-                      className="font-mono-semi text-[14px]"
-                      style={{ color: pctColor(v, passThreshold) }}
+                  <View className="flex-row items-center gap-1.5">
+                    {locked && (
+                      <View className="px-1.5 py-0.5 rounded" style={{ backgroundColor: C.passBg }}>
+                        <Text className="font-mono-semi text-[9px]" style={{ color: C.pass }}>
+                          MGR
+                        </Text>
+                      </View>
+                    )}
+                    <View
+                      className="px-2.5 py-[9px] rounded-[9px]"
+                      style={{ backgroundColor: pctBg(v, passThreshold) }}
                     >
-                      {v}%
-                    </Text>
+                      <Text
+                        className="font-mono-semi text-[14px]"
+                        style={{ color: pctColor(v, passThreshold) }}
+                      >
+                        {v}%
+                      </Text>
+                    </View>
                   </View>
                 )}
               </Pressable>

@@ -1,5 +1,5 @@
 /**
- * A week's arithmetic, and the rule that N/A is not a zero.
+ * A week's arithmetic, and the rule that a blank is not a zero.
  *
  *   node --test tests/
  */
@@ -11,7 +11,9 @@ import { scoredOnly, totalsOf } from '../src/data/scoring.ts';
 test('a fully scored week is out of every line', () => {
   const scores = { '1-0': 4, '2-0': 4, '3-0': 5 };
   const t = totalsOf(scores, 3, 5);
-  assert.deepEqual(t, { total: 13, filled: 3, complete: true, max: 15, pct: 87 });
+  assert.deepEqual(t, {
+    total: 13, filled: 3, scored: 3, complete: true, max: 15, pct: 87, canSubmit: true,
+  });
 });
 
 test('the SV week from the workbook: 17 of 19 lines, out of 85', () => {
@@ -37,11 +39,29 @@ test('counting N/A as zero would mark the same week down', () => {
   assert.equal(asNa.pct, 80);
 });
 
-test('a week of nothing but N/A has no percentage rather than zero', () => {
+test('a line left blank is out of the percentage the same way N/A is', () => {
+  // The kedai form has 22 perkara and not all apply every week: given marks
+  // over possible marks, where "possible" is the lines actually scored.
+  const t = totalsOf({ a: 4, b: 5 }, 22, 5);
+  assert.equal(t.max, 10);
+  assert.equal(t.pct, 90);
+  assert.equal(t.complete, false, 'twenty lines were never touched');
+  assert.equal(t.canSubmit, true, 'and the week may still be submitted');
+});
+
+test('zero is a score: it counts against the person and towards the maximum', () => {
+  const t = totalsOf({ a: 0, b: 5 }, 2, 5);
+  assert.equal(t.scored, 2);
+  assert.equal(t.max, 10);
+  assert.equal(t.pct, 50);
+});
+
+test('a week of nothing but N/A has no percentage, and nothing to submit', () => {
   const t = totalsOf({ a: 'na', b: 'na' }, 2, 5);
   assert.equal(t.max, 0);
   assert.equal(t.pct, 0, 'no division by zero');
   assert.equal(t.complete, true);
+  assert.equal(t.canSubmit, false, 'max_score must be positive in the database');
 });
 
 test('an untouched line is not the same as one marked N/A', () => {
@@ -50,13 +70,13 @@ test('an untouched line is not the same as one marked N/A', () => {
   assert.equal(totalsOf({ a: 4, b: 'na', c: 'na' }, 3, 5).complete, true);
 });
 
-test('an empty draft is complete only when the form has no lines', () => {
+test('an empty draft has nothing to submit', () => {
   assert.equal(totalsOf({}, 3, 5).complete, false);
+  assert.equal(totalsOf({}, 3, 5).canSubmit, false);
   assert.equal(totalsOf({}, 3, 5).pct, 0);
 });
 
-test('only real scores are offered to mark_lines', () => {
-  // score is CHECK (score >= 1), so N/A must never reach it.
-  assert.deepEqual(scoredOnly({ a: 4, b: 'na', c: 1 }), { a: 4, c: 1 });
+test('only real scores are offered to mark_lines, zero included', () => {
+  assert.deepEqual(scoredOnly({ a: 4, b: 'na', c: 0 }), { a: 4, c: 0 });
   assert.deepEqual(scoredOnly({ a: 'na' }), {});
 });

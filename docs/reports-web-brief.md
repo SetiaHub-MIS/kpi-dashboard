@@ -137,10 +137,15 @@ person × week × period that exists in `marks`, with `is_gap = true` where no
 mark was recorded. Unmarked weeks are the other genuine KPI (the workbooks'
 `#DIV/0!` problem).
 
-**Queries and reminders.** `mark_queries`: a short thread between the marked
-person and their scorer over one week's mark (head office can read all).
-`reminders`: nudges from an Area Manager to an SV/AS about unmarked crew.
-Both are minor for reporting; "unanswered queries" could be a small tile.
+**Reminders.** `reminders`: nudges from an Area Manager to an SV/AS about
+unmarked crew. Minor for reporting. (There is no staff question thread —
+that was dropped on 19 Sep 2026; staff ask their SV/AS on WhatsApp.)
+
+**A confirmed mark is fixed.** Once `mark_verifications` holds a row for a
+mark, its `total_score`, `max_score` and `mark_lines` can no longer change
+(RLS, `app_mark_verified()`); only `adjusted_to` on the verification may.
+`max_score` moves with how many perkara were scored — a blank perkara is
+left out, not scored 0 — and a perkara may score 0.
 
 **Tugasan.** Weekly per-outlet checks by the Area Manager:
 `tugasan_items` (`peti_cash`, `x_report`), `tugasan_checks` (branch × period ×
@@ -181,9 +186,8 @@ checklist_categories id · form_key · position · name
 checklist_lines     id · category_id · position · label
 marks               id · user_id · branch_id · form_key · period_year · period_month · week_no
                     · total_score · max_score · pct (generated) · note · scored_by · scored_at
-mark_lines          mark_id · line_id · score       -- per-perkara detail (absent for imported marks)
+mark_lines          mark_id · line_id · score       -- per-perkara detail (absent for imported marks); 0..scale_max
 mark_verifications  mark_id · verified_by · verified_at · adjusted_to
-mark_queries        id · mark_id · sender_id · body · created_at
 reminders           id · branch_id · recipient_id · sent_by · message · created_at · read_at
 tugasan_items       key · label · note_kind · position
 tugasan_checks      branch_id · period_year · period_month · week_no · item_key · done · note · inspected_on

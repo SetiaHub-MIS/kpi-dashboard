@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MonoLabel } from '@/components/Card';
+import { InstallCard } from '@/components/InstallCard';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { HOME_ROUTE, SignInForm } from '@/components/SignInForm';
 import { HQ_BRANCH_ID, isHq } from '@/data/branches';
@@ -125,7 +126,10 @@ export default function RolePicker() {
         </Text>
 
         {isSupabaseConfigured ? (
-          <SignInForm />
+          <>
+            <SignInForm />
+            <InstallCard />
+          </>
         ) : (
           <>
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5 mt-5 mb-2">

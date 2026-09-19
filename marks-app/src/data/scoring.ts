@@ -1,23 +1,30 @@
 /**
  * A week's arithmetic, with nothing else attached so it can be tested directly.
  *
- * The rule that matters: N/A is not a zero. On the SV/AS form two perkara sit
- * blank all year and the workbook's own denominator is 85 rather than 95 — 17
- * lines times five, not 19. Counting a blank as zero would mark down every
- * supervisor in the company by two lines' worth, every week.
+ * The rule that matters: a blank is not a zero. Not every perkara applies to
+ * every person every week — on the SV/AS form two sit blank all year and the
+ * workbook's own denominator is 85 rather than 95 — so a line left unanswered
+ * or marked N/A is left out of the maximum, and the percentage is given marks
+ * over the marks that were possible. Zero is different: it is a score, given
+ * on purpose, and it counts against the person.
  */
 
-/** A line is scored, or explicitly does not apply. */
+/** A line is scored (0 up to the scale), or explicitly does not apply. */
 export type Answer = number | 'na';
 
 export type Totals = {
   total: number;
-  /** Lines answered at all, N/A included — this is what completeness means. */
+  /** Lines answered at all, N/A included. */
   filled: number;
+  /** Lines given a number — what the maximum is built from. */
+  scored: number;
+  /** Every line on the form was answered, N/A included. */
   complete: boolean;
   /** Scored lines times the scale. Moves with how many applied. */
   max: number;
   pct: number;
+  /** At least one line carries a number, so there is a percentage to submit. */
+  canSubmit: boolean;
 };
 
 export function totalsOf(
@@ -33,9 +40,11 @@ export function totalsOf(
   return {
     total,
     filled: answers.length,
+    scored: scored.length,
     complete: answers.length === lineCount,
     max,
     pct: max > 0 ? Math.round((total / max) * 100) : 0,
+    canSubmit: max > 0,
   };
 }
 

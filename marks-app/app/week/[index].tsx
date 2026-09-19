@@ -58,7 +58,7 @@ export default function WeekDetail() {
           >
             {week.adjustedPct ?? week.pct}
           </Text>
-          <Text className="font-mono text-[15px] text-ink-6">% · {week.total}/110</Text>
+          <Text className="font-mono text-[15px] text-ink-6">% · {week.total}/{week.maxScore}</Text>
         </View>
         {week.adjustedPct != null && (
           <Text className="font-sans text-[12px] text-ink-5 mt-2">
@@ -85,31 +85,16 @@ export default function WeekDetail() {
         </Text>
       </Card>
 
-      <View className="flex-row gap-2.5 mt-4">
-        <Pressable
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/staff'))}
-          accessibilityRole="button"
-          className="flex-1 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
-        >
-          <Text className="font-sans-semi text-sm text-white">{t('terima')}</Text>
-        </Pressable>
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: '/query/[markId]',
-              params: {
-                markId: String(week.markId),
-                label: t('soalan_week_label', { label: week.label }),
-                otherName: svName,
-              },
-            })
-          }
-          accessibilityRole="button"
-          className="flex-1 py-3.5 rounded-xl border border-[#D6D6D2] bg-card items-center active:opacity-70"
-        >
-          <Text className="font-sans-semi text-sm text-ink-2">{t('tanya_sv')}</Text>
-        </Pressable>
-      </View>
+      <Pressable
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/staff'))}
+        accessibilityRole="button"
+        className="mt-4 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
+      >
+        <Text className="font-sans-semi text-sm text-white">{t('terima')}</Text>
+      </Pressable>
+      <Text className="font-sans text-[12px] leading-[18px] text-ink-5 mt-3 text-center">
+        {t('tanya_sv_whatsapp')}
+      </Text>
     </Screen>
   );
 }

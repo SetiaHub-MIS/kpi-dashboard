@@ -15,12 +15,20 @@ import { BackLink } from '@/components/BackLink';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { NOTE_CHIPS } from '@/data/assets';
-import { ACTIVE_WEEK, allowsNa, countLines, lineKey } from '@/data/checklist';
+import { PERIODS, countLines, lineKey } from '@/data/checklist';
+import { monthShort } from '@/data/period';
 import { formLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
-import { draftTotals, formForRole, formKeyForRole, useMarks } from '@/store/useMarks';
+import {
+  draftTotals,
+  formForRole,
+  formKeyForRole,
+  isVerified,
+  useMarks,
+  weekKey,
+} from '@/store/useMarks';
 import { C, bandColor, pctColor } from '@/theme/scoring';
 
 export default function MarkPerson() {
@@ -35,6 +43,9 @@ export default function MarkPerson() {
   const draft = useMarks((s) => s.draft);
   const scaleMax = useMarks((s) => s.scaleMax);
   const passThreshold = useMarks((s) => s.passThreshold);
+  const monthIdx = useMarks((s) => s.monthIdx);
+  const weekIdx = useMarks((s) => s.weekIdx);
+  const verified = useMarks((s) => s.verified);
   const startMarking = useMarks((s) => s.startMarking);
   const toggleKat = useMarks((s) => s.toggleKat);
   const setScore = useMarks((s) => s.setScore);
@@ -46,16 +57,15 @@ export default function MarkPerson() {
   const formKey = person ? formKeyForRole(person.role) : 'kedai';
   const form = person ? formForRole(person.role) : [];
   const lineCount = countLines(form);
+  const locked = person != null && isVerified(weekKey(person.id, weekIdx), verified);
 
   // A deep link can land here without the queue having opened a draft first.
   useEffect(() => {
-    if (person && draft.personId !== person.id) startMarking(person.id, formKey);
-  }, [draft.personId, person, startMarking, formKey]);
+    if (person && !locked && draft.personId !== person.id) startMarking(person.id, formKey);
+  }, [draft.personId, person, locked, startMarking, formKey]);
 
   const totals = draftTotals({ draft, scaleMax });
-  // Only the SV form has perkara that may not apply. The workbook shows two of
-  // them blank all year, with the maximum moving to match.
-  const naAllowed = allowsNa(formKey);
+  const weekLabel = `${t('minggu_n', { n: weekIdx + 1 })} · ${monthShort(PERIODS[monthIdx])}`;
 
   if (!person) {
     return (
@@ -71,8 +81,24 @@ export default function MarkPerson() {
     );
   }
 
+  // Reachable by deep link after the list screen would have refused it. The
+  // database refuses the write as well; this just says so before any typing.
+  if (locked) {
+    return (
+      <Screen>
+        <BackLink label={t('tab_checklist')} />
+        <Text className="font-sans-semi text-[19px] text-ink mt-4">
+          {t('markah_dikunci_title')}
+        </Text>
+        <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
+          {person.name} · {weekLabel}. {t('markah_dikunci')}
+        </Text>
+      </Screen>
+    );
+  }
+
   const submit = () => {
-    if (!totals.complete) return;
+    if (!totals.canSubmit) return;
     // The mark is filed against the person's branch, not the marker's: they are
     // the same for an SV/AS, and the person's is the one the record belongs to.
     // Not awaited — the local write has already happened, and the screen should
@@ -118,14 +144,17 @@ export default function MarkPerson() {
           <View className="min-w-0 flex-1">
             <Text className="font-sans-semi text-[17px] text-ink">{person.name}</Text>
             <Text className="font-mono text-[11px] text-ink-5 mt-1">
-              {person.id} · {t('minggu_skala', { week: ACTIVE_WEEK + 1, max: scaleMax })}
-              {naAllowed ? t('na_dibenarkan_suffix') : ''}
+              {person.id} · {weekLabel} · {t('skala', { max: scaleMax })}
             </Text>
             <Text className="font-sans-med text-[11.5px] text-ink-4 mt-1">
               {t('form_perkara_count', { form: formLabel(formKey, locale), count: lineCount })}
             </Text>
           </View>
         </View>
+
+        <Text className="font-sans text-[12px] leading-[18px] text-ink-5 mt-3">
+          {t('perkara_kosong_hint')}
+        </Text>
 
         <View className="gap-2 mt-4">
           {form.map((k) => {
@@ -188,18 +217,38 @@ export default function MarkPerson() {
                       const picked = draft.scores[key];
                       return (
                         <View key={key}>
-                          <Text className="font-sans-med text-[12.5px] leading-[17px] text-ink-2">
-                            {label}
-                          </Text>
+                          <View className="flex-row items-center gap-2">
+                            <Text className="flex-1 font-sans-med text-[12.5px] leading-[17px] text-ink-2">
+                              {label}
+                            </Text>
+                            {picked === 0 && (
+                              <View
+                                className="px-2 py-0.5 rounded"
+                                style={{ backgroundColor: C.failBg }}
+                                accessibilityLabel={t('perkara_a11y', { label, value: 0 })}
+                              >
+                                <Text className="font-mono-semi text-[11px]" style={{ color: C.fail }}>
+                                  0
+                                </Text>
+                              </View>
+                            )}
+                          </View>
                           <View className="flex-row gap-1.5 mt-2.5">
                             {Array.from({ length: scaleMax }, (_, j) => j + 1).map((v) => {
                               const on = picked === v;
                               return (
                                 <Pressable
                                   key={v}
-                                  onPress={() => setScore(key, v)}
+                                  // The chosen score, tapped again, becomes 0:
+                                  // "not done" is a mark, and the row has no
+                                  // room for a seventh button.
+                                  onPress={() => setScore(key, on ? 0 : v)}
                                   accessibilityRole="button"
-                                  accessibilityLabel={t('perkara_a11y', { label, value: v })}
+                                  accessibilityLabel={
+                                    on
+                                      ? t('perkara_sifar_a11y', { label })
+                                      : t('perkara_a11y', { label, value: v })
+                                  }
                                   className="flex-1 py-2.5 rounded-lg items-center border"
                                   style={{
                                     borderColor: on ? 'transparent' : C.line,
@@ -215,25 +264,23 @@ export default function MarkPerson() {
                                 </Pressable>
                               );
                             })}
-                            {naAllowed && (
-                              <Pressable
-                                onPress={() => setScore(key, 'na')}
-                                accessibilityRole="button"
-                                accessibilityLabel={t('perkara_na_a11y', { label })}
-                                className="px-2.5 py-2.5 rounded-lg items-center border"
-                                style={{
-                                  borderColor: picked === 'na' ? 'transparent' : C.line,
-                                  backgroundColor: picked === 'na' ? C.ink5 : C.card,
-                                }}
+                            <Pressable
+                              onPress={() => setScore(key, 'na')}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('perkara_na_a11y', { label })}
+                              className="px-2.5 py-2.5 rounded-lg items-center border"
+                              style={{
+                                borderColor: picked === 'na' ? 'transparent' : C.line,
+                                backgroundColor: picked === 'na' ? C.ink5 : C.card,
+                              }}
+                            >
+                              <Text
+                                className="font-mono-semi text-[12.5px]"
+                                style={{ color: picked === 'na' ? '#fff' : C.ink5 }}
                               >
-                                <Text
-                                  className="font-mono-semi text-[12.5px]"
-                                  style={{ color: picked === 'na' ? '#fff' : C.ink5 }}
-                                >
-                                  N/A
-                                </Text>
-                              </Pressable>
-                            )}
+                                N/A
+                              </Text>
+                            </Pressable>
                           </View>
                         </View>
                       );
@@ -305,7 +352,7 @@ export default function MarkPerson() {
             <Text
               className="font-mono-semi text-[26px]"
               style={{
-                color: totals.filled ? pctColor(totals.pct, passThreshold) : C.ink8,
+                color: totals.canSubmit ? pctColor(totals.pct, passThreshold) : C.ink8,
               }}
             >
               {totals.total}
@@ -318,18 +365,20 @@ export default function MarkPerson() {
 
         <Pressable
           onPress={submit}
-          disabled={!totals.complete}
+          disabled={!totals.canSubmit}
           accessibilityRole="button"
           className="flex-1 py-[15px] rounded-xl items-center"
-          style={{ backgroundColor: totals.complete ? C.ink : C.line }}
+          style={{ backgroundColor: totals.canSubmit ? C.ink : C.line }}
         >
           <Text
             className="font-sans-semi text-[15px]"
-            style={{ color: totals.complete ? '#fff' : C.ink6 }}
+            style={{ color: totals.canSubmit ? '#fff' : C.ink6 }}
           >
-            {totals.complete
-              ? t('hantar_markah')
-              : t('n_perkara_diisi', { filled: totals.filled, total: lineCount })}
+            {!totals.canSubmit
+              ? t('n_perkara_diisi', { filled: totals.filled, total: lineCount })
+              : totals.complete
+                ? t('hantar_markah')
+                : t('hantar_markah_sebahagian', { filled: totals.filled, total: lineCount })}
           </Text>
         </Pressable>
       </View>

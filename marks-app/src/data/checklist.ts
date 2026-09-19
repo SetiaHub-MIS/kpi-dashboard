@@ -111,7 +111,7 @@ export const STOR_FORM: Kategori[] = [
  * scoreable lines, but only 17 are scored in practice: PERIKSA METER SUBLOT and
  * LAIN-LAIN sit blank all year, and the workbook's own denominator is 85 — that
  * is 17 x 5, not 19 x 5. So a blank is not a zero here; it is excluded from the
- * total. That is why this form needs N/A and the other two do not.
+ * total. Every form now works this way (see data/scoring.ts).
  */
 export const SV_FORM: Kategori[] = [
   { no: 1, name: 'KEDATANGAN', lines: ['KEDATANGAN'] },
@@ -156,15 +156,6 @@ export const FORM_LABEL: Record<FormKey, string> = {
   sv: 'Checklist SV/AS',
 };
 
-/**
- * Forms where a line may legitimately not apply, and is left out of the total
- * rather than scored zero. Only the SV form works this way — the workbook shows
- * it, and the other two score every line every week.
- */
-export const FORMS_ALLOWING_NA: FormKey[] = ['sv'];
-
-export const allowsNa = (formKey: FormKey) => FORMS_ALLOWING_NA.includes(formKey);
-
 export const countLines = (form: Kategori[]) =>
   form.reduce((n, k) => n + k.lines.length, 0);
 
@@ -179,9 +170,7 @@ export const lineKey = (katNo: number, lineIdx: number) => `${katNo}-${lineIdx}`
 export const PERIODS = recentPeriods(6);
 export const MONTHS = PERIODS.map(periodLabel);
 
-/**
- * Which of the four columns this week is, 0-based. Marking always lands in the
- * current week; the earlier ones are history and are read-only.
- */
-export const ACTIVE_WEEK = weekIndexOf(todayIso());
 export const WEEK_COLS = ['M1', 'M2', 'M3', 'M4'];
+
+/** Which of the four columns today falls in, 0-based — where marking starts. */
+export const currentWeekIdx = () => weekIndexOf(todayIso());

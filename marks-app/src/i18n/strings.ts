@@ -41,6 +41,26 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   },
   akaun_domain: { ms: 'domain akaun: {domain}', en: 'account domain: {domain}' },
 
+  // ------------------------------------------------------------ install card
+  pasang_title: { ms: 'Pasang ke skrin utama', en: 'Add to your home screen' },
+  pasang_intro: {
+    ms: 'Buka terus dari ikon di telefon, tanpa pelayar. Satu tekanan sahaja.',
+    en: 'Open straight from an icon on your phone, without the browser. One tap.',
+  },
+  pasang_butang: { ms: 'Pasang aplikasi', en: 'Install app' },
+  pasang_ios: {
+    ms: 'Di iPhone: tekan butang Kongsi (petak dengan anak panah ke atas) di bawah Safari, kemudian pilih “Tambah ke Skrin Utama”.',
+    en: 'On iPhone: tap the Share button (square with an up arrow) at the bottom of Safari, then choose “Add to Home Screen”.',
+  },
+  pasang_in_app: {
+    ms: 'Pautan ini dibuka dalam pelayar aplikasi lain, jadi ia tidak boleh dipasang dari sini. Tekan menu ⋮ → “Buka dalam Chrome”, kemudian di Chrome tekan ⋮ → “Pasang aplikasi”.',
+    en: 'This link opened inside another app’s browser, so it can’t be installed from here. Tap the ⋮ menu → “Open in Chrome”, then in Chrome tap ⋮ → “Install app”.',
+  },
+  pasang_menu: {
+    ms: 'Dalam Chrome, tekan menu ⋮ di atas kanan, kemudian “Pasang aplikasi” atau “Tambah ke Skrin utama”. Jika pautan ini dibuka dari WhatsApp, pilih “Buka dalam Chrome” dahulu.',
+    en: 'In Chrome, tap the ⋮ menu at the top right, then “Install app” or “Add to Home screen”. If this link opened from WhatsApp, choose “Open in Chrome” first.',
+  },
+
   // ------------------------------------------------------------ returns row
   bil_tarikh: { ms: 'Bil {date} · {supplier}', en: 'Bill {date} · {supplier}' },
   selesai: { ms: 'SELESAI', en: 'DONE' },
@@ -84,15 +104,11 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: '{week} was already scored by someone else before this phone got a connection, so that score stands. Re-score it if yours is the right one.',
   },
 
-  // --------------------------------------------------------------- query thread
-  belum_ada_soalan: { ms: 'Belum ada soalan. Tanya di bawah.', en: 'No questions yet. Ask below.' },
-  tulis_soalan: { ms: 'Tulis soalan…', en: 'Write a question…' },
-
   // -------------------------------------------------------------------- done
   markah_dihantar: { ms: 'Markah dihantar', en: 'Score submitted' },
   done_summary: {
-    ms: '{name} · {total}/{max} · Minggu {week}. Menunggu pengesahan MANAGER.',
-    en: '{name} · {total}/{max} · Week {week}. Waiting on MANAGER sign-off.',
+    ms: '{name} · {total}/{max} · Minggu {week} {month}. Menunggu pengesahan MANAGER.',
+    en: '{name} · {total}/{max} · Week {week} {month}. Waiting on MANAGER sign-off.',
   },
   pekerja_seterusnya: { ms: 'Pekerja seterusnya ({count})', en: 'Next staff member ({count})' },
   semua_pekerja_selesai: { ms: 'Semua pekerja selesai', en: 'Everyone done' },
@@ -124,7 +140,6 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   tab_rekod: { ms: 'Rekod', en: 'Record' },
   tab_profil: { ms: 'Profil', en: 'Profile' },
   tab_pekerja: { ms: 'Pekerja', en: 'Staff' },
-  tab_soalan: { ms: 'Soalan', en: 'Questions' },
   tab_checklist: { ms: 'Checklist', en: 'Checklist' },
   tab_ringkasan: { ms: 'Ringkasan', en: 'Summary' },
   tab_belum_dinilai: { ms: 'Belum dinilai', en: 'Not scored' },
@@ -169,11 +184,21 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ------------------------------------------------------------- supervisor
   tiada_sv: { ms: 'Tiada SV/AS', en: 'No SV/AS' },
-  checklist_minggu: { ms: 'Checklist Minggu {week}', en: 'Week {week} Checklist' },
   checklist_status: {
-    ms: 'Tarikh {range}. {pending} daripada {total} pekerja belum dinilai. Tutup sebelum Ahad.',
-    en: '{range}. {pending} of {total} staff not yet scored. Close before Sunday.',
+    ms: 'Minggu {week} · {range}. {pending} daripada {total} pekerja belum dinilai.',
+    en: 'Week {week} · {range}. {pending} of {total} staff not yet scored.',
   },
+  bulan_sebelum: { ms: 'Bulan sebelumnya', en: 'Previous month' },
+  bulan_selepas: { ms: 'Bulan berikutnya', en: 'Next month' },
+  boleh_diubah: { ms: 'boleh diubah', en: 'can be changed' },
+  markah_dikunci_title: { ms: 'Markah telah disahkan', en: 'Score already confirmed' },
+  markah_dikunci: {
+    ms: 'Area Manager telah mengesahkan markah minggu ini, jadi ia tidak boleh diubah lagi.',
+    en: 'The Area Manager has confirmed this week’s score, so it can no longer be changed.',
+  },
+  row_a11y_unmarked: { ms: '{name}: belum dinilai, tekan untuk isi', en: '{name}: not yet scored, tap to fill in' },
+  row_a11y_marked: { ms: '{name}: {value} peratus, tekan untuk ubah', en: '{name}: {value} percent, tap to change' },
+  row_a11y_locked: { ms: '{name}: {value} peratus, disahkan Area Manager', en: '{name}: {value} percent, confirmed by Area Manager' },
   peringatan_am_banner: { ms: '{count} peringatan daripada Area Manager →', en: '{count} reminders from Area Manager →' },
   badge_stor: { ms: 'STOR', en: 'STORE' },
   badge_kedai: { ms: 'KEDAI', en: 'SHOP' },
@@ -184,16 +209,12 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   n_daripada_dinilai: { ms: '{done}/{total} dinilai', en: '{done}/{total} scored' },
   belum_ada_markah_direkod: { ms: 'Belum ada markah direkod.', en: 'No scores recorded.' },
 
-  soalan_peringatan: { ms: 'Soalan & peringatan', en: 'Questions & reminders' },
-  soalan_peringatan_intro: {
-    ms: 'Peringatan daripada Area Manager, dan soalan pekerja tentang markah mereka.',
-    en: 'Reminders from your Area Manager, and staff questions about their scores.',
-  },
   peringatan: { ms: 'Peringatan', en: 'Reminders' },
-  soalan_pekerja: { ms: 'Soalan pekerja', en: 'Staff questions' },
-  tiada_soalan: { ms: 'Tiada soalan buat masa ini.', en: 'No questions right now.' },
-  minggu_bulan: { ms: 'Minggu {week} · {month}', en: 'Week {week} · {month}' },
-  soalan_thread_label: { ms: 'Soalan · Minggu {week} · {month}', en: 'Question · Week {week} · {month}' },
+  peringatan_intro: {
+    ms: 'Peringatan daripada Area Manager tentang pekerja yang belum dinilai.',
+    en: 'Reminders from your Area Manager about staff not yet scored.',
+  },
+  tiada_peringatan: { ms: 'Tiada peringatan buat masa ini.', en: 'No reminders right now.' },
 
   pekerja_tab_title: { ms: 'Pekerja', en: 'Staff' },
   pekerja_intro: {
@@ -203,10 +224,9 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   n_minggu_slash4: { ms: '{count}/4 minggu', en: '{count}/4 weeks' },
 
   // -------------------------------------------------------------- manager/sv
-  checklist_sv_minggu: { ms: 'Checklist SV/AS · Minggu {week}', en: 'SV/AS Checklist · Week {week}' },
   checklist_sv_status: {
-    ms: 'Tarikh {range}. {pending} daripada {total} SV/AS belum dinilai.',
-    en: '{range}. {pending} of {total} SV/AS not yet scored.',
+    ms: 'Minggu {week} · {range}. {pending} daripada {total} SV/AS belum dinilai.',
+    en: 'Week {week} · {range}. {pending} of {total} SV/AS not yet scored.',
   },
   tiada_sv_cawangan: { ms: 'Tiada SV/AS di cawangan anda.', en: 'No SV/AS at your branch.' },
 
@@ -258,8 +278,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: '{item} is the lowest item for {count} {cohort}.',
   },
   checklist_sv_banner: {
-    ms: 'Checklist SV/AS: {pending}/{total} belum dinilai →',
-    en: 'SV/AS Checklist: {pending}/{total} not yet scored →',
+    ms: 'Checklist SV/AS · Minggu {week}: {pending}/{total} belum dinilai →',
+    en: 'SV/AS Checklist · Week {week}: {pending}/{total} not yet scored →',
   },
   checklist_kedai_banner: {
     ms: 'Checklist Kedai: {count} aset belum selesai, tertua {days} hari →',
@@ -545,15 +565,20 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   // ------------------------------------------------------------------- mark
   pekerja_tak_dijumpai: { ms: 'Pekerja tidak dijumpai', en: 'Staff member not found' },
   akaun_tiada_senarai: { ms: 'Akaun {id} tiada dalam senarai pengguna.', en: 'Account {id} is not in the user list.' },
-  minggu_skala: { ms: 'Minggu {week} · skala 1–{max}', en: 'Week {week} · scale 1–{max}' },
-  na_dibenarkan_suffix: { ms: ' · N/A dibenarkan', en: ' · N/A allowed' },
+  skala: { ms: 'skala 0–{max}', en: 'scale 0–{max}' },
+  perkara_kosong_hint: {
+    ms: 'Perkara yang tidak berkenaan boleh dibiarkan kosong atau ditanda N/A — ia tidak dikira dalam peratus. Tekan markah yang sama sekali lagi untuk beri 0.',
+    en: 'Items that don’t apply can be left blank or marked N/A — they don’t count towards the percentage. Tap the chosen score again to give 0.',
+  },
   form_perkara_count: { ms: '{form} · {count} perkara', en: '{form} · {count} items' },
   perkara_a11y: { ms: '{label}: {value}', en: '{label}: {value}' },
+  perkara_sifar_a11y: { ms: '{label}: tekan untuk beri 0', en: '{label}: tap to give 0' },
   perkara_na_a11y: { ms: '{label}: tidak berkenaan', en: '{label}: not applicable' },
   semua_n: { ms: 'Semua {value}', en: 'All {value}' },
   tulis_pilih_catatan: { ms: 'Tulis atau pilih catatan…', en: 'Write or pick a note…' },
   jumlah_markah: { ms: 'Jumlah markah', en: 'Total score' },
   hantar_markah: { ms: 'Hantar markah', en: 'Submit score' },
+  hantar_markah_sebahagian: { ms: 'Hantar · {filled}/{total} perkara', en: 'Submit · {filled}/{total} items' },
   n_perkara_diisi: { ms: '{filled}/{total} perkara diisi', en: '{filled}/{total} items filled' },
 
   // ------------------------------------------------------------------ person
@@ -577,10 +602,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'Adjusted by Area Manager. Original SV/AS score: {value}%.',
   },
   terima: { ms: 'Terima', en: 'Accept' },
-  soalan_week_label: { ms: 'Soalan · {label}', en: 'Question · {label}' },
-  tanya_sv: { ms: 'Tanya SV', en: 'Ask SV' },
-  soalan_markah_fallback: { ms: 'Soalan markah', en: 'Score question' },
-  dengan_nama: { ms: 'Dengan {name}', en: 'With {name}' },
+  tanya_sv_whatsapp: {
+    ms: 'Ada soalan tentang markah ini? Hubungi SV/AS anda terus melalui WhatsApp.',
+    en: 'A question about this score? Contact your SV/AS directly on WhatsApp.',
+  },
 
   // -------------------------------------------------------------------- bil
   bil_tak_dijumpai: { ms: 'Bil tidak dijumpai', en: 'Bill not found' },

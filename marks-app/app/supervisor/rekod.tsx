@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
-import { Card } from '@/components/Card';
+import { Card, MonoLabel } from '@/components/Card';
+import { PeriodPicker } from '@/components/PeriodPicker';
 import { Screen } from '@/components/Screen';
 import { MONTHS, WEEK_COLS } from '@/data/checklist';
 import { isVerified, useMarks, weekMark } from '@/store/useMarks';
@@ -26,7 +27,10 @@ export default function Rekod() {
 
   return (
     <Screen>
-      <Text className="font-sans-semi text-[22px] text-ink">{t('rekod_penilaian')}</Text>
+      <MonoLabel>{t('rekod_penilaian')}</MonoLabel>
+      <View className="mt-2">
+        <PeriodPicker />
+      </View>
       <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
         {t('markah_hantar_bulan', { month: MONTHS[monthIdx] })}
       </Text>

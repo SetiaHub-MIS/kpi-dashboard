@@ -1,11 +1,12 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Href, router, useLocalSearchParams } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ACTIVE_WEEK } from '@/data/checklist';
+import { PERIODS } from '@/data/checklist';
+import { monthShort } from '@/data/period';
 import { useT } from '@/store/useLocale';
 import { formKeyForRole, useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
-import { findUser, staffOfBranch, useUsers } from '@/store/useUsers';
+import { findUser, markingQueue, useUsers } from '@/store/useUsers';
 import { pctBg, pctColor } from '@/theme/scoring';
 
 export default function Done() {
@@ -20,19 +21,22 @@ export default function Done() {
   const person = findUser(users, id);
   const passThreshold = useMarks((s) => s.passThreshold);
   const submitted = useMarks((s) => s.submitted);
+  const monthIdx = useMarks((s) => s.monthIdx);
+  const weekIdx = useMarks((s) => s.weekIdx);
   const startMarking = useMarks((s) => s.startMarking);
 
   const score = Number(pct) || 0;
   const t = useT();
   const me = currentUser(users, useSession((s) => s.currentUserId));
-  const pending = staffOfBranch(users, me?.branchId ?? null).filter(
-    (p) => weekMark(p, ACTIVE_WEEK, submitted) == null
-  );
+  // The same queue the list screen shows, so "next" is the next unmarked
+  // person in the same week — for an Area Manager that is the next SV/AS.
+  const pending = markingQueue(users, me).filter((p) => weekMark(p, weekIdx, submitted) == null);
+  const queueRoute: Href = me?.role === 'supervisor' ? '/supervisor' : '/manager/sv';
 
   const next = () => {
     const target = pending[0];
     if (!target) {
-      router.replace('/supervisor');
+      router.replace(queueRoute);
       return;
     }
     startMarking(target.id, formKeyForRole(target.role));
@@ -62,7 +66,8 @@ export default function Done() {
           name: person?.name ?? id ?? '',
           total: total ?? '',
           max: max ?? '',
-          week: ACTIVE_WEEK + 1,
+          week: weekIdx + 1,
+          month: monthShort(PERIODS[monthIdx]),
         })}
       </Text>
 

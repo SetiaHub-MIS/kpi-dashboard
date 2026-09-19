@@ -73,6 +73,8 @@ for (const m of [
   'supabase/migrations/20260918030000_manager_manages_outlets.sql',
   'supabase/migrations/20260918040000_report_views.sql',
   'supabase/migrations/20260919010000_payroll_number_shape.sql',
+  'supabase/migrations/20260919020000_marks_open_until_verified.sql',
+  'supabase/migrations/20260919030000_drop_mark_queries.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -744,45 +746,57 @@ console.log('=== photo evidence is bounded, and scoped like the bill it belongs 
     purged.rows[0].n, 0);
 }
 
-console.log('\n=== staff <-> SV/AS query threads stay between the two of them ===');
+console.log('\n=== a confirmed mark is fixed; an open one may be re-scored, and scored 0 ===');
 {
-  const markRow = await as(ACCOUNTS.syazana[0],
-    `SELECT id FROM marks WHERE user_id='KP0093' AND period_year=2026 AND period_month=9 AND week_no=1`);
-  const markId = markRow.rows[0].id;
+  // KP0093 week 1 carries the seed's mark_verifications row. KP0110 week 3
+  // was written by the supervisor above and nobody has confirmed it.
+  const locked = (await as(ACCOUNTS.syahirah[0],
+    `SELECT id FROM marks WHERE user_id='KP0093' AND period_year=2026 AND period_month=9 AND week_no=1`)).rows[0].id;
+  const open = (await as(ACCOUNTS.syahirah[0],
+    `SELECT id FROM marks WHERE user_id='KP0110' AND period_year=2026 AND period_month=9 AND week_no=3`)).rows[0].id;
+  const line = (await as(ACCOUNTS.syahirah[0],
+    `SELECT l.id FROM checklist_lines l JOIN checklist_categories c ON c.id = l.category_id
+      WHERE c.form_key='kedai' ORDER BY l.id LIMIT 1`)).rows[0].id;
 
-  check('the staff member may ask a question on their own mark',
-    await tryWrite(ACCOUNTS.syazana[0],
-      `INSERT INTO mark_queries (mark_id, sender_id, body)
-       VALUES (${markId}, 'KP0093', 'Kenapa markah tandas rendah minggu ni?')`),
-    'allowed');
+  // The app's own re-mark: upsert the total, replace the lines.
+  const upsert = (userId, week, total, max) =>
+    `INSERT INTO marks (user_id,branch_id,form_key,period_year,period_month,week_no,total_score,max_score)
+     VALUES ('${userId}','DMC','kedai',2026,9,${week},${total},${max})
+     ON CONFLICT (user_id,period_year,period_month,week_no)
+     DO UPDATE SET total_score = EXCLUDED.total_score, max_score = EXCLUDED.max_score`;
 
-  check('the SV/AS who scored it may reply',
+  check('a perkara may score 0 — "not done" is a score, not a blank',
     await tryWrite(ACCOUNTS.syahirah[0],
-      `INSERT INTO mark_queries (mark_id, sender_id, body)
-       VALUES (${markId}, 'WS0001', 'Tandas belum disapu masa saya check petang tu.')`),
-    'allowed');
+      `INSERT INTO mark_lines (mark_id, line_id, score) VALUES (${open}, ${line}, 0)`), 'allowed');
+  check('...but not below it',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `UPDATE mark_lines SET score = -1 WHERE mark_id=${open} AND line_id=${line}`), 'blocked');
 
-  const seenByStaff = await as(ACCOUNTS.syazana[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
-  check('the staff member sees both messages', seenByStaff.rows[0].n, 2);
+  check('a week nobody has confirmed may be re-scored, with fewer perkara than the form has',
+    await tryWrite(ACCOUNTS.syahirah[0], upsert('KP0110', 3, 60, 75)), 'allowed');
+  const reScored = await as(ACCOUNTS.syahirah[0], `SELECT total_score, max_score, pct FROM marks WHERE id=${open}`);
+  check('...and the total, maximum and percentage follow',
+    [reScored.rows[0].total_score, reScored.rows[0].max_score, reScored.rows[0].pct], [60, 75, 80]);
 
-  const seenByOther = await as(ACCOUNTS.putri[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
-  check('a different staff member at the same branch sees none of it', seenByOther.rows[0].n, 0);
+  check('the same re-score onto a confirmed week is refused at the row',
+    await tryWrite(ACCOUNTS.syahirah[0], upsert('KP0093', 1, 60, 75)), 'blocked');
+  await as(ACCOUNTS.syahirah[0], `UPDATE marks SET total_score = 10 WHERE id=${locked}`);
+  const held = await as(ACCOUNTS.syahirah[0], `SELECT total_score FROM marks WHERE id=${locked}`);
+  check('a plain UPDATE on it changes nothing', held.rows[0].total_score, 95);
+  check('nor may its lines be written',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO mark_lines (mark_id, line_id, score) VALUES (${locked}, ${line}, 3)`), 'blocked');
+  check('head office is held to the same lock',
+    await tryWrite(ACCOUNTS.admin[0], upsert('KP0093', 1, 60, 75)), 'blocked');
 
-  check('...and may not post into it either',
-    await tryWrite(ACCOUNTS.putri[0],
-      `INSERT INTO mark_queries (mark_id, sender_id, body) VALUES (${markId}, 'KP0103', 'butting in')`),
-    'blocked');
+  check('the Area Manager may still adjust the confirmed figure — that lives on the verification',
+    await tryWrite(ACCOUNTS.herdi[0],
+      `UPDATE mark_verifications SET adjusted_to = 90 WHERE mark_id=${locked}`), 'allowed');
+  await db.exec(`UPDATE mark_verifications SET adjusted_to = NULL WHERE mark_id=${locked}`);
 
-  const seenByManager = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
-  check('the cross-branch manager cannot read it either — no individual marking sheets', seenByManager.rows[0].n, 0);
-
-  const seenByHr = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM mark_queries WHERE mark_id=${markId}`);
-  check('HR can, on the same reach as the mark itself', seenByHr.rows[0].n, 2);
-
-  check('nobody may impersonate another sender',
-    await tryWrite(ACCOUNTS.syazana[0],
-      `INSERT INTO mark_queries (mark_id, sender_id, body) VALUES (${markId}, 'WS0001', 'pretending to be the SV')`),
-    'blocked');
+  const gone = await as(ACCOUNTS.admin[0],
+    `SELECT count(*)::int n FROM pg_class WHERE relname = 'mark_queries' AND relnamespace = 'public'::regnamespace`);
+  check('the question thread table is gone', gone.rows[0].n, 0);
 }
 
 console.log('\n=== reminders are an Area Manager -> SV/AS nudge, not a broadcast ===');

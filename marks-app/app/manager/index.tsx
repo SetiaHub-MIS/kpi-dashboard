@@ -2,9 +2,10 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
+import { PeriodPicker } from '@/components/PeriodPicker';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
-import { ACTIVE_WEEK, FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
+import { FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
 import { notify } from '@/lib/dialog';
 import { exportMonthXlsx } from '@/lib/export';
 import { assetsOfBranch, useAssets } from '@/store/useAssets';
@@ -27,9 +28,7 @@ import { tugasanDoneCount, useTugasan } from '@/store/useTugasan';
 import { C, pctBg, pctColor } from '@/theme/scoring';
 
 export default function ManagerHome() {
-  const { monthIdx, submitted, verified, passThreshold, verifyByManager } = useMarks();
-  const prevMonth = useMarks((s) => s.prevMonth);
-  const nextMonth = useMarks((s) => s.nextMonth);
+  const { monthIdx, weekIdx, submitted, verified, passThreshold, verifyByManager } = useMarks();
   const [exporting, setExporting] = useState(false);
   const t = useT();
   const locale = useLocale((s) => s.locale);
@@ -93,7 +92,7 @@ export default function ManagerHome() {
   // The Area Manager's own marking round: the supervisors at the outlets they
   // cover. The workbook has them doing this, and nobody else could.
   const myQueue = markingQueue(users, manager);
-  const svPending = myQueue.filter((p) => weekMark(p, ACTIVE_WEEK, submitted) == null);
+  const svPending = myQueue.filter((p) => weekMark(p, weekIdx, submitted) == null);
 
   const tugasanEntriesByMonth = useTugasan((s) => s.entriesByMonth);
   // Tugasan is per outlet: one outlet's eight ticks for an Area Manager, every
@@ -115,16 +114,8 @@ export default function ManagerHome() {
           {manager ? roleLabel(manager.role, locale) : roleLabel('area_manager', locale)} · {scopeLabel}
       </MonoLabel>
 
-      <View className="flex-row items-center justify-between mt-2">
-        <Text className="font-sans-semi text-2xl text-ink">{MONTHS[monthIdx]}</Text>
-        <View className="flex-row gap-1.5">
-          <StepButton label="‹" onPress={prevMonth} disabled={monthIdx === 0} />
-          <StepButton
-            label="›"
-            onPress={nextMonth}
-            disabled={monthIdx === MONTHS.length - 1}
-          />
-        </View>
+      <View className="mt-2">
+        <PeriodPicker />
       </View>
 
       <View className="flex-row gap-2.5 mt-4">
@@ -291,7 +282,7 @@ export default function ManagerHome() {
           }}
         >
           <Text className="font-sans-semi text-[13px] text-ink-2">
-            {t('checklist_sv_banner', { pending: svPending.length, total: myQueue.length })}
+            {t('checklist_sv_banner', { week: weekIdx + 1, pending: svPending.length, total: myQueue.length })}
           </Text>
         </Pressable>
       )}
@@ -342,27 +333,5 @@ export default function ManagerHome() {
         </Text>
       </Pressable>
     </Screen>
-  );
-}
-
-function StepButton({
-  label,
-  onPress,
-  disabled,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      className="w-[34px] h-[34px] rounded-[9px] border border-line bg-card items-center justify-center active:opacity-60"
-      style={{ opacity: disabled ? 0.4 : 1 }}
-    >
-      <Text className="font-mono-med text-sm text-ink-3">{label}</Text>
-    </Pressable>
   );
 }

@@ -1,7 +1,8 @@
-import { currentPeriod, todayShort } from '@/data/period';
+import { PERIODS, currentWeekIdx } from '@/data/checklist';
+import { todayShort, weekStarted } from '@/data/period';
 import { fetchAssets } from '@/lib/assets';
 import { fetchTugasan } from '@/lib/tugasan';
-import { fetchDirectory, fetchRoleChanges } from '@/lib/directory';
+import { fetchDirectory, fetchRoleChanges, fetchStaff } from '@/lib/directory';
 import { fetchMyReminders } from '@/lib/reminders';
 import { fetchReturns } from '@/lib/returns';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -30,16 +31,11 @@ export async function hydrateDirectory(): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
 
   try {
-    const dir = await fetchDirectory(currentPeriod(), useMarks.getState().scaleMax);
+    const marks = useMarks.getState();
+    const dir = await fetchDirectory(PERIODS[marks.monthIdx], marks.scaleMax);
     useBranches.getState().hydrate(dir.branches);
     useUsers.getState().hydrate(dir.users);
-    // Verification needs the marks.id behind each person-week, and which of
-    // them the Area Manager has already signed off.
-    useMarks.getState().noteMarkIds(dir.markIds);
-    useMarks.getState().noteVerified(dir.verified);
-    useMarks.getState().noteWeekNotes(dir.notes);
-    useMarks.getState().noteAdjusted(dir.adjusted);
-    useMarks.getState().noteMarkMax(dir.markMax);
+    notePeriod(dir);
 
     // Promotion history is admin's alone; anyone else is refused and keeps
     // an empty list, which is the right answer for them anyway.
@@ -88,6 +84,58 @@ export async function hydrateDirectory(): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+/** What a month's marks add to the store beyond the four percentages on each person. */
+function notePeriod(dir: Awaited<ReturnType<typeof fetchStaff>>) {
+  const marks = useMarks.getState();
+  // Verification needs the marks.id behind each person-week, and which of
+  // them the Area Manager has already signed off.
+  marks.noteMarkIds(dir.markIds);
+  marks.noteVerified(dir.verified);
+  marks.noteWeekNotes(dir.notes);
+  marks.noteAdjusted(dir.adjusted);
+  marks.noteMarkMax(dir.markMax);
+}
+
+/**
+ * Switches the month the app is marking and looking at, and loads that
+ * month's marks in place of the current one's. The week selection is kept
+ * unless it has not started yet in the new month, in which case it falls
+ * back to the latest week that has.
+ *
+ * The month-old maps are cleared before the fetch rather than after: a
+ * person's week 2 in August and week 2 in September share a key, and a
+ * verified tick carried across from the wrong month would lock a week that
+ * is actually open.
+ */
+export async function selectMonth(monthIdx: number): Promise<void> {
+  const marks = useMarks.getState();
+  const idx = Math.max(0, Math.min(PERIODS.length - 1, monthIdx));
+  if (idx === marks.monthIdx) return;
+
+  marks.setMonth(idx);
+  if (!weekStarted(PERIODS[idx], marks.weekIdx)) marks.setWeek(currentWeekIdx());
+  marks.clearPeriod();
+  if (!isSupabaseConfigured) return;
+
+  marks.setPeriodLoading(true);
+  try {
+    const staff = await fetchStaff(PERIODS[idx], marks.scaleMax);
+    // Only the marks changed; the directory rows are the same people.
+    // Coverage (branchIds) came from user_branches and is kept from the
+    // loaded copy rather than fetched again.
+    const extra = new Map(useUsers.getState().users.map((u) => [u.id, u.branchIds]));
+    useUsers.getState().hydrate(
+      staff.users.map((u) => (extra.get(u.id) ? { ...u, branchIds: extra.get(u.id) } : u))
+    );
+    notePeriod(staff);
+  } catch {
+    // The month label has moved but its marks did not arrive: every week
+    // reads as unmarked, which is at least visibly wrong rather than stale.
+  } finally {
+    useMarks.getState().setPeriodLoading(false);
   }
 }
 

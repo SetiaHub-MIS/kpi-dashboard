@@ -19,8 +19,8 @@ export default function SupervisorLayout() {
         options={{ title: t('tab_pekerja'), tabBarIcon: tabIcon('people') }}
       />
       <Tabs.Screen
-        name="soalan"
-        options={{ title: t('tab_soalan'), tabBarIcon: tabIcon('chatbubbles') }}
+        name="peringatan"
+        options={{ title: t('peringatan'), tabBarIcon: tabIcon('notifications') }}
       />
     </Tabs>
   );
