@@ -155,14 +155,14 @@ test('admin hires any role, anywhere', () => {
 test('a supervisor hires pekerja kedai at their own outlet only', () => {
   assert.deepEqual(
     hiringScope(mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' })),
-    { kind: 'branch', role: 'staff', branchIds: ['DMC'] }
+    { kind: 'branch', roles: ['staff'], branchIds: ['DMC'] }
   );
 });
 
-test('an Area Manager hires at every outlet they cover, home posting first', () => {
+test('an Area Manager hires pekerja kedai and SV/AS at every outlet they cover, home posting first', () => {
   assert.deepEqual(
     hiringScope(mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'] })),
-    { kind: 'branch', role: 'staff', branchIds: ['DMC', 'DKB'] }
+    { kind: 'branch', roles: ['staff', 'supervisor'], branchIds: ['DMC', 'DKB'] }
   );
 });
 

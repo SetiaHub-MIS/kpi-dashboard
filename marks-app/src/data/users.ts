@@ -363,20 +363,21 @@ export function postingFor(
 
 /**
  * How far an account's hiring reach goes. Mirrors users_insert_branch_staff
- * in RLS: admin creates any role anywhere; an SV/AS or Area Manager creates
- * pekerja kedai at the outlets they cover; nobody else creates anyone.
+ * in RLS: admin creates any role anywhere; an SV/AS creates pekerja kedai
+ * and an Area Manager creates pekerja kedai or SV/AS, at the outlets they
+ * cover — each one rung up the marking relation; nobody else creates anyone.
  */
 export type HiringScope =
   | { kind: 'any' }
-  | { kind: 'branch'; role: 'staff'; branchIds: string[] }
+  | { kind: 'branch'; roles: Role[]; branchIds: string[] }
   | { kind: 'none' };
 
 export function hiringScope(user: User | undefined): HiringScope {
   if (!user) return { kind: 'none' };
   if (user.role === 'admin') return { kind: 'any' };
-  if (user.role === 'supervisor' || user.role === 'area_manager') {
-    const branchIds = branchesOf(user);
-    return branchIds.length > 0 ? { kind: 'branch', role: 'staff', branchIds } : { kind: 'none' };
-  }
-  return { kind: 'none' };
+  const roles: Role[] =
+    user.role === 'supervisor' ? ['staff'] : user.role === 'area_manager' ? ['staff', 'supervisor'] : [];
+  if (roles.length === 0) return { kind: 'none' };
+  const branchIds = branchesOf(user);
+  return branchIds.length > 0 ? { kind: 'branch', roles, branchIds } : { kind: 'none' };
 }

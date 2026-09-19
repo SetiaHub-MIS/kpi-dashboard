@@ -34,10 +34,11 @@ import { C } from '@/theme/scoring';
 
 /**
  * One form, two reaches. Admin creates any role at any outlet, as before. An
- * SV/AS or Area Manager gets the same form with the role pinned to pekerja
- * kedai and the branch pinned to the outlets they cover — the shape RLS
- * enforces underneath (users_insert_branch_staff), so what the screen offers
- * and what the database accepts are the same thing.
+ * SV/AS or Area Manager gets the same form with the roles limited to what
+ * they may appoint (pekerja kedai; for an Area Manager also SV/AS) and the
+ * branch pinned to the outlets they cover — the shape RLS enforces
+ * underneath (users_insert_branch_staff), so what the screen offers and what
+ * the database accepts are the same thing.
  */
 export default function NewUser() {
   const users = useUsers((s) => s.users);
@@ -48,11 +49,11 @@ export default function NewUser() {
   const locale = useLocale((s) => s.locale);
   const branchLabel = useBranchLabel();
 
-  const pinnedRole: Role | null = scope.kind === 'branch' ? scope.role : null;
+  const offeredRoles: Role[] = scope.kind === 'branch' ? scope.roles : APP_ROLES;
 
   const [name, setName] = useState('');
   const [pickedRole, setPickedRole] = useState<Role>('staff');
-  const role = pinnedRole ?? pickedRole;
+  const role = offeredRoles.includes(pickedRole) ? pickedRole : offeredRoles[0];
 
   const allBranches = useActiveBranches();
   // Scope order, not list order: an Area Manager hiring staff sees their home
@@ -165,7 +166,11 @@ export default function NewUser() {
           {branchMode ? t('pekerja_baharu') : t('akaun_baharu')}
         </Text>
         <Text className="font-sans text-sm leading-5 text-ink-4 mt-2">
-          {branchMode ? t('pekerja_baharu_intro') : t('akaun_baharu_intro')}
+          {branchMode
+            ? offeredRoles.length > 1
+              ? t('pekerja_baharu_intro_am')
+              : t('pekerja_baharu_intro')
+            : t('akaun_baharu_intro')}
         </Text>
 
         <Card className="p-[15px] mt-4">
@@ -185,7 +190,7 @@ export default function NewUser() {
 
         <Card className="p-[15px] mt-2.5">
           <MonoLabel>{t('tab_peranan')}</MonoLabel>
-          {branchMode ? (
+          {offeredRoles.length === 1 ? (
             <View className="mt-2.5">
               <Text className="font-sans-semi text-[13px] text-ink">{roleLabel(role, locale)}</Text>
               <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-1">
@@ -194,7 +199,7 @@ export default function NewUser() {
             </View>
           ) : (
             <View className="gap-1.5 mt-2.5">
-              {APP_ROLES.map((r) => {
+              {offeredRoles.map((r) => {
                 const on = role === r;
                 return (
                   <Pressable
@@ -352,7 +357,9 @@ export default function NewUser() {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text className="font-sans-semi text-sm text-white">
-              {branchMode ? t('cipta_akaun') : t('cipta_akaun_role', { role: roleLabel(role, locale) })}
+              {offeredRoles.length === 1
+                ? t('cipta_akaun')
+                : t('cipta_akaun_role', { role: roleLabel(role, locale) })}
             </Text>
           )}
         </Pressable>

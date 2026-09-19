@@ -76,6 +76,7 @@ for (const m of [
   'supabase/migrations/20260919020000_marks_open_until_verified.sql',
   'supabase/migrations/20260919030000_drop_mark_queries.sql',
   'supabase/migrations/20260919040000_assets_for_every_outlet.sql',
+  'supabase/migrations/20260919050000_area_manager_hires_supervisors.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -899,6 +900,19 @@ console.log('\n=== SV/AS and Area Managers hire pekerja kedai into their own out
 
   check('an Area Manager may NOT add at an outlet they do not cover',
     await tryWrite(ACCOUNTS.farah[0], hire('KP0906', 'DMC')), 'blocked');
+
+  // One rung up the marking relation: the Area Manager appoints the SV/AS.
+  check('an Area Manager may add an SV/AS at an outlet they cover',
+    await tryWrite(ACCOUNTS.herdi[0], hire('WS0905', 'DKB', 'supervisor')), 'allowed');
+
+  check('...but not at one they do not',
+    await tryWrite(ACCOUNTS.farah[0], hire('WS0906', 'DMC', 'supervisor')), 'blocked');
+
+  check('...and not another Area Manager, or anyone above',
+    await tryWrite(ACCOUNTS.herdi[0], hire('AM0905', 'DMC', 'area_manager')), 'blocked');
+
+  check('the new SV/AS arrives with no login, like a pekerja',
+    await tryWrite(ACCOUNTS.herdi[0], hire('WS0907', 'DMC', 'supervisor', 'cccccccc-cccc-cccc-cccc-cccccccccccc')), 'blocked');
 
   check('a pekerja cannot add a colleague',
     await tryWrite(ACCOUNTS.syazana[0], hire('KP0907', 'DMC')), 'blocked');

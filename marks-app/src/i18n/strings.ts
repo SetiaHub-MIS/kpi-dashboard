@@ -710,6 +710,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'Pekerja kedai baharu di cawangan anda. Guna no. pekerja yang diberi HR — ia kekal dan muncul pada setiap rekod.',
     en: 'A new shop staff member at your branch. Use the payroll number HR issued — it is permanent and appears on every record.',
   },
+  pekerja_baharu_intro_am: {
+    ms: 'Pekerja kedai atau SV/AS baharu di cawangan yang anda liputi. Guna no. pekerja yang diberi HR — ia kekal dan muncul pada setiap rekod.',
+    en: 'A new shop staff member or SV/AS at an outlet you cover. Use the payroll number HR issued — it is permanent and appears on every record.',
+  },
   contoh_no_pekerja: { ms: 'cth: KP0112', en: 'e.g. KP0112' },
   no_pekerja_dari_hr: {
     ms: 'Dari slip gaji atau HR, seperti yang dikeluarkan — cth: MC0001 (DMC), TPG001, HQ0130 (ibu pejabat).',
