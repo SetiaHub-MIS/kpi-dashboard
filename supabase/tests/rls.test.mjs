@@ -72,6 +72,7 @@ for (const m of [
   'supabase/migrations/20260918020000_payroll_number_changes.sql',
   'supabase/migrations/20260918030000_manager_manages_outlets.sql',
   'supabase/migrations/20260918040000_report_views.sql',
+  'supabase/migrations/20260919010000_payroll_number_shape.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1075,7 +1076,10 @@ console.log('\n=== a payroll number can change, and the person\'s history follow
     (await db.query(`SELECT count(*)::int AS n FROM users WHERE id = 'KP0111'`)).rows[0].n, 1);
 
   check('a number the login could never use is refused at the table',
-    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC93' WHERE id = 'MC0093'`), 'blocked');
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC 93' WHERE id = 'MC0093'`), 'blocked');
+  check('...but any run of letters and digits payroll issues is fine (20260919010000)',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'TPG001' WHERE id = 'MC0093'`), 'allowed');
+  await as(ACCOUNTS.admin[0], `UPDATE users SET id = 'MC0093' WHERE id = 'TPG001'`);
   check('...and so is one somebody else already holds',
     await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET id = 'KP0111' WHERE id = 'MC0093'`), 'blocked');
 

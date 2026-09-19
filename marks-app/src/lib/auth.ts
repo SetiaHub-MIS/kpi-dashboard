@@ -38,13 +38,15 @@ export type SignInResult =
   | { ok: true; staff: SignedInStaff }
   | { ok: false; message: string };
 
-const PAYROLL = /^[A-Z]{2}\d{4}$/;
+// Letters and digits only: the number becomes the login's synthetic address
+// and part of a URL. Any length payroll uses — KP0093, TPG001, HQ0130.
+const PAYROLL = /^[A-Z0-9]{2,12}$/;
 
 /** Why this cannot be a payroll number, or null when it might be one. */
 export function payrollBlocker(id: string): string | null {
   const v = id.trim().toUpperCase();
   if (!v) return 'Masukkan nombor pekerja.';
-  if (!PAYROLL.test(v)) return 'Nombor pekerja seperti KP0093 atau WS0001.';
+  if (!PAYROLL.test(v)) return 'Nombor pekerja: huruf dan angka sahaja, cth. KP0093 atau TPG001.';
   return null;
 }
 
@@ -111,7 +113,7 @@ async function establishSession(id: string, password: string): Promise<string | 
     if (status === 401) return WRONG_CREDENTIALS;
     if (status === 400) {
       const body = await error.context.json().catch(() => null);
-      if (body?.error === 'invalid_payroll') return 'Nombor pekerja seperti KP0093 atau WS0001.';
+      if (body?.error === 'invalid_payroll') return 'Nombor pekerja: huruf dan angka sahaja, cth. KP0093 atau TPG001.';
     }
     // Any other status — including the 404 of a function not deployed yet —
     // falls through to the direct route.

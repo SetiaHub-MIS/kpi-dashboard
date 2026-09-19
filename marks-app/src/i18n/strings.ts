@@ -685,8 +685,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   },
   contoh_no_pekerja: { ms: 'cth: KP0112', en: 'e.g. KP0112' },
   no_pekerja_dari_hr: {
-    ms: 'Dari slip gaji atau HR. Dua huruf dan empat angka — cth: MC0001 (DMC), KP0001 (BKP), HQ0130 (ibu pejabat).',
-    en: 'From the payslip or HR. Two letters and four digits — e.g. MC0001 (DMC), KP0001 (BKP), HQ0130 (head office).',
+    ms: 'Dari slip gaji atau HR, seperti yang dikeluarkan — cth: MC0001 (DMC), TPG001, HQ0130 (ibu pejabat).',
+    en: 'From the payslip or HR, exactly as issued — e.g. MC0001 (DMC), TPG001, HQ0130 (head office).',
   },
   login_dibuat_admin: {
     ms: 'Login dibuat serta-merta dengan kata laluan permulaan. Minta mereka tukar selepas log masuk pertama.',

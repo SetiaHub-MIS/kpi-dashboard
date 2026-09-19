@@ -31,7 +31,8 @@ const CORS_HEADERS = {
 };
 
 const EMAIL_DOMAIN = Deno.env.get('AUTH_EMAIL_DOMAIN') ?? 'checklist.local';
-const PAYROLL = /^[A-Z]{2}\d{4}$/;
+// Letters and digits, any length payroll uses; the table holds the same rule.
+const PAYROLL = /^[A-Z0-9]{2,12}$/;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

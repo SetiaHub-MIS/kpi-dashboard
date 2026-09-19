@@ -98,8 +98,8 @@ hosting, Malaysia time (UTC+8). Keep the app small and self-contained.
 | `human_resources` | Human Resources | none | reads everything — **reporting app user** |
 | `admin` | Admin | none | user/branch administration, stays in the phone app |
 
-Identity is the **payroll number** (`users.id`): two letters + four digits,
-issued per outlet and position (`MC0001` DMC staff, `KP0001` BKP staff,
+Identity is the **payroll number** (`users.id`): upper-case letters and
+digits as payroll issues them (2–12 characters), per outlet and position (`MC0001` DMC staff, `KP0001` BKP staff,
 `HQ0130` head office, `WS0001` supervisor…). It can change on transfer;
 history follows it. Always display it beside the name.
 

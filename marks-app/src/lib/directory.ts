@@ -223,7 +223,7 @@ export async function updateUserId(input: {
     return { ok: false, reason: 'unknown', message: `No. pekerja ${input.to} sudah digunakan.` };
   }
   if (error?.code === CHECK_VIOLATION) {
-    return { ok: false, reason: 'unknown', message: 'Nombor pekerja seperti KP0093 atau WS0001.' };
+    return { ok: false, reason: 'unknown', message: 'Nombor pekerja: huruf dan angka sahaja, cth. KP0093 atau TPG001.' };
   }
   if (error) return asResult(error);
 
