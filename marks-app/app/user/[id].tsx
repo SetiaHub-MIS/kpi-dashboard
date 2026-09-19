@@ -11,7 +11,7 @@ import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import {
   branchChangeBlocker,
   branchesOf,
-  ROLE_LADDER,
+  APP_ROLES,
   ROLE_LEVEL,
   Role,
   deactivateBlocker,
@@ -19,6 +19,7 @@ import {
   emailBlocker,
   initialsOf,
   isCentralStore,
+  isSqlOnlyRole,
   nameChangeBlocker,
   isCrossBranch,
   isMarked,
@@ -80,7 +81,11 @@ export default function UserDetail() {
   const down = demotionsFor(user.role);
   const sideways = transfersFor(user.role);
   // Highest rung first; a rung can hold peer roles (pekerja kedai and stor).
-  const levels = [...new Set(ROLE_LADDER.map((r) => ROLE_LEVEL[r]))].sort((a, b) => b - a);
+  // A General Manager or HR is shown on their own rung with nowhere to move:
+  // those roles are set in SQL, never from here.
+  const sqlOnly = isSqlOnlyRole(user.role);
+  const ladder: Role[] = sqlOnly ? [user.role, ...APP_ROLES] : APP_ROLES;
+  const levels = [...new Set(ladder.map((r) => ROLE_LEVEL[r]))].sort((a, b) => b - a);
 
   // Every write goes to Postgres before the screen changes, so a refusal is
   // shown rather than silently reverted on the next reload.
@@ -296,7 +301,7 @@ export default function UserDetail() {
         <View className="gap-1.5 mt-3">
           {levels.map((level) => (
             <View key={level} className="flex-row gap-1.5">
-              {ROLE_LADDER.filter((r) => ROLE_LEVEL[r] === level).map((r) => {
+              {ladder.filter((r) => ROLE_LEVEL[r] === level).map((r) => {
                 const current = r === user.role;
                 return (
                   <View
@@ -336,6 +341,11 @@ export default function UserDetail() {
         <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-3">
           {roleBlurb(user.role, locale)}
         </Text>
+        {sqlOnly && (
+          <Text className="font-sans-med text-[11.5px] leading-[17px] text-ink-3 mt-2">
+            {t('peranan_sql_sahaja')}
+          </Text>
+        )}
 
         {up.length > 0 && (
           <View className="flex-row gap-2 mt-3.5">

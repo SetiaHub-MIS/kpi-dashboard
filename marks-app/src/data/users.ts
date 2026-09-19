@@ -26,6 +26,20 @@ export const ROLE_LADDER: Role[] = [
   'admin',
 ];
 
+/**
+ * Roles the app never hands out or takes away. General Manager and Human
+ * Resources read the company through the reporting web app; who holds those
+ * roles is a head-office decision made in SQL, not a promotion an admin can
+ * tap. They stay in ROLE_LADDER so lists, filters and history still show
+ * them — they are only left out of the moves and the "Akaun baharu" picker.
+ */
+export const SQL_ONLY_ROLES: Role[] = ['general_manager', 'human_resources'];
+
+export const isSqlOnlyRole = (role: Role) => SQL_ONLY_ROLES.includes(role);
+
+/** The ladder as the app may move people along it: up to Manager. */
+export const APP_ROLES: Role[] = ROLE_LADDER.filter((r) => !isSqlOnlyRole(r));
+
 export const ROLE_LEVEL: Record<Role, number> = {
   staff: 0,
   store: 0,
@@ -238,18 +252,25 @@ export function shortOf(name: string): string {
   return `${parts[0]} ${parts[1][0]}.`;
 }
 
+// Moves are offered among APP_ROLES only, and never from a SQL-only role:
+// the rung above Manager holds no app-assignable role, so promotion stops
+// there; admin has nothing to be demoted to from inside the app; and a GM
+// or HR is neither moved into nor out of their role here.
 const rolesAtLevel = (level: number): Role[] =>
-  ROLE_LADDER.filter((r) => ROLE_LEVEL[r] === level);
+  APP_ROLES.filter((r) => ROLE_LEVEL[r] === level);
+
+const movesFrom = (role: Role, level: number): Role[] =>
+  isSqlOnlyRole(role) ? [] : rolesAtLevel(level);
 
 /** Roles one rung up — a promotion. */
-export const promotionsFor = (role: Role): Role[] => rolesAtLevel(ROLE_LEVEL[role] + 1);
+export const promotionsFor = (role: Role): Role[] => movesFrom(role, ROLE_LEVEL[role] + 1);
 
 /** Roles one rung down. Demoting a supervisor can land on kedai or stor. */
-export const demotionsFor = (role: Role): Role[] => rolesAtLevel(ROLE_LEVEL[role] - 1);
+export const demotionsFor = (role: Role): Role[] => movesFrom(role, ROLE_LEVEL[role] - 1);
 
 /** Same-rung roles — a sideways transfer, neither promotion nor demotion. */
 export const transfersFor = (role: Role): Role[] =>
-  rolesAtLevel(ROLE_LEVEL[role]).filter((r) => r !== role);
+  movesFrom(role, ROLE_LEVEL[role]).filter((r) => r !== role);
 
 /**
  * Remaining holders of a user's role who would still cover their post.

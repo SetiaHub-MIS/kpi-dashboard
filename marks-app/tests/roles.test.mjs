@@ -9,11 +9,14 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
+  APP_ROLES,
+  ROLE_LADDER,
   branchChangeBlocker,
   deactivateBlocker,
   demotionsFor,
   emailBlocker,
   hiringScope,
+  isSqlOnlyRole,
   postingFor,
   newUserBlocker,
   promotionsFor,
@@ -46,7 +49,33 @@ test('demotion from supervisor can land on kedai or stor — it is not a straigh
 
 test('a transfer is sideways: same rung, never yourself', () => {
   assert.deepEqual(transfersFor('staff'), ['store', 'clerk']);
-  assert.deepEqual(transfersFor('general_manager'), ['human_resources']);
+});
+
+// --- the app moves people up to Manager and no further; GM and HR are SQL's
+
+test('promotion stops at Manager: nothing above it is offered', () => {
+  assert.deepEqual(promotionsFor('area_manager'), ['manager']);
+  assert.deepEqual(promotionsFor('manager'), []);
+});
+
+test('General Manager and Human Resources are never a destination', () => {
+  for (const from of ['manager', 'admin', 'general_manager', 'human_resources']) {
+    for (const to of [...promotionsFor(from), ...demotionsFor(from), ...transfersFor(from)]) {
+      assert.ok(!isSqlOnlyRole(to), `${from} -> ${to}`);
+    }
+  }
+  assert.deepEqual(transfersFor('general_manager'), [], 'not even sideways to HR');
+  assert.deepEqual(demotionsFor('admin'), [], 'admin has nothing to be demoted to in-app');
+  for (const held of ['general_manager', 'human_resources']) {
+    assert.deepEqual([...promotionsFor(held), ...demotionsFor(held), ...transfersFor(held)], [],
+      `${held} is not moved out of their role from the app either`);
+  }
+});
+
+test('the "Akaun baharu" picker offers every role but those two', () => {
+  assert.deepEqual(APP_ROLES, ROLE_LADDER.filter((r) => !isSqlOnlyRole(r)));
+  assert.ok(!APP_ROLES.includes('general_manager') && !APP_ROLES.includes('human_resources'));
+  assert.ok(APP_ROLES.includes('admin'), 'admin is still created in-app');
 });
 
 test('a role alone on its rung has nowhere to transfer to', () => {

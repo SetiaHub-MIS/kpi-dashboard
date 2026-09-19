@@ -633,6 +633,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'Akaun {id} tiada dalam senarai pengguna.',
     en: 'Account {id} is not in the user list.',
   },
+  peranan_sql_sahaja: {
+    ms: 'Peranan General Manager dan Human Resources ditetapkan melalui SQL sahaja — tiada naik atau turun dari sini.',
+    en: 'The General Manager and Human Resources roles are set through SQL only — no promotion or demotion from here.',
+  },
   kini_badge: { ms: 'KINI', en: 'NOW' },
   naik_ke: { ms: 'Naik ke {role}', en: 'Promote to {role}' },
   turun_ke: { ms: 'Turun ke {role}', en: 'Demote to {role}' },

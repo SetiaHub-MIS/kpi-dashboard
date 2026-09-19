@@ -206,47 +206,98 @@ Not readable by the app, by design: `login_settings`.
 
 ---
 
-## 6. The data contract for the reports app (to be built on the database side)
+## 6. The data contract for the reports app (built: `20260918040000_report_views.sql`)
 
-To keep both apps quoting the same numbers, the reporting app should read
-**`report_*` views** rather than assembling aggregates in the browser. These
-will be added to the database as part of wiring the app up; design against
-these shapes and say if something else is needed:
+To keep both apps quoting the same numbers, the reporting app reads
+**`report_*` views** rather than assembling aggregates in the browser. They
+exist as of 18 Sep 2026, are `security_invoker` like every other view, and
+are asserted by `npm run test:rls`. The shapes below are what the database
+returns; the original design shapes gained a few columns while being built,
+each noted.
 
 ```
+report_periods
+  period_year · period_month · period_end · due_weeks
+  -- every month from the first with anything recorded to the current one
+  -- (Malaysia time); due_weeks = checklist weeks that have started, 0–4
+
+report_marks
+  mark_id · user_id · branch_id · form_key · period_year · period_month · week_no
+  · total_score · max_score · pct · adjusted_to · final_pct · pass_threshold
+  · is_pass · is_verified · verified_by · verified_at · scored_by · scored_at · note
+  -- one row per mark with the pass rule applied. final_pct is what the
+  -- phone app shows: the manager's adjusted total when there is one
+
 report_branch_weekly
-  branch_id · branch_name · period_year · period_month · week_no
-  · form_key · headcount (active people due a mark) · marked · gaps
-  · passed · avg_pct · verified · pass_threshold
+  branch_id · branch_name · branch_short · period_year · period_month · week_no
+  · form_key · week_due · headcount · marked · gaps · passed · avg_pct
+  · pct_sum · verified · pass_threshold
+  -- headcount = active people posted here, due this month; marked = marks
+  -- scored here (the snapshot); gaps = due people with no mark that week;
+  -- avg_pct NULL when nothing was marked; pct_sum is for re-aggregation
 
 report_branch_monthly
-  branch_id · branch_name · period_year · period_month
-  · form_key · headcount · marked · gaps · passed · avg_pct · verified · pass_threshold
-  · pass_rate_pct (passed / marked) · coverage_pct (marked / (headcount*4))
+  branch_id · branch_name · branch_short · period_year · period_month · form_key
+  · headcount · marked · gaps · passed · avg_pct · pct_sum · verified
+  · pass_threshold · due_weeks · pass_rate_pct · verified_pct · coverage_pct
+  -- gaps and coverage are over weeks that have started:
+  -- coverage_pct = (headcount × due_weeks − gaps) / (headcount × due_weeks)
 
 report_company_weekly
-  period_year · period_month · week_no · form_key
-  · marked · gaps · passed · avg_pct · verified · pass_rate_pct · coverage_pct
+  period_year · period_month · week_no · form_key · week_due
+  · headcount · marked · gaps · passed · avg_pct · pct_sum · verified
+  · pass_rate_pct · verified_pct · coverage_pct
+
+report_company_monthly
+  period_year · period_month · form_key
+  · headcount · marked · gaps · passed · avg_pct · pct_sum · verified · due_weeks
+  · pass_rate_pct · verified_pct · coverage_pct
 
 report_staff_monthly
-  user_id · name · role · branch_id · branch_name · period_year · period_month
+  user_id · name · short_name · role · form_key · branch_id · branch_name
+  · branch_short · active · period_year · period_month · due_weeks
   · w1_pct · w2_pct · w3_pct · w4_pct (NULL = unmarked) · avg_pct
-  · marked_weeks · passed_weeks · verified_weeks · pass_threshold · rank_in_branch
+  · marked_weeks · passed_weeks · verified_weeks · pass_threshold · marked_at
+  · rank_in_branch
+  -- outlet and role are the person's current ones; marked_at is where the
+  -- marks were scored; equal averages share a rank
 
 report_returns_branch_monthly
-  branch_id · branch_name · year · month
-  · received · submitted_on_time · submission_pct
+  branch_id · branch_name · branch_short · year · month
+  · received · submitted_on_time · not_submitted · submission_pct
   · open · breach · overdue · avg_turnaround_days
+  -- by the calendar month a list was received in; ageing as of today
+
+report_returns_open
+  id · ref · branch_id · branch_name · branch_short · bill_no · bill_date
+  · reason · disposition · supplier_name · received_on · age_days · limit_on
+  · clear_by · status (ok | breach | overdue) · last_stage · last_stage_on
+  -- every return not yet adjusted; the breach/overdue list is a filter on status
 
 report_tugasan_branch_monthly
-  branch_id · branch_name · period_year · period_month
-  · weeks_filled (of 4) · weeks_checked (of 4) · items_done · items_total
+  branch_id · branch_name · branch_short · period_year · period_month · due_weeks
+  · weeks_filled · weeks_checked · items_done · items_per_week · items_total
+  -- HQ Jenjarom has no Area Manager, so its row is always empty
 ```
+
+Definitions settled while building (the migration header carries the same
+list): a person is **due** a mark when active, posted to an outlet, on a role
+with a form, and joined by the month's end — or marked in that month, whatever
+`joined_on` says; a **week is due** once it has started; **marked** counts
+where the mark was scored, **gaps** where the person is posted now; the score
+judged is the **adjusted** one when a manager adjusted it (that is what the
+phone app shows); **verified** is the existence of a `mark_verifications`
+row. `scoring_rules` now has a row for every branch (backfilled, and a
+trigger adds one for any new branch), so no report falls back to a constant
+threshold.
 
 Filters every report needs: **year, month** (default: current), **outlet**
 (multi-select, default all), **form/role** (kedai / stor / SV), and for the
-staff table **search by name or payroll number**. Trend charts need the last
-N months of `report_company_weekly` / `report_branch_monthly`.
+staff table **search by name or payroll number**. Trend charts can read
+`report_company_monthly` directly, or sum `report_branch_monthly` rows when
+an outlet filter applies — every view carries `pct_sum` so an average
+re-derived from summed rows equals the database's own. Sum counts; never
+average percentages across rows.
 
 ---
 

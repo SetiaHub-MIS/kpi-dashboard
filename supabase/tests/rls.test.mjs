@@ -71,6 +71,7 @@ for (const m of [
   'supabase/migrations/20260918010000_auto_provision_logins.sql',
   'supabase/migrations/20260918020000_payroll_number_changes.sql',
   'supabase/migrations/20260918030000_manager_manages_outlets.sql',
+  'supabase/migrations/20260918040000_report_views.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -179,6 +180,141 @@ console.log('\n=== views respect the caller, not their owner ===');
 
   const c = await as(ACCOUNTS.syahirah[0], `SELECT count(*)::int n FROM mark_coverage WHERE branch_id = 'DKB'`);
   check('mark_coverage hides other branches', c.rows[0].n, 0);
+}
+
+console.log('\n=== the report_* views say what the reports app shows (20260918040000) ===');
+{
+  // The seed inserts people with joined_on = the day it ran. Pin it, so the
+  // "due" population for September 2026 is the same whenever this suite runs.
+  await db.exec(`UPDATE users SET joined_on = DATE '2026-01-01'`);
+
+  const rules = await as(ACCOUNTS.gm[0],
+    `SELECT (SELECT count(*)::int FROM scoring_rules) = (SELECT count(*)::int FROM branches) AS complete`);
+  check('every branch now carries a scoring rule, so no report falls back to a constant', rules.rows[0].complete, true);
+  await db.exec(`INSERT INTO branches (id, name, short_name) VALUES ('ZZT', 'Kedai Ujian', 'Ujian')`);
+  check('...and a branch created later gets one on the spot, at the table default',
+    (await as(ACCOUNTS.gm[0], `SELECT pass_threshold FROM scoring_rules WHERE branch_id = 'ZZT'`)).rows[0]?.pass_threshold, 80);
+
+  // Machang, September 2026, the kedai form — REAL workbook figures.
+  // Week 1: six of the eight pekerja were marked, five passed (KP0111 at 74%
+  // did not), three were signed off by the manager.
+  const w = await as(ACCOUNTS.gm[0],
+    `SELECT week_no, headcount, marked, gaps, passed, avg_pct, verified, pass_threshold
+       FROM report_branch_weekly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9
+      ORDER BY week_no`);
+  const w1 = w.rows[0], w2 = w.rows[1];
+  check('week 1 at Machang: 8 due, 6 marked, 2 gaps, 5 passed, avg 81, 3 verified, threshold 80',
+    [w1.headcount, w1.marked, w1.gaps, w1.passed, w1.avg_pct, w1.verified, w1.pass_threshold], [8, 6, 2, 5, 81, 3, 80]);
+  check('week 2: 3 marked, 5 gaps, 1 passed — the two who fell below 80 are findings, not hidden',
+    [w2.marked, w2.gaps, w2.passed, w2.avg_pct], [3, 5, 1, 76]);
+  check('a week nobody marked has avg_pct NULL, never 0', w.rows[2].avg_pct, null);
+
+  // The monthly row re-aggregates the marks, not the rounded weekly averages.
+  const m = await as(ACCOUNTS.gm[0],
+    `SELECT marked, passed, avg_pct, verified, pass_rate_pct, verified_pct
+       FROM report_branch_monthly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9`);
+  check('Machang for the month: 9 marked, 6 passed (67%), avg 79, 3 verified (33%)',
+    [m.rows[0].marked, m.rows[0].passed, m.rows[0].pass_rate_pct, m.rows[0].avg_pct, m.rows[0].verified, m.rows[0].verified_pct],
+    [9, 6, 67, 79, 3, 33]);
+
+  // Coverage is over weeks that have started. Every started week must reconcile:
+  // marked + gaps = headcount × due weeks, when nobody has transferred.
+  const cov = await as(ACCOUNTS.gm[0],
+    `SELECT headcount, due_weeks, marked, gaps, coverage_pct
+       FROM report_branch_monthly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9`);
+  const c = cov.rows[0];
+  check('coverage: marked + gaps = headcount × weeks started',
+    c.marked + c.gaps, c.headcount * c.due_weeks);
+  check('...and coverage_pct is that share',
+    c.coverage_pct, Math.round(((c.headcount * c.due_weeks - c.gaps) * 100) / (c.headcount * c.due_weeks)));
+
+  // The manager's adjusted total is the score the phone app shows, so it is
+  // the score the report judges. KP0111 week 1 scored 81/110 = 74% (a fail);
+  // the manager verifies it up to 90/110 = 82%.
+  await db.exec(`INSERT INTO mark_verifications (mark_id, verified_by, adjusted_to)
+                 SELECT id, 'AM0001', 90 FROM marks WHERE user_id = 'KP0111' AND period_month = 9 AND week_no = 1`);
+  const adj = await as(ACCOUNTS.gm[0],
+    `SELECT pct, final_pct, is_pass, is_verified FROM report_marks
+      WHERE user_id = 'KP0111' AND period_year = 2026 AND period_month = 9 AND week_no = 1`);
+  check('an adjusted mark reports the adjusted percentage and passes on it',
+    [adj.rows[0].pct, adj.rows[0].final_pct, adj.rows[0].is_pass, adj.rows[0].is_verified], [74, 82, true, true]);
+  const staff = await as(ACCOUNTS.gm[0],
+    `SELECT w1_pct, passed_weeks, verified_weeks FROM report_staff_monthly
+      WHERE user_id = 'KP0111' AND period_year = 2026 AND period_month = 9`);
+  check("...and the person's monthly row shows the same figure",
+    [staff.rows[0].w1_pct, staff.rows[0].passed_weeks, staff.rows[0].verified_weeks], [82, 1, 1]);
+  await db.exec(`DELETE FROM mark_verifications WHERE mark_id IN
+                 (SELECT id FROM marks WHERE user_id = 'KP0111' AND period_month = 9 AND week_no = 1)`);
+
+  // Unmarked people are rows, not absences: the two Machang pekerja with no
+  // September mark appear with four NULL weeks, ranked last.
+  const unmarked = await as(ACCOUNTS.gm[0],
+    `SELECT user_id, avg_pct, marked_weeks, rank_in_branch FROM report_staff_monthly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9
+      ORDER BY rank_in_branch, user_id`);
+  check('all eight Machang pekerja are listed for September', unmarked.rows.length, 8);
+  check('...the unmarked two at the bottom, with no average invented for them',
+    unmarked.rows.slice(-2).map((r) => [r.user_id, r.avg_pct, r.marked_weeks]),
+    [['KP0110', null, 0], ['MY0644', null, 0]]);
+  check('...and Syazana, 86%, ranks first', [unmarked.rows[0].user_id, unmarked.rows[0].rank_in_branch], ['KP0093', 1]);
+
+  // An inactive person leaves every denominator and keeps their marks.
+  await db.exec(`UPDATE users SET active = false WHERE id = 'MY0644'`);
+  const after = await as(ACCOUNTS.gm[0],
+    `SELECT headcount, gaps FROM report_branch_weekly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9 AND week_no = 1`);
+  check('deactivating an unmarked person drops them from headcount and gaps alike',
+    [after.rows[0].headcount, after.rows[0].gaps], [7, 1]);
+  await db.exec(`UPDATE users SET active = false WHERE id = 'MY0606'`);
+  const kept = await as(ACCOUNTS.gm[0],
+    `SELECT marked FROM report_branch_weekly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9 AND week_no = 1`);
+  check("...while a marked person who leaves keeps their mark in the outlet's count", kept.rows[0].marked, 6);
+  await db.exec(`UPDATE users SET active = true WHERE id IN ('MY0644', 'MY0606')`);
+
+  // Company rows are sums of outlet rows, ratios re-derived from the sums.
+  const co = await as(ACCOUNTS.gm[0],
+    `SELECT headcount, marked, gaps, passed, pass_rate_pct FROM report_company_monthly
+      WHERE form_key = 'kedai' AND period_year = 2026 AND period_month = 9`);
+  check('company kedai, September: 11 due across Machang and Kota Bharu, 12 marked, 8 passed = 67%',
+    [co.rows[0].headcount, co.rows[0].marked, co.rows[0].passed, co.rows[0].pass_rate_pct], [11, 12, 8, 67]);
+
+  // Returns: the month a list was received in. Machang, August 2026: one
+  // list, handed over on time, cleared in ten days.
+  const ret = await as(ACCOUNTS.hr[0],
+    `SELECT received, submitted_on_time, submission_pct, open, avg_turnaround_days::float AS days
+       FROM report_returns_branch_monthly WHERE branch_id = 'DMC' AND year = 2026 AND month = 8`);
+  check('Machang returns, August: 1 received, on time, cleared in 10 days',
+    [ret.rows[0].received, ret.rows[0].submitted_on_time, ret.rows[0].submission_pct, ret.rows[0].open, ret.rows[0].days],
+    [1, 1, 100, 0, 10]);
+  const open = await as(ACCOUNTS.hr[0],
+    `SELECT ref, status, supplier_name, last_stage FROM report_returns_open WHERE ref IN ('PR0005', 'PR0006') ORDER BY ref`);
+  check('the open list carries the ageing state, the supplier and the last stage reached',
+    open.rows.map((r) => [r.ref, r.status, r.supplier_name, r.last_stage]),
+    [['PR0005', 'breach', 'Munchy Food Industries', 'segregated'],
+     ['PR0006', 'overdue', 'Life Food Industries', 'submitted_to_clerk']]);
+
+  // Tugasan, the one month Herdi filled: four weeks stamped, none checked.
+  const tg = await as(ACCOUNTS.gm[0],
+    `SELECT weeks_filled, weeks_checked, items_done, items_total FROM report_tugasan_branch_monthly
+      WHERE branch_id = 'DMC' AND period_year = 2026 AND period_month = 8`);
+  check('Machang tugasan, August: 4 weeks filled, 0 checked, 8 of 8 items',
+    [tg.rows[0].weeks_filled, tg.rows[0].weeks_checked, tg.rows[0].items_done, tg.rows[0].items_total], [4, 0, 8, 8]);
+
+  // The views widen nobody's reach.
+  const sv = await as(ACCOUNTS.syahirah[0], `SELECT DISTINCT branch_id FROM report_branch_weekly ORDER BY 1`);
+  check('a supervisor reads the outlet report for their own outlet only', sv.rows.map((r) => r.branch_id), ['DMC']);
+  const mgrStor = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM report_marks WHERE form_key = 'stor'`);
+  check('the cross-branch manager still sees no stor mark through them', mgrStor.rows[0].n, 0);
+  const admRet = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM report_returns_open`);
+  check('admin still sees no return through them', admRet.rows[0].n, 0);
+  const hrAll = await as(ACCOUNTS.hr[0], `SELECT DISTINCT branch_id FROM report_branch_weekly WHERE marked > 0 ORDER BY 1`);
+  check('HR reads every outlet that has marks, the stor side included', hrAll.rows.map((r) => r.branch_id), ['DKB', 'DMC', 'HQ']);
+
+  await db.exec(`DELETE FROM branches WHERE id = 'ZZT'`);
 }
 
 console.log('\n=== writes are gated by role as well as branch ===');

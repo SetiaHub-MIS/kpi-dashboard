@@ -14,7 +14,7 @@ import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
 import { isHq } from '@/data/branches';
 import {
-  ROLE_LADDER,
+  APP_ROLES,
   Role,
   emailBlocker,
   hiringScope,
@@ -194,7 +194,7 @@ export default function NewUser() {
             </View>
           ) : (
             <View className="gap-1.5 mt-2.5">
-              {ROLE_LADDER.map((r) => {
+              {APP_ROLES.map((r) => {
                 const on = role === r;
                 return (
                   <Pressable
