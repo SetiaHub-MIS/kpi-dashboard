@@ -319,6 +319,12 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: '{branch} · dikemaskini oleh {name} · pemeriksaan mingguan',
     en: '{branch} · updated by {name} · weekly check',
   },
+  cawangan: { ms: 'Cawangan', en: 'Outlet' },
+  pilih_cawangan_a11y: { ms: 'Cawangan: {branch}. Tekan untuk tukar.', en: 'Outlet: {branch}. Tap to change.' },
+  tiada_rekod_aset: {
+    ms: 'Tiada rekod aset untuk cawangan anda. Hubungi Setiahub-MIS.',
+    en: 'No asset log for your outlets. Contact Setiahub-MIS.',
+  },
   belum_selesai: { ms: 'BELUM SELESAI', en: 'UNRESOLVED' },
   ok_status: { ms: 'OK', en: 'OK' },
   hari_terbuka: { ms: '{days} hari terbuka', en: '{days} days open' },
@@ -331,10 +337,6 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   guna_aplikasi_laporan_body: {
     ms: 'Akaun General Manager dan Human Resources melihat laporan di aplikasi laporan web, bukan di sini. Untuk kemas kini pekerja, gunakan akaun admin.',
     en: 'General Manager and Human Resources accounts see reports in the reporting web app, not here. To update staff, use an admin account.',
-  },
-  pilih_cawangan_tugasan: {
-    ms: 'Pilih cawangan untuk tugasan minggu ini.',
-    en: 'Pick the outlet for this week\x27s tugasan.',
   },
 
 

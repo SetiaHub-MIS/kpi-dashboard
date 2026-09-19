@@ -81,6 +81,7 @@ const MIGRATIONS = [
   '20260919010000_payroll_number_shape.sql',
   '20260919020000_marks_open_until_verified.sql',
   '20260919030000_drop_mark_queries.sql',
+  '20260919040000_assets_for_every_outlet.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

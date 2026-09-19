@@ -236,7 +236,10 @@ INSERT INTO tugasan_signoffs (branch_id, period_year, period_month, week_no, fil
   ('DMC', 2026, 8, 4, 'AM0001', NULL, DATE '2026-08-23');
 
 -- --------------------------------------------------------------- assets ----
--- REAL: CHECKLIST KEDAI asset log for Machang.
+-- REAL: CHECKLIST KEDAI asset log for Machang. Since 20260919040000 every
+-- outlet already carries the catalogue rows, so this only sets the state
+-- the sheet shows; J) LAIN-LAIN is the sheet's free slot, with the issue
+-- ("TILE LANTAI") in the note rather than the name.
 
 INSERT INTO assets (branch_id, name, is_open, note, opened_on) VALUES
   ('DMC', 'A) AIR-COND',              true,  '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', DATE '2026-08-05'),
@@ -248,7 +251,7 @@ INSERT INTO assets (branch_id, name, is_open, note, opened_on) VALUES
   ('DMC', 'G) KEBOCORAN AIR',         false, NULL, NULL),
   ('DMC', 'H) SIGNBOARD',             false, NULL, NULL),
   ('DMC', 'I) SPOTLIGHT',             false, NULL, NULL),
-  ('DMC', 'J) LAIN-LAIN: TILE LANTAI', true, 'Tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
+  ('DMC', 'J) LAIN-LAIN',             true,  'TILE LANTAI: tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
   -- NEW
   ('DKB', 'A) AIR-COND',              false, NULL, NULL),
   ('DKB', 'B) AIR COOLER',            false, NULL, NULL),
@@ -258,7 +261,9 @@ INSERT INTO assets (branch_id, name, is_open, note, opened_on) VALUES
   ('DKB', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
   ('DKB', 'G) KEBOCORAN AIR',         true,  'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.', DATE '2026-08-31'),
   ('DKB', 'H) SIGNBOARD',             false, NULL, NULL),
-  ('DKB', 'I) SPOTLIGHT',             false, NULL, NULL);
+  ('DKB', 'I) SPOTLIGHT',             false, NULL, NULL)
+ON CONFLICT (branch_id, name) DO UPDATE
+  SET is_open = EXCLUDED.is_open, note = EXCLUDED.note, opened_on = EXCLUDED.opened_on;
 
 -- -------------------------------------------------------------- returns ----
 -- NEW: the returns workflow has no workbook equivalent.

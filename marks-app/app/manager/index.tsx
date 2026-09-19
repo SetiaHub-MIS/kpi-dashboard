@@ -8,7 +8,7 @@ import { Screen } from '@/components/Screen';
 import { FORM, MONTHS, PERIODS, STOR_FORM, SV_FORM, WEEK_COLS } from '@/data/checklist';
 import { notify } from '@/lib/dialog';
 import { exportMonthXlsx } from '@/lib/export';
-import { assetsOfBranch, useAssets } from '@/store/useAssets';
+import { assetsVisibleTo, useAssets } from '@/store/useAssets';
 import { isHq } from '@/data/branches';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { branchesOf, isCrossBranch } from '@/data/users';
@@ -74,7 +74,7 @@ export default function ManagerHome() {
   const stats = monthStats(crew, submitted);
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
   const assetRows = useAssets((s) => s.rows);
-  const openAssets = assetsOfBranch(assetRows, branchId).filter((a) => a.isOpen);
+  const openAssets = assetsVisibleTo(assetRows, manager).filter((a) => a.isOpen);
   const oldestAssetDays = openAssets.reduce((max, a) => {
     if (!a.openedOn) return max;
     const days = Math.max(0, Math.round((Date.now() - Date.parse(a.openedOn)) / 86_400_000));
@@ -95,11 +95,11 @@ export default function ManagerHome() {
   const svPending = myQueue.filter((p) => weekMark(p, weekIdx, submitted) == null);
 
   const tugasanEntriesByMonth = useTugasan((s) => s.entriesByMonth);
-  // Tugasan is per outlet: one outlet's eight ticks for an Area Manager, every
-  // outlet's for the Manager.
+  // Tugasan is per outlet: eight ticks for each outlet an Area Manager
+  // covers, every outlet's for the Manager.
   const tugasanScopes = crossBranch
     ? outlets.map((b) => tugasanScope(b.id, monthIdx))
-    : [tugasanScope(branchId, monthIdx)];
+    : covered.map((b) => tugasanScope(b, monthIdx));
   const tugasanTotal = tugasanScopes.length * WEEK_COLS.length * TUGASAN_ITEMS.length;
   const tugasanDone = tugasanScopes.reduce(
     (sum, scope) =>

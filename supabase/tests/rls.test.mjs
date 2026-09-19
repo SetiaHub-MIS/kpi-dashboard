@@ -75,6 +75,7 @@ for (const m of [
   'supabase/migrations/20260919010000_payroll_number_shape.sql',
   'supabase/migrations/20260919020000_marks_open_until_verified.sql',
   'supabase/migrations/20260919030000_drop_mark_queries.sql',
+  'supabase/migrations/20260919040000_assets_for_every_outlet.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -421,6 +422,25 @@ console.log('\n=== an Area Manager reaches every outlet assigned to them ===');
   const f = await as(ACCOUNTS.farah[0],
     `SELECT DISTINCT branch_id FROM assets WHERE branch_id IS NOT NULL ORDER BY 1`);
   check('Farah, same role, reaches only DKB', f.rows.map((x) => x.branch_id), ['DKB']);
+
+  // The asset log used to exist for the two seeded outlets only, so an Area
+  // Manager posted anywhere else opened an empty tab. Every outlet carries
+  // the ten catalogue rows now, HQ none, and a new outlet gets them on insert.
+  const catalogue = await db.query(
+    `SELECT count(*)::int outlets, min(n) AS fewest, max(n) AS most
+       FROM (SELECT b.id, count(a.id) AS n FROM branches b
+              LEFT JOIN assets a ON a.branch_id = b.id
+             WHERE b.id <> 'HQ' GROUP BY b.id) x`);
+  check('every outlet carries the full asset catalogue',
+    [catalogue.rows[0].outlets, catalogue.rows[0].fewest, catalogue.rows[0].most], [38, 10, 10]);
+  const hqAssets = await db.query(`SELECT count(*)::int n FROM assets WHERE branch_id = 'HQ'`);
+  check('...and HQ, which is not a kedai, carries none', hqAssets.rows[0].n, 0);
+  const dmcJ = await db.query(`SELECT count(*)::int n FROM assets WHERE branch_id = 'DMC' AND name LIKE 'J) LAIN-LAIN%'`);
+  check('Machang keeps a single J) LAIN-LAIN row', dmcJ.rows[0].n, 1);
+  await db.exec(`INSERT INTO branches (id, name, short_name) VALUES ('ZZA', 'Kedai Ujian Aset', 'Ujian Aset')`);
+  const fresh = await db.query(`SELECT count(*)::int n FROM assets WHERE branch_id = 'ZZA'`);
+  check('a new outlet gets the catalogue the moment it is created', fresh.rows[0].n, 10);
+  await db.exec(`DELETE FROM branches WHERE id = 'ZZA'`);
 
   check('Herdi may write tugasan at his assigned second outlet',
     await tryWrite(ACCOUNTS.herdi[0],
