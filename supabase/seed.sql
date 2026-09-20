@@ -117,11 +117,11 @@ INSERT INTO checklist_forms (key, name, applies_to) VALUES
 
 INSERT INTO checklist_categories (form_key, position, name) VALUES
   ('kedai', 1, 'KEDATANGAN'),
-  ('kedai', 2, 'DISPLIN'),
+  ('kedai', 2, 'DISIPLIN'),
   ('kedai', 3, 'KEBERSIHAN BAHAGIAN'),
   ('kedai', 4, 'KEKEMASAN BAHAGIAN'),
   ('kedai', 5, 'KEBERSIHAN & KEKEMASAN STOR'),
-  ('kedai', 6, 'PENYUSUAN BARANG'),
+  ('kedai', 6, 'PENYUSUNAN BARANG'),
   ('kedai', 7, 'KEBERSIHAN KEDAI'),
   -- NEW: no store checklist exists in the workbooks; replace with the real form.
   ('stor',  1, 'PENERIMAAN BARANG'),
@@ -135,7 +135,7 @@ INSERT INTO checklist_lines (category_id, position, label)
 SELECT c.id, v.position, v.label
 FROM (VALUES
   ('kedai', 1, 1, 'KEDATANGAN'),
-  ('kedai', 2, 1, 'DISPLIN'),
+  ('kedai', 2, 1, 'DISIPLIN'),
   ('kedai', 3, 1, 'A) LANTAI'),
   ('kedai', 3, 2, 'B) RAK / TEMPAT KAUNTER'),
   ('kedai', 3, 3, 'C) BARANG DISPLAY'),

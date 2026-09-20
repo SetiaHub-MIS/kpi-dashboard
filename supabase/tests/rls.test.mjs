@@ -77,6 +77,7 @@ for (const m of [
   'supabase/migrations/20260919030000_drop_mark_queries.sql',
   'supabase/migrations/20260919040000_assets_for_every_outlet.sql',
   'supabase/migrations/20260919050000_area_manager_hires_supervisors.sql',
+  'supabase/migrations/20260919060000_label_spelling.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
