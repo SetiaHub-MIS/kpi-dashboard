@@ -3,8 +3,8 @@ export type NoteChip = { key: string; label: string; text: string };
 export const NOTE_CHIPS: NoteChip[] = [
   {
     key: 'tandas',
-    label: 'Tandas belum disapu',
-    text: 'Tandas belum disapu masa handover. Perkara sama minggu lepas.',
+    label: 'Tandas belum dibersihkan',
+    text: 'Tandas belum dibersihkan masa handover. Perkara sama minggu lepas.',
   },
   {
     key: 'lewat',
