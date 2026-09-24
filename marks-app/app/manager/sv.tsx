@@ -7,7 +7,7 @@ import { QueueBanner } from '@/components/QueueBanner';
 import { Screen } from '@/components/Screen';
 import { PERIODS } from '@/data/checklist';
 import { weekRangeLabel } from '@/data/period';
-import { roleLabel } from '@/i18n/labels';
+import { roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { notify } from '@/lib/dialog';
 import { useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
@@ -91,6 +91,7 @@ export default function ManagerSvQueue() {
                   </Text>
                   <Text className="font-mono text-[10.5px] text-ink-5 mt-1">
                     {p.id} · {branchLabel(p.branchId)}
+                    {p.supervisorTitle ? ` · ${supervisorTitleLabel(p.supervisorTitle, locale)}` : ''}
                     {v != null && !locked ? ` · ${t('boleh_diubah')}` : ''}
                   </Text>
                 </View>

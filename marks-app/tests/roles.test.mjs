@@ -12,6 +12,7 @@ import {
   APP_ROLES,
   ROLE_LADDER,
   branchChangeBlocker,
+  canSetSupervisorTitle,
   deactivateBlocker,
   demotionsFor,
   emailBlocker,
@@ -168,6 +169,28 @@ test('an Area Manager hires pekerja kedai and SV/AS at every outlet they cover, 
 
 test('an unposted supervisor has nowhere to hire into', () => {
   assert.deepEqual(hiringScope(mkUser({ role: 'supervisor', branchId: null })), { kind: 'none' });
+});
+
+// --- who may tag an SV/AS sv or asisten, mirroring set_supervisor_title() in RLS
+
+test('admin may tag any SV/AS', () => {
+  const admin = mkUser({ id: 'AD0001', role: 'admin', branchId: null });
+  const sv = mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' });
+  assert.equal(canSetSupervisorTitle(admin, sv), true);
+});
+
+test('an Area Manager may tag an SV/AS only at an outlet they cover', () => {
+  const am = mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'] });
+  assert.equal(canSetSupervisorTitle(am, mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' })), true);
+  assert.equal(canSetSupervisorTitle(am, mkUser({ id: 'WS0012', role: 'supervisor', branchId: 'DKB' })), true);
+  assert.equal(canSetSupervisorTitle(am, mkUser({ id: 'WS0099', role: 'supervisor', branchId: 'BKP' })), false);
+});
+
+test('the SV/AS may not tag themselves, and nobody may tag a non-supervisor', () => {
+  const sv = mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' });
+  assert.equal(canSetSupervisorTitle(sv, sv), false);
+  const admin = mkUser({ id: 'AD0001', role: 'admin', branchId: null });
+  assert.equal(canSetSupervisorTitle(admin, mkUser({ id: 'KP0093', role: 'staff', branchId: 'DMC' })), false);
 });
 
 test('staff, the stor team and head office do not hire', () => {

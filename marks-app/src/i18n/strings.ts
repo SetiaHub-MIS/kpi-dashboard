@@ -584,7 +584,6 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   n_perkara_diisi: { ms: '{filled}/{total} perkara diisi', en: '{filled}/{total} items filled' },
 
   // ------------------------------------------------------------------ person
-  pekerja_kedai_label: { ms: 'Pekerja kedai', en: 'Shop staff' },
   status_diselaraskan: { ms: 'Dinilai SV/AS · diselaraskan MGR', en: 'Scored by SV/AS · adjusted by MGR' },
   status_disahkan: { ms: 'Dinilai SV/AS · disahkan MGR', en: 'Scored by SV/AS · confirmed by MGR' },
   status_belum_disahkan: { ms: 'Dinilai SV/AS · belum disahkan', en: 'Scored by SV/AS · not yet confirmed' },
@@ -714,6 +713,12 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'Pekerja kedai atau SV/AS baharu di cawangan yang anda liputi. Guna no. pekerja yang diberi HR — ia kekal dan muncul pada setiap rekod.',
     en: 'A new shop staff member or SV/AS at an outlet you cover. Use the payroll number HR issued — it is permanent and appears on every record.',
   },
+  gelaran_penyelia: { ms: 'Gelaran', en: 'Title' },
+  gelaran_penyelia_hint: {
+    ms: 'SV atau Asisten Penyelia — untuk rekod pengurusan sahaja, tanggungjawab sama. Boleh tetapkan kemudian.',
+    en: 'SV or Assistant Supervisor — for management records only, same responsibilities. Can be set later.',
+  },
+  gelaran_belum_ditetapkan: { ms: 'Belum ditetapkan', en: 'Not yet set' },
   contoh_no_pekerja: { ms: 'cth: KP0112', en: 'e.g. KP0112' },
   no_pekerja_dari_hr: {
     ms: 'Dari slip gaji atau HR, seperti yang dikeluarkan — cth: MC0001 (DMC), TPG001, HQ0130 (ibu pejabat).',

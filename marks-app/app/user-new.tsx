@@ -16,6 +16,7 @@ import { isHq } from '@/data/branches';
 import {
   APP_ROLES,
   Role,
+  SupervisorTitle,
   emailBlocker,
   hiringScope,
   isCentralStore,
@@ -23,7 +24,7 @@ import {
   newUserBlocker,
   postingFor,
 } from '@/data/users';
-import { roleBlurb, roleLabel } from '@/i18n/labels';
+import { roleBlurb, roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
 import { notify } from '@/lib/dialog';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
@@ -54,6 +55,9 @@ export default function NewUser() {
   const [name, setName] = useState('');
   const [pickedRole, setPickedRole] = useState<Role>('staff');
   const role = offeredRoles.includes(pickedRole) ? pickedRole : offeredRoles[0];
+  // Optional at creation — settable later from the person's own screen too —
+  // but asking now saves a second trip for whoever already knows which.
+  const [pickedTitle, setPickedTitle] = useState<SupervisorTitle | null>(null);
 
   const allBranches = useActiveBranches();
   // Scope order, not list order: an Area Manager hiring staff sees their home
@@ -117,6 +121,7 @@ export default function NewUser() {
         branchId: posting.branchId,
         extraBranchIds: posting.extraBranchIds,
         email: email.trim() || null,
+        supervisorTitle: role === 'supervisor' ? pickedTitle : null,
       });
       if (!result.ok) {
         setError(
@@ -208,6 +213,7 @@ export default function NewUser() {
                       setPickedRole(r);
                       // A multi-outlet pick must not leak into a one-outlet role.
                       setPicked([]);
+                      setPickedTitle(null);
                       setError(null);
                     }}
                     accessibilityRole="radio"
@@ -244,6 +250,40 @@ export default function NewUser() {
             </View>
           )}
         </Card>
+
+        {role === 'supervisor' && (
+          <Card className="p-[15px] mt-2.5">
+            <MonoLabel>{t('gelaran_penyelia')}</MonoLabel>
+            <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-1.5">
+              {t('gelaran_penyelia_hint')}
+            </Text>
+            <View className="flex-row gap-1.5 mt-2.5">
+              {(['sv', 'asisten'] as const).map((title) => {
+                const on = pickedTitle === title;
+                return (
+                  <Pressable
+                    key={title}
+                    onPress={() => setPickedTitle(on ? null : title)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: on }}
+                    className="flex-1 px-3 py-2.5 rounded-lg border items-center"
+                    style={{
+                      borderColor: on ? 'transparent' : C.line,
+                      backgroundColor: on ? C.ink : C.card,
+                    }}
+                  >
+                    <Text
+                      className="font-sans-med text-[12.5px]"
+                      style={{ color: on ? '#fff' : C.ink3 }}
+                    >
+                      {supervisorTitleLabel(title, locale)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Card>
+        )}
 
         <Card className="p-[15px] mt-2.5">
           <MonoLabel>{t('tab_cawangan')}</MonoLabel>

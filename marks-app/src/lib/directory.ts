@@ -1,6 +1,6 @@
 import { Branch } from '@/data/branches';
 import { FORMS } from '@/data/checklist';
-import { Role, User } from '@/data/users';
+import { Role, SupervisorTitle, User } from '@/data/users';
 import { MarkRow, fetchMarks, fetchPerkaraAverages } from '@/lib/marks';
 import { supabase } from '@/lib/supabase';
 
@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabase';
  */
 
 /** Column list kept in one place so the row type and the select cannot drift. */
-const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, email, active';
+const USER_COLUMNS = 'id, name, short_name, initials, role, branch_id, email, active, supervisor_title';
 
 const UNIQUE_VIOLATION = '23505';
 const RLS_REFUSED = '42501';
@@ -41,7 +41,7 @@ export type CreateUserResult =
  * whole thing would only hit 'duplicate'.
  */
 export async function createUser(
-  user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId' | 'email'>,
+  user: Pick<User, 'id' | 'name' | 'short' | 'init' | 'role' | 'branchId' | 'email' | 'supervisorTitle'>,
   extraBranchIds: string[] = []
 ): Promise<CreateUserResult> {
   const { error } = await supabase.from('users').insert({
@@ -52,6 +52,7 @@ export async function createUser(
     role: user.role,
     branch_id: user.branchId,
     email: user.email ?? null,
+    supervisor_title: user.role === 'supervisor' ? (user.supervisorTitle ?? null) : null,
   });
 
   if (error) {
@@ -110,10 +111,13 @@ export async function updateUserRole(input: {
   extraBranchIds: string[];
   changedBy: string | null;
 }): Promise<WriteResult> {
-  const { error } = await supabase
-    .from('users')
-    .update({ role: input.to, branch_id: input.branchId })
-    .eq('id', input.id);
+  // A title only means anything on 'supervisor' — the table's own CHECK
+  // enforces this, so moving someone off the role has to clear it in the
+  // same statement or the database refuses the whole role change.
+  const patch: Record<string, unknown> = { role: input.to, branch_id: input.branchId };
+  if (input.to !== 'supervisor') patch.supervisor_title = null;
+
+  const { error } = await supabase.from('users').update(patch).eq('id', input.id);
   if (error) return asResult(error);
 
   // After the role update: the trigger only admits extra outlets for an
@@ -207,6 +211,23 @@ export async function updateMyEmail(email: string | null): Promise<WriteResult> 
   if (error.code === CHECK_VIOLATION) {
     return { ok: false, reason: 'unknown', message: 'E-mel seperti nama@contoh.com.' };
   }
+  return asResult(error);
+}
+
+/**
+ * Tags an SV/AS as sv or asisten, through set_supervisor_title() — the
+ * narrow door, since RLS cannot restrict a table-wide UPDATE to one column.
+ * Admin, or the Area Manager who covers that outlet, may call it; the table's
+ * own CHECK refuses the tag on anyone but a supervisor.
+ */
+export async function updateSupervisorTitle(
+  id: string,
+  title: SupervisorTitle | null
+): Promise<WriteResult> {
+  const { error } = await supabase.rpc('set_supervisor_title', {
+    target_id: id,
+    new_title: title ?? '',
+  });
   return asResult(error);
 }
 
@@ -345,6 +366,7 @@ export async function fetchStaff(
         role: u.role as Role,
         branchId: u.branch_id,
         email: u.email ?? null,
+        supervisorTitle: (u.supervisor_title as SupervisorTitle | null) ?? null,
         active: u.active,
         w,
         perkara: perkara[u.id] ?? emptyPerkara(u.role as Role),

@@ -82,6 +82,18 @@ export const isCentralStore = (role: Role) => role === 'store' || role === 'cler
 /** Returns are closed to the cross-branch manager and to admin alike. */
 export const seesReturns = (role: Role) => role !== 'manager' && role !== 'admin';
 
+/**
+ * SV and Asisten Penyelia — a label management wants on top of the
+ * 'supervisor' role, not a second role. Both act identically under RLS, the
+ * marking queue and every policy; see 20260919070000_supervisor_title.sql.
+ */
+export type SupervisorTitle = 'sv' | 'asisten';
+
+export const SUPERVISOR_TITLE_LABEL: Record<SupervisorTitle, string> = {
+  sv: 'SV',
+  asisten: 'Asisten Penyelia',
+};
+
 export const ROLE_LABEL: Record<Role, string> = {
   staff: 'Pekerja Kedai',
   store: 'Pekerja Stor',
@@ -167,6 +179,8 @@ export type User = {
   branchIds?: string[];
   /** Real address for password resets. Absent means admin resets by hand. */
   email?: string | null;
+  /** SV vs Asisten Penyelia. Meaningful only when role is 'supervisor'. */
+  supervisorTitle?: SupervisorTitle | null;
   active: boolean;
   /** Staff-checklist history: % per week, null = belum dinilai. */
   w: (number | null)[];
@@ -237,6 +251,17 @@ export function canSeeBranch(user: User | undefined, branchId: string | null): b
   if (isCrossBranch(user.role)) return true;
   if (branchId == null) return false;
   return branchesOf(user).includes(branchId);
+}
+
+/**
+ * Whether the viewer may tag this person SV or Asisten Penyelia. Mirrors
+ * set_supervisor_title() in RLS exactly: admin anywhere, an Area Manager only
+ * over an SV/AS at an outlet they cover — never the person themselves.
+ */
+export function canSetSupervisorTitle(viewer: User | undefined, person: User): boolean {
+  if (person.role !== 'supervisor' || !viewer) return false;
+  if (viewer.role === 'admin') return true;
+  return viewer.role === 'area_manager' && canSeeBranch(viewer, person.branchId);
 }
 
 export function initialsOf(name: string): string {

@@ -3,11 +3,14 @@ import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
-import { Card } from '@/components/Card';
+import { Card, MonoLabel } from '@/components/Card';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
 import { MONTHS } from '@/data/checklist';
-import { useT } from '@/store/useLocale';
+import { SupervisorTitle, canSetSupervisorTitle } from '@/data/users';
+import { roleLabel, supervisorTitleLabel } from '@/i18n/labels';
+import { notify } from '@/lib/dialog';
+import { useLocale, useT } from '@/store/useLocale';
 import { currentUser, useSession } from '@/store/useSession';
 import { findUser, useUsers } from '@/store/useUsers';
 import { formForRole, isVerified, useMarks, weekMark } from '@/store/useMarks';
@@ -28,11 +31,14 @@ export default function PersonDetail() {
     verifyByManager,
   } = useMarks();
   const verify = useMarks((s) => s.verify);
+  const setSupervisorTitle = useUsers((s) => s.setSupervisorTitle);
   const me = currentUser(users, useSession((x) => x.currentUserId));
   const t = useT();
+  const locale = useLocale((s) => s.locale);
   // Which week's "Ubah" editor is open, if any.
   const [adjustingKey, setAdjustingKey] = useState<string | null>(null);
   const [draftPct, setDraftPct] = useState('');
+  const [titleSaving, setTitleSaving] = useState(false);
 
   if (!person) {
     return (
@@ -48,6 +54,23 @@ export default function PersonDetail() {
     );
   }
 
+  const canSetTitle = canSetSupervisorTitle(me, person);
+  const pickTitle = async (title: SupervisorTitle) => {
+    if (titleSaving || person.supervisorTitle === title) return;
+    setTitleSaving(true);
+    try {
+      const result = await setSupervisorTitle(person.id, title);
+      if (!result.ok) {
+        notify(
+          t('perubahan_tak_disimpan'),
+          result.reason === 'forbidden' ? t('perubahan_ditolak_pelayan') : result.message
+        );
+      }
+    } finally {
+      setTitleSaving(false);
+    }
+  };
+
   return (
     <Screen>
       <BackLink label={MONTHS[monthIdx]} />
@@ -57,10 +80,50 @@ export default function PersonDetail() {
         <View className="min-w-0 flex-1">
           <Text className="font-sans-semi text-[18px] text-ink">{person.name}</Text>
           <Text className="font-mono text-xs text-ink-5 mt-1">
-            {person.id} · {t('pekerja_kedai_label')}
+            {person.id} · {roleLabel(person.role, locale)}
           </Text>
         </View>
       </View>
+
+      {person.role === 'supervisor' && (
+        <Card className="p-[15px] mt-4">
+          <MonoLabel>{t('gelaran_penyelia')}</MonoLabel>
+          <Text className="font-sans-semi text-[13px] text-ink mt-2.5">
+            {person.supervisorTitle
+              ? supervisorTitleLabel(person.supervisorTitle, locale)
+              : t('gelaran_belum_ditetapkan')}
+          </Text>
+          {canSetTitle && (
+            <View className="flex-row gap-1.5 mt-2.5">
+              {(['sv', 'asisten'] as const).map((title) => {
+                const on = person.supervisorTitle === title;
+                return (
+                  <Pressable
+                    key={title}
+                    onPress={() => void pickTitle(title)}
+                    disabled={titleSaving}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: on, disabled: titleSaving }}
+                    className="flex-1 px-3 py-2 rounded-lg border items-center"
+                    style={{
+                      borderColor: on ? 'transparent' : C.line,
+                      backgroundColor: on ? C.ink : C.card,
+                      opacity: titleSaving ? 0.6 : 1,
+                    }}
+                  >
+                    <Text
+                      className="font-sans-med text-[12px]"
+                      style={{ color: on ? '#fff' : C.ink3 }}
+                    >
+                      {supervisorTitleLabel(title, locale)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </Card>
+      )}
 
       <View className="gap-2.5 mt-4">
         {person.w.map((_, i) => {

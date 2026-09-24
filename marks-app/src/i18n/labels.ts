@@ -1,7 +1,7 @@
 import { AGEING_LABEL, AgeingStatus, DISPOSITION_LABEL, Disposition, REASON_LABEL, ReturnReason, STAGE_LABEL, Stage } from '@/data/returns';
 import { FORM_LABEL, FormKey } from '@/data/checklist';
 import { FIELD_LABEL, VendorField } from '@/data/reconcile';
-import { ROLE_BLURB, ROLE_LABEL, Role } from '@/data/users';
+import { ROLE_BLURB, ROLE_LABEL, Role, SUPERVISOR_TITLE_LABEL, SupervisorTitle } from '@/data/users';
 import { Locale } from '@/i18n/strings';
 
 /**
@@ -48,6 +48,15 @@ const ROLE_BLURB_EN: Record<Role, string> = {
 
 export function roleBlurb(role: Role, locale: Locale): string {
   return locale === 'en' ? ROLE_BLURB_EN[role] : ROLE_BLURB[role];
+}
+
+const SUPERVISOR_TITLE_EN: Record<SupervisorTitle, string> = {
+  sv: 'SV',
+  asisten: 'Assistant Supervisor',
+};
+
+export function supervisorTitleLabel(title: SupervisorTitle, locale: Locale): string {
+  return locale === 'en' ? SUPERVISOR_TITLE_EN[title] : SUPERVISOR_TITLE_LABEL[title];
 }
 
 const STAGE_EN: Record<Stage, string> = {

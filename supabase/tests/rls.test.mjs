@@ -78,6 +78,7 @@ for (const m of [
   'supabase/migrations/20260919040000_assets_for_every_outlet.sql',
   'supabase/migrations/20260919050000_area_manager_hires_supervisors.sql',
   'supabase/migrations/20260919060000_label_spelling.sql',
+  'supabase/migrations/20260919070000_supervisor_title.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1172,6 +1173,56 @@ console.log('\n=== a person keeps their own e-mail current, and nothing else ===
 
   check('anon cannot call it at all',
     await tryWrite('00000000-0000-0000-0000-000000000000', `SELECT set_my_email('x@example.com')`), 'blocked');
+}
+
+console.log('\n=== SV and Asisten Penyelia — a label, not a permission ===');
+{
+  check('a person who does not exist is refused',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT set_supervisor_title('ZZ0000', 'sv')`), 'blocked');
+
+  check('tagging someone who is not an SV/AS is refused, even for admin',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT set_supervisor_title('KP0093', 'sv')`), 'blocked');
+
+  check('admin may tag an SV/AS anywhere',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', 'sv')`), 'allowed');
+  check('...and it reads back',
+    (await as(ACCOUNTS.admin[0], `SELECT supervisor_title FROM users WHERE id='WS0001'`)).rows[0].supervisor_title, 'sv');
+
+  check('the Area Manager who covers that outlet may tag their own SV/AS',
+    await tryWrite(ACCOUNTS.herdi[0], `SELECT set_supervisor_title('WS0001', 'asisten')`), 'allowed');
+  check('an Area Manager who does not cover the outlet may not',
+    await tryWrite(ACCOUNTS.farah[0], `SELECT set_supervisor_title('WS0001', 'sv')`), 'blocked');
+
+  check('the SV/AS may not tag themselves',
+    await tryWrite(ACCOUNTS.syahirah[0], `SELECT set_supervisor_title('WS0001', 'sv')`), 'blocked');
+
+  check('a blank clears it',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', '')`), 'allowed');
+  check('...to NULL, not the word null',
+    (await as(ACCOUNTS.admin[0], `SELECT supervisor_title FROM users WHERE id='WS0001'`)).rows[0].supervisor_title, null);
+
+  check('an unknown word is refused by the enum itself',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', 'senior')`), 'blocked');
+
+  // The safety net a demotion could otherwise trip over silently: the CHECK
+  // is what stops a role change from leaving a title on a row that is no
+  // longer a supervisor's.
+  await as(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', 'sv')`);
+  check('changing role away from supervisor without clearing the title is refused',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET role = 'staff' WHERE id = 'WS0001'`), 'blocked');
+  check('clearing it in the same statement is fine',
+    await tryWrite(ACCOUNTS.admin[0], `UPDATE users SET role = 'staff', supervisor_title = NULL WHERE id = 'WS0001'`), 'allowed');
+
+  // Put the fixture back for anything that runs after.
+  await as(ACCOUNTS.admin[0], `UPDATE users SET role = 'supervisor' WHERE id = 'WS0001'`);
+  await as(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', 'sv')`);
+
+  const staffMonthly = await as(ACCOUNTS.gm[0],
+    `SELECT supervisor_title FROM report_staff_monthly WHERE user_id = 'WS0001' AND period_year = 2026 AND period_month = 9`);
+  check('report_staff_monthly carries the column through for GM/HR to read',
+    staffMonthly.rows[0]?.supervisor_title, 'sv');
+
+  await as(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', '')`);
 }
 
 // --- the service role, which payroll-auth reads the directory under.

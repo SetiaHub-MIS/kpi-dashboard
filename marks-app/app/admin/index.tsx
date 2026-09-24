@@ -7,7 +7,7 @@ import { Screen } from '@/components/Screen';
 import { findBranch } from '@/data/branches';
 import { useBranches } from '@/store/useBranches';
 import { ROLE_LADDER, Role } from '@/data/users';
-import { roleLabel } from '@/i18n/labels';
+import { roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
@@ -126,6 +126,9 @@ export default function AdminUsers() {
                     badge at the card's far edge is out of the eye's path. */}
                 <Text className="font-mono text-[11px] text-ink-5 mt-1" numberOfLines={1}>
                   {u.id} · {u.branchId ?? 'HQ'} · {roleLabel(u.role, locale)}
+                  {u.role === 'supervisor' && u.supervisorTitle
+                    ? ` · ${supervisorTitleLabel(u.supervisorTitle, locale)}`
+                    : ''}
                   {u.active ? '' : t('nyahaktif_suffix')}
                 </Text>
               </View>

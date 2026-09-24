@@ -3,6 +3,7 @@ import { todayShort } from '@/data/period';
 import {
   Role,
   SEED_USERS,
+  SupervisorTitle,
   User,
   branchesOf,
   canSeeBranch,
@@ -24,6 +25,7 @@ import {
   updateUserName,
   updateUserPosting,
   updateUserRole,
+  updateSupervisorTitle,
 } from '@/lib/directory';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
@@ -52,6 +54,8 @@ type UsersState = {
     /** Further outlets an Area Manager covers, beyond `branchId`. */
     extraBranchIds?: string[];
     email?: string | null;
+    /** SV vs Asisten Penyelia — meaningful only when role is 'supervisor'. */
+    supervisorTitle?: SupervisorTitle | null;
   }) => Promise<CreateUserResult>;
   /**
    * Every edit below is written to Postgres first and applied locally only
@@ -74,6 +78,8 @@ type UsersState = {
   setName: (id: string, name: string, init: string) => Promise<WriteResult>;
   /** The signed-in person's own address — no admin needed. */
   setMyEmail: (id: string, email: string | null) => Promise<WriteResult>;
+  /** SV vs Asisten Penyelia — admin, or the Area Manager over that outlet. */
+  setSupervisorTitle: (id: string, title: SupervisorTitle | null) => Promise<WriteResult>;
 };
 
 export const useUsers = create<UsersState>((set, get) => ({
@@ -83,7 +89,7 @@ export const useUsers = create<UsersState>((set, get) => ({
   hydrate: (users) => set({ users }),
   hydrateHistory: (history) => set({ history }),
 
-  addUser: async ({ name, id, role, branchId, extraBranchIds = [], email = null }) => {
+  addUser: async ({ name, id, role, branchId, extraBranchIds = [], email = null, supervisorTitle = null }) => {
     const user: User = {
       id: id.trim().toUpperCase(),
       name: name.trim(),
@@ -93,6 +99,7 @@ export const useUsers = create<UsersState>((set, get) => ({
       branchId,
       ...(extraBranchIds.length > 0 ? { branchIds: extraBranchIds } : {}),
       email: email?.trim() ? email.trim().toLowerCase() : null,
+      supervisorTitle: role === 'supervisor' ? supervisorTitle : null,
       active: true,
       w: [null, null, null, null],
       perkara: [0, 0, 0, 0, 0, 0, 0],
@@ -126,6 +133,9 @@ export const useUsers = create<UsersState>((set, get) => ({
               role,
               branchId: posting.branchId,
               branchIds: posting.extraBranchIds.length > 0 ? posting.extraBranchIds : undefined,
+              // A title only means anything on 'supervisor'; the database
+              // clears it the same way on the way out of the role.
+              supervisorTitle: role === 'supervisor' ? u.supervisorTitle : null,
             }
           : u
       ),
@@ -213,6 +223,15 @@ export const useUsers = create<UsersState>((set, get) => ({
       if (!result.ok) return result;
     }
     set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, email: value } : u)) }));
+    return { ok: true };
+  },
+
+  setSupervisorTitle: async (id, title) => {
+    if (isSupabaseConfigured) {
+      const result = await updateSupervisorTitle(id, title);
+      if (!result.ok) return result;
+    }
+    set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, supervisorTitle: title } : u)) }));
     return { ok: true };
   },
 }));
