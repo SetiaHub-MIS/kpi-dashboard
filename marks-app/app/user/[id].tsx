@@ -27,7 +27,7 @@ import {
   roleChangeBlocker,
   transfersFor,
 } from '@/data/users';
-import { formLabel, roleBlurb, roleLabel } from '@/i18n/labels';
+import { formLabel, roleBlurb, roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
 import { confirmAction, notify } from '@/lib/dialog';
 import { WriteResult } from '@/lib/directory';
@@ -48,6 +48,7 @@ export default function UserDetail() {
   const setEmail = useUsers((s) => s.setEmail);
   const setId = useUsers((s) => s.setId);
   const setName = useUsers((s) => s.setName);
+  const setSupervisorTitle = useUsers((s) => s.setSupervisorTitle);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const submitted = useMarks((s) => s.submitted);
   const passThreshold = useMarks((s) => s.passThreshold);
@@ -240,7 +241,11 @@ export default function UserDetail() {
         <View className="flex-1 min-w-0">
           <Text className="font-sans-semi text-[18px] text-ink">{user.name}</Text>
           <Text className="font-mono text-xs text-ink-5 mt-1">
-            {user.id} · {roleLabel(user.role, locale)} · {branchLabel(user.branchId)}
+            {user.id} · {roleLabel(user.role, locale)}
+            {user.role === 'supervisor' && user.supervisorTitle
+              ? ` (${supervisorTitleLabel(user.supervisorTitle, locale)})`
+              : ''}{' '}
+            · {branchLabel(user.branchId)}
             {user.active ? '' : t('nyahaktif_suffix')}
           </Text>
         </View>
@@ -401,6 +406,41 @@ export default function UserDetail() {
           </View>
         )}
       </Card>
+
+      {user.role === 'supervisor' && (
+        <Card className="p-[15px] mt-2.5">
+          <MonoLabel>{t('gelaran_penyelia')}</MonoLabel>
+          <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-1.5">
+            {t('gelaran_penyelia_hint')}
+          </Text>
+          <View className="flex-row gap-1.5 mt-2.5">
+            {(['sv', 'asisten'] as const).map((title) => {
+              const on = user.supervisorTitle === title;
+              return (
+                <Pressable
+                  key={title}
+                  onPress={() => {
+                    if (!on) void persist(() => setSupervisorTitle(user.id, title));
+                  }}
+                  disabled={saving}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on, disabled: saving }}
+                  className="flex-1 px-3 py-2.5 rounded-lg border items-center"
+                  style={{
+                    borderColor: on ? 'transparent' : C.line,
+                    backgroundColor: on ? C.ink : C.card,
+                    opacity: saving ? 0.6 : 1,
+                  }}
+                >
+                  <Text className="font-sans-med text-[12.5px]" style={{ color: on ? '#fff' : C.ink3 }}>
+                    {supervisorTitleLabel(title, locale)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+      )}
 
       <Card className="p-[15px] mt-2.5">
         <MonoLabel>{t('tab_cawangan')}</MonoLabel>
