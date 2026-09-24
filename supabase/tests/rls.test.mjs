@@ -33,9 +33,23 @@ await db.exec(`
   );
   CREATE TABLE storage.objects (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    bucket_id text, name text, owner uuid
+    bucket_id text, name text, owner uuid,
+    created_at timestamptz DEFAULT now()
   );
   ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+  -- Supabase refuses a plain DELETE on storage.objects; only the Storage API,
+  -- which sets this flag, may remove a file. Without the stand-in, a trigger
+  -- that deleted files in SQL passed here and failed on the live database.
+  CREATE FUNCTION storage.protect_delete() RETURNS trigger LANGUAGE plpgsql AS $$
+  BEGIN
+    IF coalesce(current_setting('storage.allow_delete_query', true), '') <> 'true' THEN
+      RAISE EXCEPTION 'Direct deletion from storage tables is not allowed. Use the Storage API instead.'
+        USING ERRCODE = '42501';
+    END IF;
+    RETURN OLD;
+  END $$;
+  CREATE TRIGGER protect_objects_delete BEFORE DELETE ON storage.objects
+    FOR EACH ROW EXECUTE FUNCTION storage.protect_delete();
   CREATE FUNCTION storage.foldername(name text) RETURNS text[]
     LANGUAGE sql IMMUTABLE AS $$ SELECT string_to_array(name, '/') $$;
   CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$
@@ -79,6 +93,7 @@ for (const m of [
   'supabase/migrations/20260919050000_area_manager_hires_supervisors.sql',
   'supabase/migrations/20260919060000_label_spelling.sql',
   'supabase/migrations/20260919070000_supervisor_title.sql',
+  'supabase/migrations/20260919080000_photo_files_leave_through_storage.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -760,13 +775,59 @@ console.log('=== photo evidence is bounded, and scoped like the bill it belongs 
   const farah = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM return_photos`);
   check('an Area Manager sees photos only for the outlets they cover', farah.rows[0].n, 0);
 
-  // Retention: the evidence goes 30 days after the bill clears.
-  const before = await as(ACCOUNTS.hafiz[0], `SELECT count(*)::int n FROM return_photos`);
-  const purged = await as(ACCOUNTS.admin[0], `SELECT purge_cleared_return_photos(30) AS n`);
-  const after = await as(ACCOUNTS.hafiz[0], `SELECT count(*)::int n FROM return_photos`);
-  check('an open bill keeps its photos', [before.rows[0].n, after.rows[0].n], [2, 2]);
-  check('...and nothing was purged, because nothing has cleared long enough',
-    purged.rows[0].n, 0);
+  // Files leave through the Storage API only (20260919080000). The harness
+  // guards storage.objects the way Supabase does, so SQL that deletes a file
+  // fails here exactly as it failed live.
+  await db.exec(`INSERT INTO storage.objects (bucket_id, name) VALUES ('return-photos', 'guard-probe.jpg')`);
+  check('a plain SQL DELETE on a file is refused, as Supabase refuses it',
+    await db.query(`DELETE FROM storage.objects WHERE name = 'guard-probe.jpg'`).then(() => 'allowed', () => 'blocked'),
+    'blocked');
+
+  // The files behind the two rows, as a real upload leaves them.
+  await db.exec(`INSERT INTO storage.objects (bucket_id, name, created_at) VALUES
+    ('return-photos', 'DMC/PR0001/a.jpg', now() - interval '2 days'),
+    ('return-photos', 'DMC/PR0001/b.jpg', now())`);
+
+  // "Buang" used to be refused whole: the row's trigger tried to take the file
+  // with it in SQL. The app now removes the file first, then the row.
+  check('the stor team may remove a photo row',
+    await tryWrite(ACCOUNTS.hafiz[0], `DELETE FROM return_photos WHERE storage_path = 'DMC/PR0001/b.jpg'`), 'allowed');
+
+  // Retention asks the database what is due; the Edge Function does the removing.
+  const due = async (afterDays) => {
+    await db.exec(`SET ROLE service_role;`);
+    try {
+      return (await db.query(
+        `SELECT photo_id IS NOT NULL AS has_row, storage_path FROM return_photos_due_for_purge(${afterDays}) ORDER BY storage_path`)).rows;
+    } finally {
+      await db.exec(`RESET ROLE;`);
+    }
+  };
+  const age = (await db.query(
+    `SELECT CURRENT_DATE - occurred_on AS days FROM return_events e JOIN returns r ON r.id = e.return_id
+      WHERE r.ref = 'PR0001' AND e.stage = 'adjusted'`)).rows[0].days;
+
+  check('a cleared bill\'s evidence is not due before its time', await due(age), []);
+  check('...and is due the day after',
+    await due(age - 1), [{ has_row: true, storage_path: 'DMC/PR0001/a.jpg' }]);
+
+  // A file with no row: an upload whose row was refused, a row deleted before
+  // the fix, the sample data cleared earlier. Swept, but not while an upload
+  // may still be writing its row.
+  await db.exec(`INSERT INTO storage.objects (bucket_id, name, created_at) VALUES
+    ('return-photos', 'DMC/PR0009/stray.jpg', now() - interval '2 days'),
+    ('return-photos', 'DMC/PR0009/just-now.jpg', now())`);
+  // a.jpg is two days old too but still has its row, so it is not a stray.
+  check('a file with no row is swept once it is a day old, and a fresh one is left alone',
+    await due(365), [{ has_row: false, storage_path: 'DMC/PR0009/stray.jpg' }]);
+
+  check('nobody signed in may ask — it reads every outlet\'s folder',
+    await tryWrite(ACCOUNTS.admin[0], `SELECT * FROM return_photos_due_for_purge(30)`), 'blocked');
+
+  // The Storage API's own path, which the guard lets through.
+  await db.exec(`SELECT set_config('storage.allow_delete_query', 'true', false);
+                 DELETE FROM storage.objects WHERE bucket_id = 'return-photos';
+                 SELECT set_config('storage.allow_delete_query', '', false);`);
 }
 
 console.log('\n=== a confirmed mark is fixed; an open one may be re-scored, and scored 0 ===');

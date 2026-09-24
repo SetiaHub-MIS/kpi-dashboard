@@ -87,11 +87,11 @@ export function ReturnPhotos({
     }
   };
 
-  const remove = async (id: number) => {
+  const remove = async (photo: ReturnPhoto) => {
     setBusy(true);
     try {
-      await deleteReturnPhoto(id);
-      setPhotos((p) => p.filter((x) => x.id !== id));
+      await deleteReturnPhoto(photo);
+      setPhotos((p) => p.filter((x) => x.id !== photo.id));
     } catch (e: any) {
       setError(e?.message ?? t('gambar_gagal_buang'));
     } finally {
@@ -136,7 +136,7 @@ export function ReturnPhotos({
               )}
               {canEdit && (
                 <Pressable
-                  onPress={() => void remove(p.id)}
+                  onPress={() => void remove(p)}
                   disabled={busy}
                   accessibilityRole="button"
                   accessibilityLabel={t('buang_gambar_a11y')}

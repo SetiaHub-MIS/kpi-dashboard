@@ -46,7 +46,8 @@ await db.exec(`
   );
   CREATE TABLE storage.objects (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    bucket_id text, name text, owner uuid
+    bucket_id text, name text, owner uuid,
+    created_at timestamptz DEFAULT now()
   );
   ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
   CREATE FUNCTION storage.foldername(name text) RETURNS text[]
@@ -85,6 +86,7 @@ const MIGRATIONS = [
   '20260919050000_area_manager_hires_supervisors.sql',
   '20260919060000_label_spelling.sql',
   '20260919070000_supervisor_title.sql',
+  '20260919080000_photo_files_leave_through_storage.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

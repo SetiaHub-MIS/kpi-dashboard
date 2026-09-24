@@ -164,8 +164,19 @@ export async function signedUrl(path: string, seconds = 600): Promise<string | n
   return data?.signedUrl ?? null;
 }
 
-/** Removes a photo. The row's delete trigger takes the file with it. */
-export async function deleteReturnPhoto(id: number): Promise<void> {
-  const { error } = await supabase.from('return_photos').delete().eq('id', id);
+/**
+ * Removes a photo: the file through the Storage API, then the row.
+ *
+ * Supabase refuses a file deleted in SQL, so the row can no longer take its
+ * file with it (20260919080000). File first: if the second step fails, the
+ * row survives and the photo stays on screen for another try — removing a
+ * file already gone is not an error. Anything that slips through the other
+ * way, a file with no row, is swept by the purge-return-photos function.
+ */
+export async function deleteReturnPhoto(photo: Pick<ReturnPhoto, 'id' | 'path'>): Promise<void> {
+  const { error: fileErr } = await supabase.storage.from(BUCKET).remove([photo.path]);
+  if (fileErr) throw fileErr;
+
+  const { error } = await supabase.from('return_photos').delete().eq('id', photo.id);
   if (error) throw error;
 }
