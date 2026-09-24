@@ -5,30 +5,41 @@ import { useT } from '@/store/useLocale';
 import { C } from '@/theme/scoring';
 
 /**
- * A dropdown over the outlets an account covers. Shows the chosen outlet;
- * tapping opens the list beneath it, tapping an outlet picks it and closes.
- * Rendered only when there is a choice to make — with one outlet the caller
- * shows the name and nothing else.
+ * A dropdown over a list of outlets. Shows the chosen one; tapping opens the
+ * list beneath it, tapping an outlet picks it and closes.
+ *
+ * With `allLabel`, the list starts with an "every outlet" entry whose value
+ * is null — for filters, where no outlet is a choice too. `countOf` puts a
+ * number beside each entry, the way the role filter chips carry theirs.
  */
 export function OutletPicker({
   outlets,
   value,
   onChange,
+  allLabel,
+  countOf,
 }: {
   outlets: string[];
-  value: string;
-  onChange: (branchId: string) => void;
+  value: string | null;
+  onChange: (branchId: string | null) => void;
+  allLabel?: string;
+  countOf?: (branchId: string | null) => number;
 }) {
   const [open, setOpen] = useState(false);
   const branchLabel = useBranchLabel();
   const t = useT();
+
+  const entries: (string | null)[] = allLabel ? [null, ...outlets] : outlets;
+  const labelOf = (id: string | null) => (id === null ? (allLabel ?? '') : branchLabel(id));
+  const withCount = (id: string | null) =>
+    countOf ? `${labelOf(id)} · ${countOf(id)}` : labelOf(id);
 
   return (
     <View>
       <Pressable
         onPress={() => setOpen((o) => !o)}
         accessibilityRole="button"
-        accessibilityLabel={t('pilih_cawangan_a11y', { branch: branchLabel(value) })}
+        accessibilityLabel={t('pilih_cawangan_a11y', { branch: labelOf(value) })}
         accessibilityState={{ expanded: open }}
         className="flex-row items-center justify-between bg-card border rounded-[10px] px-3.5 py-3 active:opacity-70"
         style={{ borderColor: open ? '#C7C7C2' : C.line }}
@@ -38,7 +49,7 @@ export function OutletPicker({
             {t('cawangan')}
           </Text>
           <Text className="font-sans-semi text-[14px] text-ink mt-1" numberOfLines={1}>
-            {branchLabel(value)}
+            {withCount(value)}
           </Text>
         </View>
         <Text className="font-mono text-[12px] text-ink-5 ml-3">{open ? '▴' : '▾'}</Text>
@@ -46,11 +57,11 @@ export function OutletPicker({
 
       {open && (
         <View className="bg-card border border-line rounded-[10px] mt-1.5 overflow-hidden">
-          {outlets.map((id, i) => {
+          {entries.map((id, i) => {
             const on = id === value;
             return (
               <Pressable
-                key={id}
+                key={id ?? '__all'}
                 onPress={() => {
                   onChange(id);
                   setOpen(false);
@@ -67,7 +78,7 @@ export function OutletPicker({
                 <Text
                   className={on ? 'font-sans-semi text-[13.5px] text-ink' : 'font-sans-med text-[13.5px] text-ink-2'}
                 >
-                  {branchLabel(id)}
+                  {withCount(id)}
                 </Text>
               </Pressable>
             );

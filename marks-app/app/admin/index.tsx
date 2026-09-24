@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { MonoLabel } from '@/components/Card';
+import { OutletPicker } from '@/components/OutletPicker';
 import { Screen } from '@/components/Screen';
-import { findBranch } from '@/data/branches';
 import { useBranches } from '@/store/useBranches';
 import { ROLE_LADDER, Role } from '@/data/users';
 import { roleLabel, supervisorTitleLabel } from '@/i18n/labels';
@@ -55,30 +55,15 @@ export default function AdminUsers() {
         })}
       </Text>
 
-      <View className="flex-row gap-1.5 mt-4">
-        {[null, ...branches.map((b) => b.id)].map((bid) => {
-          const on = branchFilter === bid;
-          return (
-            <Pressable
-              key={bid ?? 'all'}
-              onPress={() => setBranchFilter(bid)}
-              accessibilityRole="button"
-              className="flex-1 py-2 rounded-lg border items-center"
-              style={{
-                borderColor: on ? 'transparent' : C.line,
-                backgroundColor: on ? C.ink : C.card,
-              }}
-            >
-              <Text
-                className="font-sans-med text-[12px]"
-                style={{ color: on ? '#fff' : C.ink3 }}
-                numberOfLines={1}
-              >
-                {bid === null ? t('semua') : (findBranch(branches, bid)?.short ?? bid)}
-              </Text>
-            </Pressable>
-          );
-        })}
+      {/* Forty outlets do not fit side by side on a phone; a dropdown does. */}
+      <View className="mt-4">
+        <OutletPicker
+          outlets={branches.map((b) => b.id)}
+          value={branchFilter}
+          onChange={setBranchFilter}
+          allLabel={t('semua_cawangan')}
+          countOf={(bid) => (bid === null ? users.length : users.filter((u) => u.branchId === bid).length)}
+        />
       </View>
 
       <View className="flex-row flex-wrap gap-1.5 mt-2">
