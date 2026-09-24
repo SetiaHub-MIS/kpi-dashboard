@@ -584,6 +584,29 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
   check('HR may NOT create a branch either',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
+
+  // The three writes the Cawangan screens make. An UPDATE that RLS refuses
+  // changes nothing and raises nothing, so each is read back rather than
+  // judged by the absence of an error.
+  const nameOf = async (id) =>
+    (await db.query(`SELECT name, short_name, active FROM branches WHERE id = '${id}'`)).rows[0];
+
+  check('admin may add an outlet',
+    await tryWrite(ACCOUNTS.admin[0],
+      `INSERT INTO branches (id,name,short_name) VALUES ('ZZR','Kedai Ujian Nama','Ujian Nama')`), 'allowed');
+
+  await as(ACCOUNTS.admin[0], `UPDATE branches SET name = 'Kedai Nama Baharu', short_name = 'Nama Baharu' WHERE id = 'ZZR'`);
+  check('admin may rename an outlet, and it holds',
+    await nameOf('ZZR'), { name: 'Kedai Nama Baharu', short_name: 'Nama Baharu', active: true });
+
+  await as(ACCOUNTS.herdi[0], `UPDATE branches SET name = 'Diubah AM' WHERE id = 'DMC'`);
+  check('an Area Manager may not rename one — the name is unchanged',
+    (await nameOf('DMC')).name, 'Kedai Machang');
+
+  await as(ACCOUNTS.admin[0], `UPDATE branches SET active = false WHERE id = 'ZZR'`);
+  check('admin may close an outlet', (await nameOf('ZZR')).active, false);
+
+  await db.exec(`DELETE FROM branches WHERE id = 'ZZR'`);
 }
 
 console.log('');

@@ -296,6 +296,32 @@ export async function fetchBranches(): Promise<Branch[]> {
 }
 
 /**
+ * A new outlet. Admin-only under branches_write; the database gives it scoring
+ * rules and the asset catalogue on insert. A code already taken is the
+ * primary key's answer, and a malformed one the table's CHECK.
+ */
+export async function createBranch(branch: Pick<Branch, 'id' | 'name' | 'short'>): Promise<WriteResult> {
+  const { error } = await supabase
+    .from('branches')
+    .insert({ id: branch.id, name: branch.name, short_name: branch.short });
+  if (error?.code === UNIQUE_VIOLATION) {
+    return { ok: false, reason: 'unknown', message: `Kod ${branch.id} sudah digunakan.` };
+  }
+  return asResult(error);
+}
+
+/** Name and short name. The code stays: stock exports and payroll key on it. */
+export async function updateBranchName(id: string, name: string, short: string): Promise<WriteResult> {
+  const { error } = await supabase.from('branches').update({ name, short_name: short }).eq('id', id);
+  return asResult(error);
+}
+
+export async function updateBranchActive(id: string, active: boolean): Promise<WriteResult> {
+  const { error } = await supabase.from('branches').update({ active }).eq('id', id);
+  return asResult(error);
+}
+
+/**
  * The four weekly percentages the app hangs off each person, plus their
  * per-kategori averages.
  *

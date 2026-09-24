@@ -19,18 +19,29 @@ export default function NewBranch() {
   /** Empty means "use the code suggested from the name". */
   const [customCode, setCustomCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const suggested = suggestBranchCode(name, branches);
   const code = (customCode.trim() || suggested).toUpperCase();
 
-  const submit = () => {
+  const submit = async () => {
+    if (busy) return;
     const blocked = newBranchBlocker(branches, name, code);
     if (blocked) {
       setError(blocked);
       return;
     }
-    addBranch({ id: code, name, short });
-    router.replace(`/branch/${code}`);
+    setBusy(true);
+    try {
+      const result = await addBranch({ id: code, name, short });
+      if (!result.ok) {
+        setError(result.reason === 'forbidden' ? t('perubahan_ditolak_pelayan') : result.message);
+        return;
+      }
+      router.replace(`/branch/${code}`);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -109,9 +120,11 @@ export default function NewBranch() {
         )}
 
         <Pressable
-          onPress={submit}
+          onPress={() => void submit()}
+          disabled={busy}
           accessibilityRole="button"
           className="mt-3.5 py-3.5 rounded-xl bg-ink items-center active:opacity-80"
+          style={{ opacity: busy ? 0.6 : 1 }}
         >
           <Text className="font-sans-semi text-sm text-white">{t('cipta_cawangan')}</Text>
         </Pressable>

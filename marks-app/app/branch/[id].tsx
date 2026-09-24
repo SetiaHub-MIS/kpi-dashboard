@@ -8,6 +8,7 @@ import { Screen } from '@/components/Screen';
 import { closeBranchBlocker, findBranch } from '@/data/branches';
 import { roleLabel } from '@/i18n/labels';
 import { notify } from '@/lib/dialog';
+import { WriteResult } from '@/lib/directory';
 import { useBranches } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
@@ -25,6 +26,25 @@ export default function BranchDetail() {
   const branch = findBranch(branches, id);
   const [name, setName] = useState(branch?.name ?? '');
   const [short, setShort] = useState(branch?.short ?? '');
+  const [saving, setSaving] = useState(false);
+
+  // Written to Postgres before the screen changes, so a refusal is shown
+  // rather than looking saved until the next reload.
+  const persist = async (write: () => Promise<WriteResult>) => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const result = await write();
+      if (!result.ok) {
+        notify(
+          t('perubahan_tak_disimpan'),
+          result.reason === 'forbidden' ? t('perubahan_ditolak_pelayan') : result.message
+        );
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (!branch) {
     return (
@@ -48,8 +68,9 @@ export default function BranchDetail() {
         return;
       }
     }
-    setBranchActive(branch.id, !branch.active);
+    void persist(() => setBranchActive(branch.id, !branch.active));
   };
+  const canSave = dirty && !!name.trim() && !saving;
 
   return (
     <Screen>
@@ -82,15 +103,15 @@ export default function BranchDetail() {
           />
         </View>
         <Pressable
-          onPress={() => renameBranch(branch.id, name, short)}
-          disabled={!dirty || !name.trim()}
+          onPress={() => void persist(() => renameBranch(branch.id, name, short))}
+          disabled={!canSave}
           accessibilityRole="button"
           className="mt-3 py-2.5 rounded-[10px] items-center"
-          style={{ backgroundColor: dirty && name.trim() ? C.ink : C.line }}
+          style={{ backgroundColor: canSave ? C.ink : C.line }}
         >
           <Text
             className="font-sans-semi text-[12.5px]"
-            style={{ color: dirty && name.trim() ? '#fff' : C.ink6 }}
+            style={{ color: canSave ? '#fff' : C.ink6 }}
           >
             {t('simpan_nama')}
           </Text>
@@ -130,6 +151,7 @@ export default function BranchDetail() {
 
       <Pressable
         onPress={toggleActive}
+        disabled={saving}
         accessibilityRole="button"
         className="mt-2.5 py-3.5 rounded-xl border items-center bg-card active:opacity-70"
         style={{ borderColor: branch.active ? '#D6D6D2' : C.pass }}
