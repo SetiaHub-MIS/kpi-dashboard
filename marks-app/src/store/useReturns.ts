@@ -4,11 +4,9 @@ import {
   ReturnReason,
   ReturnRecord,
   SEED_RETURNS,
-  STAGE_OWNER,
   Stage,
   isCleared,
   nextReturnId,
-  nextStage,
 } from '@/data/returns';
 import {
   User,
@@ -179,9 +177,6 @@ export const useReturns = create<ReturnsState>((set, get) => ({
   },
 }));
 
-export const returnsOfBranch = (records: ReturnRecord[], branchId: string | null) =>
-  branchId == null ? records : records.filter((r) => r.branchId === branchId);
-
 /**
  * The returns an account may act on. A return's branch_id is the outlet the
  * goods came *from*, so the HQ stor team — who are posted to HQ and handle all
@@ -204,10 +199,3 @@ export const returnsVisibleTo = (
 export const openReturns = (records: ReturnRecord[]) => records.filter((r) => !isCleared(r));
 
 export const clearedReturns = (records: ReturnRecord[]) => records.filter(isCleared);
-
-/** Records whose next step belongs to the given role. */
-export const awaitingRole = (records: ReturnRecord[], owner: 'store' | 'clerk') =>
-  openReturns(records).filter((r) => {
-    const stage = nextStage(r);
-    return stage != null && STAGE_OWNER[stage] === owner;
-  });

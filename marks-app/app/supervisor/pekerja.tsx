@@ -7,7 +7,7 @@ import { useT } from '@/store/useLocale';
 import { useMarks, weekMark } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
 import { staffOfBranch, useUsers } from '@/store/useUsers';
-import { C, pctBg, pctColor } from '@/theme/scoring';
+import { pctBg, pctColor } from '@/theme/scoring';
 import { SignOutButton } from '@/components/SignOutButton';
 
 export default function Pekerja() {

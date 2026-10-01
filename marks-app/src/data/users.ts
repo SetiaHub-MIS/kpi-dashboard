@@ -128,11 +128,6 @@ export const ROLE_BLURB: Record<Role, string> = {
  */
 export const MARKED_ROLES: Role[] = ['staff', 'store', 'supervisor'];
 
-/** Roles measured on the returns chain rather than, or as well as, a checklist. */
-export const RETURNS_KPI_ROLES: Role[] = ['store', 'clerk'];
-
-export const hasReturnsKpi = (role: Role) => RETURNS_KPI_ROLES.includes(role);
-
 export const isMarked = (role: Role) => MARKED_ROLES.includes(role);
 
 /**

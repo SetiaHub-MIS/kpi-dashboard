@@ -98,9 +98,3 @@ export const currentUser = (users: User[], currentUserId: string | null): User |
     perkara: [],
   };
 };
-
-/**
- * Which branch the signed-in account may see. null means cross-branch (admin),
- * which callers treat as "no filter".
- */
-export const visibleBranch = (user: User | undefined): string | null => user?.branchId ?? null;

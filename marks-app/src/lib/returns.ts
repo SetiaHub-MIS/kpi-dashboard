@@ -111,19 +111,6 @@ export async function supplierIdFor(name: string): Promise<number | null> {
   return made.id;
 }
 
-/** The next free PR reference, read from what is already there. */
-export async function nextRef(): Promise<string> {
-  const { data, error } = await supabase
-    .from('returns')
-    .select('ref')
-    .order('ref', { ascending: false })
-    .limit(1);
-
-  if (error) throw error;
-  const highest = Number.parseInt((data?.[0]?.ref ?? 'PR0000').replace(/\D/g, ''), 10);
-  return `PR${String((Number.isFinite(highest) ? highest : 0) + 1).padStart(4, '0')}`;
-}
-
 export type NewReturn = {
   ref: string;
   branchId: string;

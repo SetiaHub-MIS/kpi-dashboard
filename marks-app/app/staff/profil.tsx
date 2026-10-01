@@ -1,5 +1,4 @@
-import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
 import { MyEmailCard } from '@/components/MyEmailCard';
@@ -10,7 +9,7 @@ import { useBranchLabel } from '@/store/useBranches';
 import { roleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
-import { findUser, primaryOf, useUsers } from '@/store/useUsers';
+import { primaryOf, useUsers } from '@/store/useUsers';
 import { pctColor } from '@/theme/scoring';
 import { SignOutButton } from '@/components/SignOutButton';
 

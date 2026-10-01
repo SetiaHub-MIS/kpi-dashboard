@@ -35,7 +35,6 @@ import { C } from '@/theme/scoring';
 export default function PulanganRecon() {
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
-  const branchId = me?.branchId ?? null;
   const records = useReturns((s) => s.records);
 
   // Recording a bill stays a store job, as it is on the returns list itself;

@@ -30,7 +30,6 @@ import { SignOutButton } from '@/components/SignOutButton';
 export default function Tugasan() {
   const monthIdx = useMarks((s) => s.monthIdx);
   const entriesByMonth = useTugasan((s) => s.entriesByMonth);
-  const signOffByMonth = useTugasan((s) => s.signOffByMonth);
   const toggle = useTugasan((s) => s.toggle);
   const setNote = useTugasan((s) => s.setNote);
   const setTarikh = useTugasan((s) => s.setTarikh);

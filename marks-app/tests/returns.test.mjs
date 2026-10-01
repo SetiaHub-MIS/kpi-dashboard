@@ -9,7 +9,6 @@ import { test } from 'node:test';
 
 import {
   ageingStatus,
-  bucketOf,
   dueOn,
   gapDays,
   newReturnBlocker,
@@ -129,13 +128,6 @@ test('submission stats score on-time over received, per Rule 1', () => {
 
 test('an empty list scores 100%, not a division by zero', () => {
   assert.equal(submissionStats([]).pct, 100);
-});
-
-test('ageing buckets fall back to the widest band past the named ones', () => {
-  assert.equal(bucketOf(1), '≤ 3 hari');
-  assert.equal(bucketOf(5), '4–7 hari');
-  assert.equal(bucketOf(10), '8–14 hari');
-  assert.equal(bucketOf(30), '> 14 hari');
 });
 
 test('a new return needs a bill number, a real date, and no duplicate', () => {

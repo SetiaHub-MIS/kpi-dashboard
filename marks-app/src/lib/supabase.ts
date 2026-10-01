@@ -32,24 +32,3 @@ export const supabase = createClient(url ?? 'http://localhost', anonKey ?? 'anon
     detectSessionInUrl: Platform.OS === 'web',
   },
 });
-
-/**
- * The staff row behind the signed-in account. Auth issues a UUID; the directory
- * is keyed by payroll number, and `users.auth_user_id` bridges the two.
- *
- * RLS lets any signed-in user read their own row, so this needs no elevated
- * access — and it returns null rather than throwing when no login is linked yet.
- */
-export async function fetchCurrentStaff() {
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return null;
-
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, name, short_name, initials, role, branch_id, active')
-    .eq('auth_user_id', auth.user.id)
-    .maybeSingle();
-
-  if (error) throw error;
-  return data;
-}

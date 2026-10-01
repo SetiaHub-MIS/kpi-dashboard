@@ -8,13 +8,12 @@ export type Locale = 'ms' | 'en';
  * the form they know. See FORM/STOR_FORM/SV_FORM in data/checklist.ts.
  *
  * Keys are grouped loosely by the screen they first appear on, but many are
- * reused across several — Batal, Simpan and Hantar in particular are shared
+ * reused across several — Batal and Hantar in particular are shared
  * everywhere rather than re-keyed per screen.
  */
 export const STRINGS: Record<string, Record<Locale, string>> = {
   // ---------------------------------------------------------------- common
   batal: { ms: 'Batal', en: 'Cancel' },
-  simpan: { ms: 'Simpan', en: 'Save' },
   hantar: { ms: 'Hantar', en: 'Send' },
   kembali: { ms: 'Kembali', en: 'Back' },
   faham: { ms: 'Faham', en: 'Got it' },
@@ -149,10 +148,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   // heading keeps the full name.
   tab_tugasan_saya: { ms: 'Tugasan', en: 'Tugasan' },
   tab_pulangan: { ms: 'Pulangan', en: 'Returns' },
-  tab_admin: { ms: 'Admin', en: 'Admin' },
   tab_cawangan: { ms: 'Cawangan', en: 'Branches' },
   tab_peranan: { ms: 'Peranan', en: 'Roles' },
-  tab_pulangan_saya: { ms: 'Pulangan saya', en: 'My returns' },
   tab_selesai: { ms: 'Selesai', en: 'Done' },
 
   // ---------------------------------------------------------------- staff home

@@ -53,8 +53,6 @@ export const FORM: Kategori[] = [
   },
 ];
 
-export const LINE_COUNT = FORM.reduce((n, k) => n + k.lines.length, 0);
-
 /**
  * Pekerja stor are marked on their own criteria — receiving, stock rotation and
  * store safety rather than shop-floor display and cleanliness.
@@ -158,8 +156,6 @@ export const FORM_LABEL: Record<FormKey, string> = {
 
 export const countLines = (form: Kategori[]) =>
   form.reduce((n, k) => n + k.lines.length, 0);
-
-export const STOR_LINE_COUNT = countLines(STOR_FORM);
 
 export const lineKey = (katNo: number, lineIdx: number) => `${katNo}-${lineIdx}`;
 

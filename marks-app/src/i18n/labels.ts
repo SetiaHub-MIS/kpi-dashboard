@@ -1,4 +1,4 @@
-import { AGEING_LABEL, AgeingStatus, DISPOSITION_LABEL, Disposition, REASON_LABEL, ReturnReason, STAGE_LABEL, Stage } from '@/data/returns';
+import { DISPOSITION_LABEL, Disposition, REASON_LABEL, ReturnReason, STAGE_LABEL, Stage } from '@/data/returns';
 import { FORM_LABEL, FormKey } from '@/data/checklist';
 import { FIELD_LABEL, VendorField } from '@/data/reconcile';
 import { ROLE_BLURB, ROLE_LABEL, Role, SUPERVISOR_TITLE_LABEL, SupervisorTitle } from '@/data/users';
@@ -86,17 +86,6 @@ const DISPOSITION_EN: Record<Disposition, string> = {
 
 export function dispositionLabel(disposition: Disposition, locale: Locale): string {
   return locale === 'en' ? DISPOSITION_EN[disposition] : DISPOSITION_LABEL[disposition];
-}
-
-const AGEING_EN: Record<AgeingStatus, string> = {
-  cleared: 'Cleared',
-  ok: 'On track',
-  breach: 'Over 2 months',
-  overdue: 'Overdue action',
-};
-
-export function ageingLabel(status: AgeingStatus, locale: Locale): string {
-  return locale === 'en' ? AGEING_EN[status] : AGEING_LABEL[status];
 }
 
 const FORM_EN: Record<FormKey, string> = {

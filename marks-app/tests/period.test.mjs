@@ -9,9 +9,7 @@ import { test } from 'node:test';
 import {
   currentPeriod,
   daysBetweenIso,
-  periodKey,
   periodLabel,
-  periodOf,
   recentPeriods,
   samePeriod,
   todayIso,
@@ -53,12 +51,10 @@ test('single digits are padded in ISO and left bare in the short form', () => {
 
 test('periods carry the month as 1-12, not a zero-based index', () => {
   assert.deepEqual(currentPeriod(new Date(2026, 8, 9)), { year: 2026, month: 9 });
-  assert.deepEqual(periodOf('2026-09-09'), { year: 2026, month: 9 });
-  assert.equal(periodKey({ year: 2026, month: 9 }), '2026-09');
   assert.equal(periodLabel({ year: 2026, month: 9 }), 'SEPTEMBER 2026');
   assert.equal(periodLabel({ year: 2026, month: 3 }), 'MAC 2026');
-  assert.ok(samePeriod({ year: 2026, month: 9 }, periodOf('2026-09-30')));
-  assert.ok(!samePeriod({ year: 2026, month: 9 }, periodOf('2026-10-01')));
+  assert.ok(samePeriod({ year: 2026, month: 9 }, currentPeriod(new Date(2026, 8, 30))));
+  assert.ok(!samePeriod({ year: 2026, month: 9 }, currentPeriod(new Date(2026, 9, 1))));
 });
 
 test('the month switcher ends on the current month and walks back', () => {

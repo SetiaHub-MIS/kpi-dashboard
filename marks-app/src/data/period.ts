@@ -35,13 +35,6 @@ export const currentPeriod = (now: Date = new Date()): Period => ({
   month: now.getMonth() + 1,
 });
 
-export const periodOf = (iso: string): Period => ({
-  year: Number(iso.slice(0, 4)),
-  month: Number(iso.slice(5, 7)),
-});
-
-export const periodKey = (p: Period) => `${p.year}-${pad(p.month)}`;
-
 export const periodLabel = (p: Period) => `${MONTH_NAMES[p.month - 1]} ${p.year}`;
 
 export const samePeriod = (a: Period, b: Period) =>

@@ -268,48 +268,6 @@ export function ageBand(days: number): 'ok' | 'warn' | 'late' {
   return 'late';
 }
 
-/** Ageing buckets for open records, used by the admin returns report. */
-export const AGE_BUCKETS: { label: string; max: number }[] = [
-  { label: '≤ 3 hari', max: 3 },
-  { label: '4–7 hari', max: 7 },
-  { label: '8–14 hari', max: 14 },
-  { label: '> 14 hari', max: Number.POSITIVE_INFINITY },
-];
-
-export function bucketOf(days: number): string {
-  return (AGE_BUCKETS.find((b) => days <= b.max) ?? AGE_BUCKETS[AGE_BUCKETS.length - 1]).label;
-}
-
-export type Transition = { from: Stage; to: Stage; avg: number; n: number };
-
-/**
- * Average days spent on each hop of the chain, across every record that has
- * both ends stamped. Shows where returns actually stall.
- */
-export function transitionStats(records: ReturnRecord[]): Transition[] {
-  const acc = new Map<string, { from: Stage; to: Stage; total: number; n: number }>();
-  records.forEach((r) => {
-    const chain = stagesFor(r.disposition);
-    for (let i = 1; i < chain.length; i++) {
-      const from = chain[i - 1];
-      const to = chain[i];
-      const d = gapDays(r, from, to);
-      if (d == null) continue;
-      const key = `${from}>${to}`;
-      const cur = acc.get(key) ?? { from, to, total: 0, n: 0 };
-      cur.total += d;
-      cur.n += 1;
-      acc.set(key, cur);
-    }
-  });
-  return [...acc.values()].map((x) => ({
-    from: x.from,
-    to: x.to,
-    avg: Math.round(x.total / x.n),
-    n: x.n,
-  }));
-}
-
 export const SEED_RETURNS: ReturnRecord[] = [
   {
     id: 'PR0001',
