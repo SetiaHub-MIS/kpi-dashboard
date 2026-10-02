@@ -105,7 +105,10 @@ like an app-entered one. October 2026 onwards comes from the phone app only.
    weeks are `kedai` marks; where a week had both a staff and an SV sheet,
    the staff mark was kept. So a current supervisor can legitimately have
    `kedai` marks in their history — group by `marks.form_key`, not by the
-   person's current role.
+   person's current role. The report views do this since
+   `20261002020000_report_form_from_marks.sql`: `report_due` and
+   `report_staff_monthly` file each month under the form the person was
+   marked on.
 7. **`scored_by`:**
    - a payroll number for 6,123 staff weeks and 901 SV weeks;
    - **NULL for 288 staff weeks and 30 SV weeks** — no scorer was recorded

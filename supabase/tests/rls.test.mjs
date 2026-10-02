@@ -95,6 +95,7 @@ for (const m of [
   'supabase/migrations/20260919070000_supervisor_title.sql',
   'supabase/migrations/20260919080000_photo_files_leave_through_storage.sql',
   'supabase/migrations/20261002010000_tugasan_read_by_managers.sql',
+  'supabase/migrations/20261002020000_report_form_from_marks.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1328,6 +1329,45 @@ console.log('\n=== SV and Asisten Penyelia — a label, not a permission ===');
     staffMonthly.rows[0]?.supervisor_title, 'sv');
 
   await as(ACCOUNTS.admin[0], `SELECT set_supervisor_title('WS0001', '')`);
+}
+
+console.log('\n=== a month is filed under the form the person was marked on (20261002020000) ===');
+{
+  // KK0005, KM0010 and PM0029 were promoted from pekerja kedai to SV/AS during
+  // 2026; their kedai months were showing up under SV/AS. Stand in for them
+  // with Syazana (KP0093): one kedai mark in September, week 1, 95/110 = 86%.
+  const dmcHeads = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT form_key, headcount FROM report_branch_monthly
+      WHERE branch_id = 'DMC' AND period_year = 2026 AND period_month = 9 AND form_key IN ('kedai', 'sv')
+      ORDER BY form_key`)).rows.map((r) => [r.form_key, r.headcount]);
+  const staffRows = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT form_key, w1_pct, w3_pct, marked_weeks, rank_in_branch FROM report_staff_monthly
+      WHERE user_id = 'KP0093' AND period_year = 2026 AND period_month = 9 ORDER BY form_key`)).rows
+    .map((r) => [r.form_key, r.w1_pct, r.w3_pct, r.marked_weeks, Number(r.rank_in_branch)]);
+  const dueForm = async (month) => (await as(ACCOUNTS.gm[0],
+    `SELECT form_key FROM report_due WHERE user_id = 'KP0093' AND period_year = 2026 AND period_month = ${month}`))
+    .rows.map((r) => r.form_key);
+
+  const before = await dmcHeads();
+  await db.exec(`UPDATE users SET role = 'supervisor' WHERE id = 'KP0093'`);
+
+  check('promoted to SV/AS: their September, marked on kedai, is still one kedai row, first at Machang',
+    await staffRows(), [['kedai', 86, null, 1, 1]]);
+  check('...and they were due a kedai mark that month, not an SV/AS one', await dueForm(9), ['kedai']);
+  check("...so Machang's kedai and SV/AS headcounts for September do not move", await dmcHeads(), before);
+  check('a month with no mark at all still falls back to the form of the role they hold now',
+    await dueForm(8), ['sv']);
+
+  // Promoted mid-month: kedai in week 1, then their first SV/AS week, 68/85 = 80%.
+  await db.exec(`INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score, scored_by)
+                 VALUES ('KP0093', 'DMC', 'sv', 2026, 9, 3, 68, 85, 'AM0001')`);
+  check('promoted mid-month: one row per form, each with only its own weeks — two checklists never averaged together',
+    await staffRows(), [['kedai', 86, null, 1, 1], ['sv', null, 80, 1, 1]]);
+  check('...and the month is filed under the form they ended it on', await dueForm(9), ['sv']);
+
+  await db.exec(`DELETE FROM marks WHERE user_id = 'KP0093' AND form_key = 'sv' AND period_year = 2026 AND period_month = 9`);
+  await db.exec(`UPDATE users SET role = 'staff' WHERE id = 'KP0093'`);
+  check('put back, Syazana is one kedai row again', await staffRows(), [['kedai', 86, null, 1, 1]]);
 }
 
 // --- the service role, which payroll-auth reads the directory under.

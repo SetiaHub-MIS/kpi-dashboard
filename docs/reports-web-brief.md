@@ -263,8 +263,10 @@ report_staff_monthly
   · w1_pct · w2_pct · w3_pct · w4_pct (NULL = unmarked) · avg_pct
   · marked_weeks · passed_weeks · verified_weeks · pass_threshold · marked_at
   · rank_in_branch
-  -- outlet and role are the person's current ones; marked_at is where the
-  -- marks were scored; equal averages share a rank
+  -- one row per person × month × form (20261002020000): form_key is the
+  -- checklist the marks were on, so someone promoted mid-month has a row
+  -- per form; outlet and role are the person's current ones; marked_at is
+  -- where the marks were scored; equal averages share a rank
 
 report_returns_branch_monthly
   branch_id · branch_name · branch_short · year · month
@@ -287,7 +289,9 @@ report_tugasan_branch_monthly
 Definitions settled while building (the migration header carries the same
 list): a person is **due** a mark when active, posted to an outlet, on a role
 with a form, and joined by the month's end — or marked in that month, whatever
-`joined_on` says; a **week is due** once it has started; **marked** counts
+`joined_on` says — and is due on the **form they were last marked on that
+month**, their current role's form only when unmarked (20261002020000); a
+**week is due** once it has started; **marked** counts
 where the mark was scored, **gaps** where the person is posted now; the score
 judged is the **adjusted** one when a manager adjusted it (that is what the
 phone app shows); **verified** is the existence of a `mark_verifications`
