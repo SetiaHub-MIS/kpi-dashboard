@@ -16,12 +16,22 @@ import { Href, Stack, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { AppState, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HOME_ROUTE, mayOpen } from '@/data/routes';
-import { hydrateDirectory } from '@/lib/hydrate';
+import { SessionEnd } from '@/data/sessionLimits';
+import { hydrateDirectory, signOutAndClear } from '@/lib/hydrate';
 // Imported for its listener: Chrome fires the install offer once, early, and
 // it has to be caught before any screen has mounted.
 import '@/lib/install';
+import {
+  arrivedWithResetLink,
+  checkSession,
+  endedMessage,
+  limitsApply,
+  noteActivity,
+  startSession,
+} from '@/lib/sessionGuard';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useLocale } from '@/store/useLocale';
 import { useQueue } from '@/store/useQueue';
@@ -32,6 +42,25 @@ SplashScreen.preventAutoHideAsync();
 
 /** Reachable with nobody signed in: the way in, and the way back in. */
 const PUBLIC_ROUTES = new Set(['/', '/reset-password']);
+
+/** How often an open app checks the session limits (lib/sessionGuard.ts). */
+const CHECK_EVERY_MS = 30_000;
+
+/**
+ * A limit reached: this device is signed out — the same login elsewhere
+ * carries on — and the sign-in form says why. Queued marks stay queued, as
+ * with any sign-out (lib/hydrate.ts).
+ */
+async function endSession(reason: SessionEnd): Promise<void> {
+  await signOutAndClear('local').catch(() => {});
+  useSession.setState({ error: endedMessage(reason) });
+}
+
+/** Any touch or scroll counts as use; returning false leaves it to the screen. */
+const sawActivity = () => {
+  noteActivity();
+  return false;
+};
 
 /** A rejection has to name a person months later, so the label is resolved now. */
 const nameOf = (userId: string) =>
@@ -62,6 +91,16 @@ export default function RootLayout() {
     void useLocale.getState().load();
     restore().then(async () => {
       if (!live || !useSession.getState().staff) return;
+      // A stored session resumes only within its limits. One that arrived in a
+      // password-reset link has just begun, so its clocks start now.
+      if (limitsApply) {
+        if (arrivedWithResetLink) startSession();
+        const reason = await checkSession();
+        if (reason) {
+          await endSession(reason);
+          return;
+        }
+      }
       // Drain before loading: a mark that syncs now should be in the directory
       // that follows it, rather than appearing only after the next restart.
       await useQueue.getState().drain(nameOf);
@@ -95,17 +134,53 @@ export default function RootLayout() {
     else if (role && !mayOpen(role, pathname)) router.replace(HOME_ROUTE[role] as Href);
   }, [status, currentUserId, role, pathname, router]);
 
+  // While someone is signed in: check the limits every half minute, and as
+  // soon as the app comes back to the front — timers do not run while a phone
+  // is locked or the app is in the background. On the web, typing counts as
+  // use too (touches are caught by the root view below).
+  useEffect(() => {
+    if (!limitsApply || !currentUserId) return;
+    const check = async () => {
+      const reason = await checkSession();
+      if (reason && useSession.getState().currentUserId) await endSession(reason);
+    };
+    const timer = setInterval(() => void check(), CHECK_EVERY_MS);
+    const appState = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void check();
+    });
+    const onKey = () => noteActivity();
+    const web = Platform.OS === 'web' && typeof window !== 'undefined';
+    if (web) {
+      window.addEventListener('keydown', onKey, true);
+      window.addEventListener('wheel', onKey, { capture: true, passive: true });
+    }
+    return () => {
+      clearInterval(timer);
+      appState.remove();
+      if (web) {
+        window.removeEventListener('keydown', onKey, true);
+        window.removeEventListener('wheel', onKey, true);
+      }
+    };
+  }, [currentUserId]);
+
   if (!loaded && !error) return null;
 
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: '#F4F4F2' },
-        }}
-      />
+      <View
+        style={{ flex: 1 }}
+        onStartShouldSetResponderCapture={sawActivity}
+        onMoveShouldSetResponderCapture={sawActivity}
+      >
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#F4F4F2' },
+          }}
+        />
+      </View>
     </SafeAreaProvider>
   );
 }

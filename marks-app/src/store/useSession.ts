@@ -6,6 +6,7 @@ import {
   signInWithPayroll,
   signOutOfSupabase,
 } from '@/lib/auth';
+import { clearSession, startSession } from '@/lib/sessionGuard';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { findUser } from '@/store/useUsers';
 
@@ -25,7 +26,7 @@ type SessionState = {
   /** Demo path: become someone without proving it. Kept for unconfigured runs. */
   signIn: (userId: string) => void;
   signInWithPassword: (payrollId: string, password: string) => Promise<SignedInStaff | null>;
-  signOut: () => Promise<void>;
+  signOut: (scope?: 'global' | 'local') => Promise<void>;
   /** Re-attaches a session that survived a restart. Called once at boot. */
   restore: () => Promise<void>;
   clearError: () => void;
@@ -48,12 +49,15 @@ export const useSession = create<SessionState>((set) => ({
       return null;
     }
 
+    // The session's clocks start here (lib/sessionGuard.ts).
+    startSession();
     set({ currentUserId: result.staff.id, staff: result.staff, status: 'idle', error: null });
     return result.staff;
   },
 
-  signOut: async () => {
-    await signOutOfSupabase();
+  signOut: async (scope = 'global') => {
+    clearSession();
+    await signOutOfSupabase(scope);
     set({ currentUserId: null, staff: null, status: 'idle', error: null });
   },
 

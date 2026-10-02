@@ -167,7 +167,12 @@ export async function fetchSignedInStaff(): Promise<SignedInStaff | null> {
   };
 }
 
-export async function signOutOfSupabase(): Promise<void> {
+/**
+ * 'global' (the Sign out button) ends every session this login has;
+ * 'local' ends only this device's, for a time limit reached here
+ * (lib/sessionGuard.ts) — the same login on another phone carries on.
+ */
+export async function signOutOfSupabase(scope: 'global' | 'local' = 'global'): Promise<void> {
   if (!isSupabaseConfigured) return;
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope });
 }

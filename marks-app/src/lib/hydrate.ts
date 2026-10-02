@@ -152,8 +152,8 @@ export async function selectMonth(monthIdx: number): Promise<void> {
  * the person who typed it and must survive them signing out, or the work is
  * lost exactly when the app promised it would not be.
  */
-export async function signOutAndClear(): Promise<void> {
-  await useSession.getState().signOut();
+export async function signOutAndClear(scope: 'global' | 'local' = 'global'): Promise<void> {
+  await useSession.getState().signOut(scope);
 
   if (!isSupabaseConfigured) return;
 

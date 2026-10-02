@@ -23,6 +23,19 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ------------------------------------------------------- sign-out / auth
   log_keluar: { ms: 'Log keluar', en: 'Sign out' },
+  // Why a time limit signed this device out (lib/sessionGuard.ts).
+  sesi_tamat_idle: {
+    ms: 'Anda telah dilog keluar selepas 15 minit tanpa aktiviti. Sila log masuk semula.',
+    en: 'You were signed out after 15 minutes without activity. Please sign in again.',
+  },
+  sesi_tamat_max: {
+    ms: 'Sesi anda tamat 3 jam selepas log masuk. Sila log masuk semula.',
+    en: 'Your session ended 3 hours after you signed in. Please sign in again.',
+  },
+  sesi_tamat_expired: {
+    ms: 'Sesi anda telah tamat. Sila log masuk semula.',
+    en: 'Your session has ended. Please sign in again.',
+  },
   tukar_peranan: { ms: 'Tukar peranan', en: 'Switch role' },
   marks_pending_warning: {
     ms: '{count} markah masih menunggu sambungan. Ia kekal dalam telefon ini dan akan dihantar sendiri, walaupun selepas log keluar.',
