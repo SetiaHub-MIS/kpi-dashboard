@@ -90,6 +90,7 @@ const MIGRATIONS = [
   '20261002010000_tugasan_read_by_managers.sql',
   '20261002020000_report_form_from_marks.sql',
   '20261002030000_rls_once_per_query.sql',
+  '20261002040000_due_from_join_week.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

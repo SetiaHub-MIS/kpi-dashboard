@@ -97,6 +97,7 @@ for (const m of [
   'supabase/migrations/20261002010000_tugasan_read_by_managers.sql',
   'supabase/migrations/20261002020000_report_form_from_marks.sql',
   'supabase/migrations/20261002030000_rls_once_per_query.sql',
+  'supabase/migrations/20261002040000_due_from_join_week.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1403,6 +1404,72 @@ console.log('\n=== reads answered once per query, for exactly the same rows (202
     }
     check(`${table}: every account sees exactly the rows it saw before`, mismatches, []);
   }
+}
+
+console.log('\n=== a new person is due from the week they were added (20261002040000) ===');
+{
+  // Machang, September 2026, kedai. Everyone in the seed joined in January, so
+  // these are the figures before anyone new arrives.
+  const weekly = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT week_no, headcount, gaps FROM report_branch_weekly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9
+      ORDER BY week_no`)).rows;
+  const monthly = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT headcount, gaps, due_slots, coverage_pct FROM report_branch_monthly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9`)).rows[0];
+  const firstWeek = async (id, month) => (await as(ACCOUNTS.gm[0],
+    `SELECT first_week FROM report_due WHERE user_id = '${id}' AND period_year = 2026 AND period_month = ${month}`))
+    .rows.map((r) => r.first_week);
+  const w0 = await weekly();
+  const m0 = await monthly();
+  check('before: due_slots is headcount × weeks started, as coverage always assumed',
+    m0.due_slots, m0.headcount * 4);
+
+  // Added on 17 September — week 3 (15–21) — and not marked yet.
+  await db.exec(`INSERT INTO users (id, name, short_name, initials, role, branch_id, joined_on)
+                 VALUES ('NH0001', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC', DATE '2026-09-17')`);
+  check('added on 17 September: due from week 3 of September, every week from October',
+    [await firstWeek('NH0001', 9), await firstWeek('NH0001', 10)], [[3], [1]]);
+  const w1 = await weekly();
+  check('weeks 1–2 do not count them at all: same headcount, same gaps as before they existed',
+    w1.slice(0, 2).map((r) => [r.headcount, r.gaps]), w0.slice(0, 2).map((r) => [r.headcount, r.gaps]));
+  check('weeks 3–4 count them as due, and unmarked',
+    w1.slice(2).map((r) => [r.headcount, r.gaps]), w0.slice(2).map((r) => [r.headcount + 1, r.gaps + 1]));
+  const m1 = await monthly();
+  check('the month gains 2 person-weeks due and 2 gaps, not 4 of each',
+    [m1.due_slots - m0.due_slots, m1.gaps - m0.gaps], [2, 2]);
+  check('...and coverage is measured against what was actually due',
+    m1.coverage_pct, Math.round(((m1.due_slots - m1.gaps) * 100) / m1.due_slots));
+  const nh = (await as(ACCOUNTS.gm[0],
+    `SELECT due_from_week, w1_pct, w3_pct FROM report_staff_monthly
+      WHERE user_id = 'NH0001' AND period_year = 2026 AND period_month = 9`)).rows;
+  check('their staff row says which week they are due from', nh.map((r) => r.due_from_week), [3]);
+
+  // The imported history: a person whose row was created on 1 October, with a
+  // workbook mark for September week 2. They plainly worked September.
+  await db.exec(`INSERT INTO users (id, name, short_name, initials, role, branch_id, joined_on)
+                 VALUES ('NH0002', 'Pekerja Lama', 'Lama', 'PL', 'staff', 'DMC', DATE '2026-10-01')`);
+  await db.exec(`INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score)
+                 VALUES ('NH0002', 'DMC', 'kedai', 2026, 9, 2, 88, 110)`);
+  check('marked in a month before they were added: due all of it, from week 1',
+    await firstWeek('NH0002', 9), [1]);
+  const w2 = await weekly();
+  check("...so the weeks they weren't marked in are gaps (1, 3, 4) and the marked one is not (2)",
+    w2.map((r) => r.gaps - w1[r.week_no - 1].gaps), [1, 0, 1, 1]);
+
+  // Company rows re-derive coverage from the outlet rows' due_slots.
+  const co = (await as(ACCOUNTS.gm[0],
+    `SELECT c.due_slots, c.gaps, c.coverage_pct,
+            (SELECT sum(due_slots)::int FROM report_branch_monthly b
+              WHERE b.form_key = 'kedai' AND b.period_year = 2026 AND b.period_month = 9) AS branch_slots
+       FROM report_company_monthly c
+      WHERE c.form_key = 'kedai' AND c.period_year = 2026 AND c.period_month = 9`)).rows[0];
+  check('company due_slots is the sum of the outlets\x27, and its coverage is derived from it',
+    [co.due_slots, co.coverage_pct], [co.branch_slots, Math.round(((co.due_slots - co.gaps) * 100) / co.due_slots)]);
+
+  await db.exec(`DELETE FROM users WHERE id IN ('NH0001', 'NH0002')`);
+  const m3 = await monthly();
+  check('put back, Machang September is as it was', [m3.headcount, m3.gaps, m3.due_slots], [m0.headcount, m0.gaps, m0.due_slots]);
 }
 
 // --- the service role, which payroll-auth reads the directory under.
