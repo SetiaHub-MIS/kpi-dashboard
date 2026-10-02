@@ -98,6 +98,8 @@ for (const m of [
   'supabase/migrations/20261002020000_report_form_from_marks.sql',
   'supabase/migrations/20261002030000_rls_once_per_query.sql',
   'supabase/migrations/20261002040000_due_from_join_week.sql',
+  'supabase/migrations/20261003010000_malaysia_date.sql',
+  'supabase/migrations/20261003020000_handover_before_friday.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1470,6 +1472,70 @@ console.log('\n=== a new person is due from the week they were added (2026100204
   await db.exec(`DELETE FROM users WHERE id IN ('NH0001', 'NH0002')`);
   const m3 = await monthly();
   check('put back, Machang September is as it was', [m3.headcount, m3.gaps, m3.due_slots], [m0.headcount, m0.gaps, m0.due_slots]);
+}
+
+console.log('\n=== today is Malaysia\x27s date, and a list before its Friday is not a miss (20261003010000, 20261003020000) ===');
+{
+  // The fixed rule first: nothing that counts days reads the server's UTC date.
+  const def = (await db.query(`SELECT pg_get_viewdef('return_turnaround') AS d`)).rows[0].d;
+  check('return_turnaround ages a return to report_today(), not CURRENT_DATE',
+    [/report_today\(\)/.test(def), /CURRENT_DATE/i.test(def)], [true, false]);
+  const dflt = (await db.query(
+    `SELECT column_default AS d FROM information_schema.columns
+      WHERE table_name = 'users' AND column_name = 'joined_on'`)).rows[0].d;
+  check('users.joined_on defaults to report_today()', /report_today\(\)/.test(dflt), true);
+
+  // And as behaviour, in a session twelve hours behind UTC, where the server's
+  // date and Malaysia's differ for twenty hours of every day.
+  await db.exec(`SET TIME ZONE -12`);
+  try {
+    const age = (await as(ACCOUNTS.hafiz[0],
+      `SELECT a.age_days = report_today() - a.received_on AS ok FROM return_ageing a WHERE ref = 'PR0005'`)).rows[0];
+    check('an open return\x27s age is counted to Malaysia\x27s today', age.ok, true);
+    await db.exec(`INSERT INTO users (id, name, short_name, initials, role, branch_id)
+                   VALUES ('NH0003', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC')`);
+    const joined = (await db.query(`SELECT joined_on = report_today() AS ok FROM users WHERE id = 'NH0003'`)).rows[0];
+    check('a person added today starts on Malaysia\x27s today', joined.ok, true);
+    await db.exec(`DELETE FROM users WHERE id = 'NH0003'`);
+  } finally {
+    await db.exec(`RESET TimeZone`);
+  }
+
+  // Handover. An outlet of its own, so nothing seeded is mixed in.
+  await db.exec(`INSERT INTO branches (id, name, short_name) VALUES ('ZZH', 'Kedai Serahan', 'Serahan')`);
+  const list = async (ref, received, submitted) => {
+    await db.exec(`INSERT INTO returns (ref, branch_id, bill_no, bill_date, reason)
+                   VALUES ('${ref}', 'ZZH', 'B-${ref}', ${received}, 'damage')`);
+    await db.exec(`INSERT INTO return_events (return_id, stage, occurred_on)
+                   SELECT id, 'received', ${received} FROM returns WHERE ref = '${ref}'`);
+    if (submitted) {
+      await db.exec(`INSERT INTO return_events (return_id, stage, occurred_on)
+                     SELECT id, 'submitted_to_clerk', ${submitted} FROM returns WHERE ref = '${ref}'`);
+    }
+  };
+  const month = async (when) => (await as(ACCOUNTS.hr[0],
+    `SELECT received, submitted_on_time, not_submitted, awaiting_handover, submission_pct
+       FROM report_returns_branch_monthly
+      WHERE branch_id = 'ZZH' AND year = extract(year FROM ${when})::int AND month = extract(month FROM ${when})::int`)).rows[0];
+  const row = (r) => [r.received, r.submitted_on_time, r.not_submitted, r.awaiting_handover, r.submission_pct];
+
+  // March 2026, every Friday long gone. Monday 2 March is due Friday 6 March.
+  await list('PR8801', `DATE '2026-03-02'`, `DATE '2026-03-02'`);   // on time
+  await list('PR8802', `DATE '2026-03-02'`, `DATE '2026-03-20'`);   // late
+  await list('PR8803', `DATE '2026-03-02'`, null);                  // never
+  check('a past month: on time 1, never 1, nothing awaiting, 1 of 3 = 33%',
+    row(await month(`DATE '2026-03-02'`)), [3, 1, 1, 0, 33]);
+
+  // Received today: its Friday is today or later, whatever day this runs.
+  await list('PR8804', `report_today()`, null);
+  check('a list received today and not yet handed over is awaiting, not a miss, and scores nothing yet',
+    row(await month(`report_today()`)), [1, 0, 0, 1, null]);
+  await list('PR8805', `report_today()`, `report_today()`);
+  check('...so a list handed over the day it came in makes the month 100%, the awaiting one aside',
+    row(await month(`report_today()`)), [2, 1, 0, 1, 100]);
+
+  await db.exec(`DELETE FROM returns WHERE branch_id = 'ZZH'`);
+  await db.exec(`DELETE FROM branches WHERE id = 'ZZH'`);
 }
 
 // --- the service role, which payroll-auth reads the directory under.

@@ -236,16 +236,21 @@ report_branch_weekly
   branch_id · branch_name · branch_short · period_year · period_month · week_no
   · form_key · week_due · headcount · marked · gaps · passed · avg_pct
   · pct_sum · verified · pass_threshold
-  -- headcount = active people posted here, due this month; marked = marks
-  -- scored here (the snapshot); gaps = due people with no mark that week;
+  -- headcount = active people posted here who are due THAT week — nobody
+  -- before the week they were added (20261002040000); marked = marks scored
+  -- here (the snapshot); gaps = due people with no mark that week;
   -- avg_pct NULL when nothing was marked; pct_sum is for re-aggregation
 
 report_branch_monthly
   branch_id · branch_name · branch_short · period_year · period_month · form_key
   · headcount · marked · gaps · passed · avg_pct · pct_sum · verified
   · pass_threshold · due_weeks · pass_rate_pct · verified_pct · coverage_pct
-  -- gaps and coverage are over weeks that have started:
-  -- coverage_pct = (headcount × due_weeks − gaps) / (headcount × due_weeks)
+  · due_slots
+  -- headcount = people due at any point in the month; gaps and coverage are
+  -- over weeks that have started. due_slots (20261002040000) = person-weeks
+  -- due over those weeks, each person from the week they were added:
+  -- coverage_pct = (due_slots − gaps) / due_slots
+  -- (= headcount × due_weeks when everyone was there all month)
 
 report_company_weekly
   period_year · period_month · week_no · form_key · week_due
@@ -255,30 +260,39 @@ report_company_weekly
 report_company_monthly
   period_year · period_month · form_key
   · headcount · marked · gaps · passed · avg_pct · pct_sum · verified · due_weeks
-  · pass_rate_pct · verified_pct · coverage_pct
+  · pass_rate_pct · verified_pct · coverage_pct · due_slots
+  -- sums of the outlet rows; coverage_pct = (Σ due_slots − Σ gaps) / Σ due_slots
 
 report_staff_monthly
   user_id · name · short_name · role · form_key · branch_id · branch_name
   · branch_short · active · period_year · period_month · due_weeks
   · w1_pct · w2_pct · w3_pct · w4_pct (NULL = unmarked) · avg_pct
   · marked_weeks · passed_weeks · verified_weeks · pass_threshold · marked_at
-  · rank_in_branch
+  · rank_in_branch · supervisor_title · due_from_week
   -- one row per person × month × form (20261002020000): form_key is the
   -- checklist the marks were on, so someone promoted mid-month has a row
   -- per form; outlet and role are the person's current ones; marked_at is
-  -- where the marks were scored; equal averages share a rank
+  -- where the marks were scored; equal averages share a rank;
+  -- due_from_week = the checklist week they are due from — the week of
+  -- joined_on in the month they were added, 1 otherwise (20261002040000)
 
 report_returns_branch_monthly
   branch_id · branch_name · branch_short · year · month
   · received · submitted_on_time · not_submitted · submission_pct
-  · open · breach · overdue · avg_turnaround_days
-  -- by the calendar month a list was received in; ageing as of today
+  · open · breach · overdue · avg_turnaround_days · awaiting_handover
+  -- by the calendar month a list was received in; ageing as of today.
+  -- Since 20261003020000: not_submitted = not handed to the clerk and past
+  -- the Friday deadline; awaiting_handover = not handed over, deadline today
+  -- or later; submission_pct = on time / (received − awaiting_handover),
+  -- NULL while every list is awaiting. received = on time + late +
+  -- not_submitted + awaiting_handover
 
 report_returns_open
   id · ref · branch_id · branch_name · branch_short · bill_no · bill_date
   · reason · disposition · supplier_name · received_on · age_days · limit_on
   · clear_by · status (ok | breach | overdue) · last_stage · last_stage_on
-  -- every return not yet adjusted; the breach/overdue list is a filter on status
+  -- every return not yet adjusted; the breach/overdue list is a filter on status.
+  -- age_days counts to Malaysia's today (report_today(), 20261003010000)
 
 report_tugasan_branch_monthly
   branch_id · branch_name · branch_short · period_year · period_month · due_weeks
@@ -288,8 +302,10 @@ report_tugasan_branch_monthly
 
 Definitions settled while building (the migration header carries the same
 list): a person is **due** a mark when active, posted to an outlet, on a role
-with a form, and joined by the month's end — or marked in that month, whatever
-`joined_on` says — and is due on the **form they were last marked on that
+with a form, and joined by the month's end — due from the checklist week of
+`joined_on` in the month they were added (20261002040000; `joined_on`
+defaults to Malaysia's date since 20261003010000) — or marked in that month,
+whatever `joined_on` says (then due all of it) — and is due on the **form they were last marked on that
 month**, their current role's form only when unmarked (20261002020000); a
 **week is due** once it has started; **marked** counts
 where the mark was scored, **gaps** where the person is posted now; the score
