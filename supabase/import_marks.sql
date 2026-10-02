@@ -6,15 +6,22 @@
 --
 --   * NULL  = perkara not applicable / left blank — left out of the maximum
 --   * 0     = scored zero — counts against the person
---   * 1..5  = the score
+--   * 1..5  = the score — up to the outlet's scoring_rules.scale_max, which
+--             is 5 everywhere today (the table also allows 10)
 --
 -- The form follows the person's role: staff → kedai (22), store → stor (17),
 -- supervisor → sv (19). The list must be exactly that long.
 --
 -- scored_by is the scorer's payroll number, or their name as written on the
--- sheet's NAMA row ('Hanif'), matched against the SV/AS, Area Managers and
--- managers posted to the person's outlet. A name that fits nobody, or more
--- than one person, stops the run and is listed — use the payroll number there.
+-- sheet's NAMA row ('Hanif'). A payroll number is followed first, exactly as
+-- given — whatever that person's role or outlet today (people move, get
+-- promoted, cover for each other); it only has to be someone on the users
+-- table other than the person marked. Only when no number is given is the
+-- name matched, and then among those who could have scored that person: an
+-- SV/AS or Area Manager posted to or covering their outlet, or a Manager, GM,
+-- HR or admin (the roles app_can_score() lets score). A number nobody has, a
+-- name that fits nobody, or a name that fits more than one stops the run and
+-- is listed. NULL when the sheet names nobody: saved with no scorer.
 --
 -- For a whole outlet or company at once, supabase/xlsx_to_import_marks.py
 -- reads the checklist workbooks and writes a copy of this file with every row
@@ -32,11 +39,22 @@
 --                               F) KAKI LIMA / PARKING LOT  G) LONGKANG  H) POTONG POKOK / RUMPUT
 --                               I) PETI SEJUK
 --
--- Safe to re-run: a week that already has a mark is replaced, lines and all —
--- unless the Area Manager has confirmed it, which stops the whole run.
+-- A week the database already has — marked in the app, or by an earlier
+-- import — is decided by the setting just below: 'keep' leaves it alone and
+-- skips that row (the app's version wins), 'replace' overwrites it, lines and
+-- all, unless the Area Manager has confirmed it, which stops the whole run.
+-- Nothing is saved unless every row passes. The result is a count per month.
 -- Paste into the Supabase SQL editor, edit the rows, run.
 
 BEGIN;
+
+-- 'keep' or 'replace' — see above. 'replace' is for correcting a week that an
+-- earlier import got wrong; 'keep' never touches what is already there.
+-- check_only true is the _check file the converter writes: every problem is
+-- listed in full, weeks already there are checked too, and nothing is saved.
+CREATE TEMP TABLE import_settings ON COMMIT DROP AS
+  SELECT 'keep'::text AS existing,
+         false        AS check_only;
 
 CREATE TEMP TABLE import_marks (
   user_id      text,
@@ -46,7 +64,8 @@ CREATE TEMP TABLE import_marks (
   scored_by    text,
   note         text,
   scores       int[],
-  scorer_ids   text[]   -- filled below: who scored_by turned out to mean
+  scorer_ids   text[] DEFAULT '{}',   -- filled below: who scored_by turned out to mean
+  kept         boolean DEFAULT false  -- set below: already in the database, left alone
 ) ON COMMIT DROP;
 
 INSERT INTO import_marks (user_id, period_year, period_month, week_no, scored_by, note, scores) VALUES
@@ -55,30 +74,48 @@ INSERT INTO import_marks (user_id, period_year, period_month, week_no, scored_by
   -- , ('KP0103', 2026, 9, 2, 'Hanif',  'Tandas belum disapu', ARRAY[5, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 4, 4, 4])
 ;
 
--- Who scored: a payroll number as it stands, otherwise every scorer at the
--- person's outlet (home posting or covered) whose short name is that name or
--- whose full name has it as a word. Exactly one match is needed; the check
--- below lists the rest.
+-- Weeks already in the database, when the setting is 'keep': set aside here,
+-- and nothing below reads or writes them.
 UPDATE import_marks i
-   SET scorer_ids = coalesce(
-         (SELECT ARRAY[s.id] FROM users s WHERE s.id = upper(btrim(i.scored_by))),
-         (SELECT array_agg(s.id ORDER BY s.id)
-            FROM users s
-            JOIN users p ON p.id = upper(btrim(i.user_id))
-           WHERE s.id <> p.id
-             AND s.role IN ('supervisor', 'area_manager', 'manager', 'admin')
-             AND (s.branch_id = p.branch_id
-                  OR EXISTS (SELECT 1 FROM user_branches ub
-                              WHERE ub.user_id = s.id AND ub.branch_id = p.branch_id))
-             AND (lower(s.short_name) = lower(btrim(i.scored_by))
-                  OR ' ' || lower(s.name) || ' ' LIKE '% ' || lower(btrim(i.scored_by)) || ' %')),
-         '{}');
+   SET kept = true
+  FROM import_settings st, marks m
+ WHERE st.existing = 'keep'
+   AND m.user_id = upper(btrim(i.user_id)) AND m.period_year = i.period_year
+   AND m.period_month = i.period_month AND m.week_no = i.week_no;
+
+-- Who scored (see the top of the file). A payroll number first, taken as
+-- given: it names one person exactly, and the sheet's owner has said who.
+-- Otherwise the name, matched only among the people who could have scored
+-- here: every short name equal to it and every full name holding it as a
+-- word. Exactly one is needed — the check below lists the rest. No name
+-- leaves the list empty.
+UPDATE import_marks i
+   SET scorer_ids = coalesce((
+         SELECT array_agg(s.id ORDER BY s.id)
+           FROM users s
+           JOIN users p ON p.id = upper(btrim(i.user_id))
+          WHERE s.id <> p.id
+            AND CASE WHEN EXISTS (SELECT 1 FROM users x WHERE x.id = upper(btrim(i.scored_by)))
+                     THEN s.id = upper(btrim(i.scored_by))
+                     ELSE (s.role IN ('manager', 'general_manager', 'human_resources', 'admin')
+                           OR (s.role IN ('supervisor', 'area_manager')
+                               AND (s.branch_id = p.branch_id
+                                    OR EXISTS (SELECT 1 FROM user_branches ub
+                                                WHERE ub.user_id = s.id AND ub.branch_id = p.branch_id))))
+                          AND (lower(s.short_name) = lower(btrim(i.scored_by))
+                               OR ' ' || lower(s.name) || ' ' LIKE '% ' || lower(btrim(i.scored_by)) || ' %')
+                END), '{}')
+ WHERE nullif(btrim(i.scored_by), '') IS NOT NULL;
 
 -- Everything wrong with the rows, in one list, before anything is written.
 DO $$
 DECLARE
   problems text;
 BEGIN
+  IF (SELECT existing FROM import_settings) NOT IN ('keep', 'replace') THEN
+    RAISE EXCEPTION 'Nothing was saved. The setting at the top must be ''keep'' or ''replace''.';
+  END IF;
+
   WITH form_size AS (
     SELECT c.form_key, count(*)::int AS n
       FROM checklist_lines l JOIN checklist_categories c ON c.id = l.category_id
@@ -97,6 +134,7 @@ BEGIN
       LEFT JOIN checklist_forms f ON f.applies_to = u.role
       LEFT JOIN form_size fs ON fs.form_key = f.key
       LEFT JOIN scoring_rules r ON r.branch_id = u.branch_id
+     WHERE NOT i.kept OR (SELECT check_only FROM import_settings)
   ),
   judged AS (
     SELECT *, CASE
@@ -104,10 +142,20 @@ BEGIN
         WHEN person_id IS NULL THEN 'no such person'
         WHEN form_key IS NULL THEN 'this role is not marked on a checklist'
         WHEN branch_id IS NULL THEN 'person has no outlet'
-        WHEN cardinality(scorer_ids) = 0
-          THEN format('scored_by %L is not a payroll number, nor the name of a scorer at %s', scored_by, branch_id)
+        WHEN cardinality(scorer_ids) = 0 AND nullif(btrim(scored_by), '') IS NOT NULL
+          THEN CASE WHEN EXISTS (SELECT 1 FROM users x WHERE x.id = upper(btrim(scored_by)))
+                    THEN format('scored_by %L is the person being marked', scored_by)
+                    WHEN btrim(scored_by) ~* '^[a-z]+[0-9][a-z0-9]*$'
+                    THEN format('scored_by %L: nobody has that payroll number - add them (inactive if they '
+                                'have left) or correct the number', scored_by)
+                    ELSE format('scored_by %L is not the name of anyone who could have scored at %s (an SV/AS '
+                                'or Area Manager there, or a Manager, GM, HR or admin) - give the payroll number',
+                                scored_by, branch_id)
+               END
         WHEN cardinality(scorer_ids) > 1
           THEN format('scored_by %L could be %s — use the payroll number', scored_by, array_to_string(scorer_ids, ' or '))
+        WHEN period_year NOT BETWEEN 2000 AND 2999 OR period_month NOT BETWEEN 1 AND 12
+          THEN 'month must be 1 to 12, and the year four digits'
         WHEN week_no NOT BETWEEN 1 AND 4 THEN 'week must be 1 to 4'
         WHEN copies > 1 THEN 'appears more than once in the rows'
         WHEN coalesce(array_length(scores, 1), 0) <> form_lines
@@ -116,22 +164,32 @@ BEGIN
           THEN 'a score is outside 0 to ' || scale_max
         WHEN NOT EXISTS (SELECT 1 FROM unnest(scores) v WHERE v IS NOT NULL)
           THEN 'every perkara is blank — nothing to score'
-        WHEN confirmed THEN 'already confirmed by the Area Manager — delete its verification first'
+        WHEN confirmed AND NOT kept THEN 'already confirmed by the Area Manager — delete its verification first'
       END AS why
       FROM checked
   )
   -- One entry per problem, not per row: a misspelt scorer on a whole outlet's
   -- sheets would otherwise repeat the same line for every person and week.
-  SELECT string_agg(format(E'%s\n    %s%s', why, array_to_string(rows[1:6], ', '),
-                           CASE WHEN cardinality(rows) > 6 THEN format(' and %s more', cardinality(rows) - 6) ELSE '' END),
+  -- An import shows six of each; the check file shows every person affected.
+  SELECT string_agg(format(E'%s\n    %s%s', why, array_to_string(rows[1:lim], ', '),
+                           CASE WHEN cardinality(rows) > lim THEN format(' and %s more', cardinality(rows) - lim) ELSE '' END),
                     E'\n' ORDER BY why)
     INTO problems
-    FROM (SELECT why, array_agg(format('%s %s/%s week %s', user_id, period_month, period_year, week_no)
-                                ORDER BY user_id, period_year, period_month, week_no) AS rows
-            FROM judged
-           WHERE why IS NOT NULL
+    FROM (SELECT why, array_agg(DISTINCT label ORDER BY label) AS rows,
+                 CASE WHEN bool_or(chk) THEN count(*) ELSE 6 END AS lim
+            FROM (SELECT why, st.check_only AS chk,
+                         CASE WHEN st.check_only THEN upper(btrim(user_id))
+                              ELSE format('%s %s-%s week %s', user_id, period_year, lpad(period_month::text, 2, '0'), week_no)
+                         END AS label
+                    FROM judged, import_settings st
+                   WHERE why IS NOT NULL) w
            GROUP BY why) g;
 
+  IF (SELECT check_only FROM import_settings) THEN
+    RAISE EXCEPTION E'Check only - nothing was saved.\n%',
+      coalesce(E'Fix these before importing:\n' || problems,
+               'Every row passes: the import files will go in as they are.');
+  END IF;
   IF problems IS NOT NULL THEN
     RAISE EXCEPTION E'Nothing was saved. Fix these rows:\n%', problems;
   END IF;
@@ -149,6 +207,7 @@ SELECT u.id, u.branch_id, f.key, i.period_year, i.period_month, i.week_no,
   JOIN users u ON u.id = upper(btrim(i.user_id))
   JOIN checklist_forms f ON f.applies_to = u.role
   LEFT JOIN scoring_rules r ON r.branch_id = u.branch_id
+ WHERE NOT i.kept
 ON CONFLICT (user_id, period_year, period_month, week_no) DO UPDATE
   SET branch_id   = EXCLUDED.branch_id,
       form_key    = EXCLUDED.form_key,
@@ -161,7 +220,7 @@ ON CONFLICT (user_id, period_year, period_month, week_no) DO UPDATE
 -- The per-perkara lines, replaced wholesale so an earlier attempt cannot mix in.
 DELETE FROM mark_lines ml
  USING marks m, import_marks i
- WHERE ml.mark_id = m.id
+ WHERE ml.mark_id = m.id AND NOT i.kept
    AND m.user_id = upper(btrim(i.user_id)) AND m.period_year = i.period_year
    AND m.period_month = i.period_month AND m.week_no = i.week_no;
 
@@ -175,14 +234,18 @@ SELECT m.id, fl.line_id, s.score
                row_number() OVER (PARTITION BY c.form_key ORDER BY c.position, l.position) AS n
           FROM checklist_lines l JOIN checklist_categories c ON c.id = l.category_id) fl
     ON fl.form_key = m.form_key AND fl.n = s.n
- WHERE s.score IS NOT NULL;
+ WHERE s.score IS NOT NULL AND NOT i.kept;
 
--- What was saved.
-SELECT m.user_id, m.period_month, m.week_no, m.total_score, m.max_score, m.pct,
-       (SELECT count(*) FROM mark_lines ml WHERE ml.mark_id = m.id) AS perkara_scored
-  FROM marks m JOIN import_marks i
-    ON m.user_id = upper(btrim(i.user_id)) AND m.period_year = i.period_year
-   AND m.period_month = i.period_month AND m.week_no = i.week_no
- ORDER BY m.user_id, m.period_year, m.period_month, m.week_no;
+-- What happened, month by month.
+SELECT i.period_year AS year, i.period_month AS month,
+       count(*) FILTER (WHERE NOT i.kept)                                    AS weeks_saved,
+       count(*) FILTER (WHERE i.kept)                                        AS already_there_kept,
+       count(*) FILTER (WHERE NOT i.kept AND cardinality(i.scorer_ids) = 0) AS saved_without_scorer,
+       round(avg(m.pct) FILTER (WHERE NOT i.kept))                           AS avg_pct_saved
+  FROM import_marks i
+  JOIN marks m ON m.user_id = upper(btrim(i.user_id)) AND m.period_year = i.period_year
+              AND m.period_month = i.period_month AND m.week_no = i.week_no
+ GROUP BY 1, 2
+ ORDER BY 1, 2;
 
 COMMIT;

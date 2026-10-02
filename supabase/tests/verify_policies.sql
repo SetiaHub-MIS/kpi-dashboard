@@ -11,6 +11,7 @@
 
 WITH expected_fn(name) AS (VALUES
   ('app_branch_id'),
+  ('app_can_read_tugasan'),
   ('app_can_score'),
   ('app_can_see_branch'),
   ('app_can_see_branch_returns'),
@@ -133,11 +134,11 @@ expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('scoring_rules', 'scoring_write', 'ALL', 'app_is_admin', ''),
   ('suppliers', 'ref_read_suppliers', 'SELECT', '', ''),
   ('suppliers', 'suppliers_write', 'INSERT', 'app_is_returns_writer', ''),
-  ('tugasan_checks', 'tugasan_checks_read', 'SELECT', 'app_can_see_branch', ''),
+  ('tugasan_checks', 'tugasan_checks_read', 'SELECT', 'app_can_read_tugasan', ''),
   ('tugasan_checks', 'tugasan_checks_write', 'ALL', 'app_can_see_branch,app_is_admin,app_manages_outlets', ''),
   ('tugasan_items', 'ref_read_tugasan', 'SELECT', '', ''),
   ('tugasan_items', 'ref_write_tugasan', 'ALL', 'app_is_admin', ''),
-  ('tugasan_signoffs', 'tugasan_signoffs_read', 'SELECT', 'app_can_see_branch', ''),
+  ('tugasan_signoffs', 'tugasan_signoffs_read', 'SELECT', 'app_can_read_tugasan', ''),
   ('tugasan_signoffs', 'tugasan_signoffs_write', 'ALL', 'app_can_see_branch,app_is_admin,app_manages_outlets', ''),
   ('user_branches', 'user_branches_read', 'SELECT', 'app_can_see_branch,app_is_cross_branch,app_user_id', ''),
   ('user_branches', 'user_branches_write', 'ALL', 'app_is_admin', ''),

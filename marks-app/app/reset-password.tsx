@@ -12,7 +12,7 @@ import {
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { HOME_ROUTE } from '@/components/SignInForm';
+import { HOME_ROUTE } from '@/data/routes';
 import { updatePassword } from '@/lib/auth';
 import { notify } from '@/lib/dialog';
 import { hydrateDirectory } from '@/lib/hydrate';

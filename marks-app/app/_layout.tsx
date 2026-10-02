@@ -12,11 +12,12 @@ import {
   PublicSans_700Bold,
   useFonts,
 } from '@expo-google-fonts/public-sans';
-import { Stack, usePathname, useRouter } from 'expo-router';
+import { Href, Stack, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { HOME_ROUTE, mayOpen } from '@/data/routes';
 import { hydrateDirectory } from '@/lib/hydrate';
 // Imported for its listener: Chrome fires the install offer once, early, and
 // it has to be caught before any screen has mounted.
@@ -78,15 +79,21 @@ export default function RootLayout() {
   // to render that screen's empty shell; now it bounces to sign-in instead.
   // /reset-password stays open so an expired link can say so, rather than
   // silently landing on the sign-in form.
+  //
+  // Signed in is not enough either: each role's section (/manager, /admin,
+  // /supervisor, …) is theirs alone, and a typed URL into someone else's goes
+  // back to your own home. Staff could otherwise open /manager/tugasan.
   const status = useSession((s) => s.status);
   const currentUserId = useSession((s) => s.currentUserId);
+  const role = useSession((s) => s.staff?.role);
   const pathname = usePathname();
   const router = useRouter();
   useEffect(() => {
     if (!isSupabaseConfigured) return; // demo mode has no real session to check
     if (status === 'restoring') return; // a stored session may still resolve
     if (!currentUserId && !PUBLIC_ROUTES.has(pathname)) router.replace('/');
-  }, [status, currentUserId, pathname, router]);
+    else if (role && !mayOpen(role, pathname)) router.replace(HOME_ROUTE[role] as Href);
+  }, [status, currentUserId, role, pathname, router]);
 
   if (!loaded && !error) return null;
 

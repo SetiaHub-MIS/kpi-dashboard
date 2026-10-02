@@ -87,6 +87,7 @@ const MIGRATIONS = [
   '20260919060000_label_spelling.sql',
   '20260919070000_supervisor_title.sql',
   '20260919080000_photo_files_leave_through_storage.sql',
+  '20261002010000_tugasan_read_by_managers.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

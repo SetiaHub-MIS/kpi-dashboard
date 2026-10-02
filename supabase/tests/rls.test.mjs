@@ -94,6 +94,7 @@ for (const m of [
   'supabase/migrations/20260919060000_label_spelling.sql',
   'supabase/migrations/20260919070000_supervisor_title.sql',
   'supabase/migrations/20260919080000_photo_files_leave_through_storage.sql',
+  'supabase/migrations/20261002010000_tugasan_read_by_managers.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -755,6 +756,26 @@ console.log('\n=== the tugasan self-check stays with the Area Manager ===');
     await tryWrite(ACCOUNTS.herdi[0],
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
        VALUES ('DMC',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'allowed');
+
+  // The outlet it is about does not read it: posted to Machang is not enough.
+  // Until 20261002010000 the read policy was the outlet check alone, so these
+  // all returned Machang's rows, petty-cash amounts included.
+  for (const [who, uuid] of [['staff', ACCOUNTS.syazana[0]], ['SV/AS', ACCOUNTS.syahirah[0]]]) {
+    const own = await as(uuid,
+      `SELECT (SELECT count(*)::int FROM tugasan_checks)   AS checks,
+              (SELECT count(*)::int FROM tugasan_signoffs) AS signoffs`);
+    check(`Machang ${who} reads none of Machang's tugasan checks or sign-offs`,
+      [own.rows[0].checks, own.rows[0].signoffs], [0, 0]);
+    const rep = await as(uuid,
+      `SELECT weeks_filled, items_done FROM report_tugasan_branch_monthly
+        WHERE branch_id = 'DMC' AND period_year = 2026 AND period_month = 8`);
+    check(`...nor learns it through the report view (Machang ${who})`,
+      rep.rows.map((r) => [r.weeks_filled, r.items_done]).filter(([w, d]) => w || d), []);
+  }
+  const herdi = await as(ACCOUNTS.herdi[0], `SELECT count(*)::int n FROM tugasan_checks WHERE branch_id = 'DMC'`);
+  check("Machang's Area Manager still reads it", herdi.rows[0].n > 0, true);
+  const mgr = await as(ACCOUNTS.manager[0], `SELECT count(*)::int n FROM tugasan_checks WHERE branch_id = 'DMC'`);
+  check('and so does the company-wide Manager', mgr.rows[0].n > 0, true);
 }
 
 console.log('');

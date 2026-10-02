@@ -2,28 +2,13 @@ import { Href, router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { MonoLabel } from '@/components/Card';
-import { Role, isReportsOnly } from '@/data/users';
+import { HOME_ROUTE } from '@/data/routes';
+import { isReportsOnly } from '@/data/users';
 import { AUTH_EMAIL_DOMAIN } from '@/lib/auth';
 import { notify } from '@/lib/dialog';
 import { useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
 import { C } from '@/theme/scoring';
-
-/** Where each role lands after signing in. */
-export const HOME_ROUTE: Record<Role, string> = {
-  staff: '/staff',
-  store: '/pulangan',
-  clerk: '/pulangan',
-  supervisor: '/supervisor',
-  area_manager: '/manager',
-  // The Manager works the Area Manager's screens over every outlet.
-  manager: '/manager',
-  // GM and HR use the reporting web app; a sign-in here is turned away
-  // (see SignInForm) and a restored session is signed out (see app/index).
-  general_manager: '/',
-  human_resources: '/',
-  admin: '/admin',
-};
 
 /**
  * Sign-in against Supabase Auth, keyed on the payroll number.
