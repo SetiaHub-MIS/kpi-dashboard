@@ -96,6 +96,7 @@ for (const m of [
   'supabase/migrations/20260919080000_photo_files_leave_through_storage.sql',
   'supabase/migrations/20261002010000_tugasan_read_by_managers.sql',
   'supabase/migrations/20261002020000_report_form_from_marks.sql',
+  'supabase/migrations/20261002030000_rls_once_per_query.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1368,6 +1369,40 @@ console.log('\n=== a month is filed under the form the person was marked on (202
   await db.exec(`DELETE FROM marks WHERE user_id = 'KP0093' AND form_key = 'sv' AND period_year = 2026 AND period_month = 9`);
   await db.exec(`UPDATE users SET role = 'staff' WHERE id = 'KP0093'`);
   check('put back, Syazana is one kedai row again', await staffRows(), [['kedai', 86, null, 1, 1]]);
+}
+
+console.log('\n=== reads answered once per query, for exactly the same rows (20261002030000) ===');
+{
+  // Each rewritten policy put a once-per-query head-office test in front of
+  // the original per-row one. Prove that changed speed only: for every
+  // account, the rows the policy lets through now are exactly the rows the
+  // original expression allowed. n_old is the original expression evaluated
+  // as that caller with RLS out of the way; n_new is what the policy shows
+  // them; n_both is both at once, so equal counts mean equal sets.
+  const ORIGINAL = {
+    marks: 'app_can_see_mark(branch_id, form_key)',
+    mark_verifications: 'EXISTS (SELECT 1 FROM marks m WHERE m.id = mark_id AND app_can_see_mark(m.branch_id, m.form_key))',
+    users: 'app_is_admin() OR auth_user_id = auth.uid() OR app_can_see_branch(branch_id)',
+    scoring_rules: 'app_can_see_branch(branch_id)',
+    user_branches: 'app_is_cross_branch() OR user_id = app_user_id() OR app_can_see_branch(branch_id)',
+    tugasan_checks: 'app_can_read_tugasan(branch_id)',
+    tugasan_signoffs: 'app_can_read_tugasan(branch_id)',
+  };
+  const asSuperWithClaims = async (uuid, sql) => {
+    await db.exec(`SELECT set_config('request.jwt.claims', '{"sub":"${uuid}"}', false);`);
+    try { return await db.query(sql); }
+    finally { await db.exec(`SELECT set_config('request.jwt.claims','',false);`); }
+  };
+  for (const [table, original] of Object.entries(ORIGINAL)) {
+    const mismatches = [];
+    for (const [who, [uuid]] of Object.entries(ACCOUNTS)) {
+      const nNew = (await as(uuid, `SELECT count(*)::int n FROM ${table}`)).rows[0].n;
+      const nBoth = (await as(uuid, `SELECT count(*)::int n FROM ${table} WHERE ${original}`)).rows[0].n;
+      const nOld = (await asSuperWithClaims(uuid, `SELECT count(*)::int n FROM ${table} WHERE ${original}`)).rows[0].n;
+      if (!(nNew === nBoth && nBoth === nOld)) mismatches.push(`${who}: now ${nNew}, before ${nOld}`);
+    }
+    check(`${table}: every account sees exactly the rows it saw before`, mismatches, []);
+  }
 }
 
 // --- the service role, which payroll-auth reads the directory under.
