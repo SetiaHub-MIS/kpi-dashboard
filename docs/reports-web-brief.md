@@ -170,7 +170,10 @@ with `occurred_on`). Three KPI rules, already expressed as views:
 
 Also `return_turnaround` (received → adjusted days) and `return_stage_gaps`
 (days per hop, for bottleneck analysis). `assets` lists open physical issues
-per outlet (`is_open`, `opened_on`).
+per outlet (`is_open`, `opened_on`). One asset row can carry several issues at
+once (two air-conds down); `asset_issues` has one row per issue, each with its
+own open and resolved dates, and keeps resolved ones as history. Count issues
+from there; `assets` is the per-row summary.
 
 ---
 
@@ -192,7 +195,8 @@ reminders           id · branch_id · recipient_id · sent_by · message · cre
 tugasan_items       key · label · note_kind · position
 tugasan_checks      branch_id · period_year · period_month · week_no · item_key · done · note · inspected_on
 tugasan_signoffs    branch_id · period_year · period_month · week_no · filled_by · checked_by · signed_on
-assets              id · branch_id · name · is_open · note · opened_on · resolved_on
+assets              id · branch_id · name · is_open · note · opened_on · resolved_on   -- summary, kept by trigger
+asset_issues        id · asset_id · note · opened_on · opened_by · resolved_on · resolved_by
 suppliers           id · name · phone · active
 returns             id · ref · branch_id · bill_no · bill_date · reason · remark · supplier_id · disposition · created_by · created_at
 return_events       id · return_id · stage · occurred_on · recorded_by

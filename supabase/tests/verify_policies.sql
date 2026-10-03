@@ -29,6 +29,7 @@ WITH expected_fn(name) AS (VALUES
   ('app_user_id')
 ),
 expected_rls(tbl) AS (VALUES
+  ('asset_issues'),
   ('assets'),
   ('branch_changes'),
   ('branches'),
@@ -54,7 +55,8 @@ expected_rls(tbl) AS (VALUES
   ('users')
 ),
 expected_grant(tbl, privs) AS (VALUES
-  ('assets', 'DELETE,INSERT,SELECT,UPDATE'),
+  ('asset_issues', 'SELECT'),
+  ('assets', 'SELECT'),
   ('branch_changes', 'DELETE,INSERT,SELECT,UPDATE'),
   ('branches', 'DELETE,INSERT,SELECT,UPDATE'),
   ('checklist_categories', 'DELETE,INSERT,SELECT,UPDATE'),
@@ -98,8 +100,10 @@ expected_private(tbl) AS (VALUES
   ('login_settings')
 ),
 expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
+  ('asset_issues', 'asset_issues_insert', 'INSERT', 'app_can_see_branch,app_is_exec,app_manages_outlets,app_role', 'supervisor'),
+  ('asset_issues', 'asset_issues_read', 'SELECT', 'app_can_see_branch', ''),
+  ('asset_issues', 'asset_issues_update', 'UPDATE', 'app_can_see_branch,app_is_exec,app_manages_outlets,app_role', 'supervisor'),
   ('assets', 'assets_read', 'SELECT', 'app_can_see_branch', ''),
-  ('assets', 'assets_write', 'ALL', 'app_can_see_branch,app_is_exec,app_manages_outlets,app_role', 'supervisor'),
   ('branch_changes', 'branch_changes_read', 'SELECT', 'app_is_admin', ''),
   ('branch_changes', 'branch_changes_write', 'INSERT', 'app_is_admin', ''),
   ('branches', 'branches_read', 'SELECT', '', ''),

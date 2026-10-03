@@ -237,33 +237,20 @@ INSERT INTO tugasan_signoffs (branch_id, period_year, period_month, week_no, fil
 
 -- --------------------------------------------------------------- assets ----
 -- REAL: CHECKLIST KEDAI asset log for Machang. Since 20260919040000 every
--- outlet already carries the catalogue rows, so this only sets the state
--- the sheet shows; J) LAIN-LAIN is the sheet's free slot, with the issue
--- ("TILE LANTAI") in the note rather than the name.
+-- outlet already carries the catalogue rows, so this only logs the issues
+-- the sheet shows open (since 20261003040000 an issue is its own row, and
+-- the trigger sets the assets row's state from it); J) LAIN-LAIN is the
+-- sheet's free slot, with the issue ("TILE LANTAI") in the note rather than
+-- the name. The DKB leak is NEW.
 
-INSERT INTO assets (branch_id, name, is_open, note, opened_on) VALUES
-  ('DMC', 'A) AIR-COND',              true,  '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', DATE '2026-08-05'),
-  ('DMC', 'B) AIR COOLER',            false, NULL, NULL),
-  ('DMC', 'C) LAMPU',                 false, NULL, NULL),
-  ('DMC', 'D) KIPAS',                 false, NULL, NULL),
-  ('DMC', 'E) KOMPUTER',              false, NULL, NULL),
-  ('DMC', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
-  ('DMC', 'G) KEBOCORAN AIR',         false, NULL, NULL),
-  ('DMC', 'H) SIGNBOARD',             false, NULL, NULL),
-  ('DMC', 'I) SPOTLIGHT',             false, NULL, NULL),
-  ('DMC', 'J) LAIN-LAIN',             true,  'TILE LANTAI: tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
-  -- NEW
-  ('DKB', 'A) AIR-COND',              false, NULL, NULL),
-  ('DKB', 'B) AIR COOLER',            false, NULL, NULL),
-  ('DKB', 'C) LAMPU',                 false, NULL, NULL),
-  ('DKB', 'D) KIPAS',                 false, NULL, NULL),
-  ('DKB', 'E) KOMPUTER',              false, NULL, NULL),
-  ('DKB', 'F) SALURAN AIR TANDAS',    false, NULL, NULL),
-  ('DKB', 'G) KEBOCORAN AIR',         true,  'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.', DATE '2026-08-31'),
-  ('DKB', 'H) SIGNBOARD',             false, NULL, NULL),
-  ('DKB', 'I) SPOTLIGHT',             false, NULL, NULL)
-ON CONFLICT (branch_id, name) DO UPDATE
-  SET is_open = EXCLUDED.is_open, note = EXCLUDED.note, opened_on = EXCLUDED.opened_on;
+INSERT INTO asset_issues (asset_id, note, opened_on)
+SELECT a.id, v.note, v.opened_on
+  FROM (VALUES
+    ('DMC', 'A) AIR-COND',       '2 unit a/c tak sejuk; 1 unit on 20 minit NCB jatuh. Sdh report dlm group.', DATE '2026-08-05'),
+    ('DMC', 'J) LAIN-LAIN',      'TILE LANTAI: tile lantai kedai ada yg rosak/pecah di beberapa tempat. Sdh report dlm group.', DATE '2026-08-27'),
+    ('DKB', 'G) KEBOCORAN AIR',  'Paip belakang stor bocor sejak minggu lepas. Menunggu tukang paip.', DATE '2026-08-31')
+  ) AS v (branch_id, name, note, opened_on)
+  JOIN assets a ON a.branch_id = v.branch_id AND a.name = v.name;
 
 -- -------------------------------------------------------------- returns ----
 -- NEW: the returns workflow has no workbook equivalent.

@@ -292,8 +292,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'SV/AS Checklist · Week {week}: {pending}/{total} not yet scored →',
   },
   checklist_kedai_banner: {
-    ms: 'Checklist Kedai: {count} aset belum selesai, tertua {days} hari →',
-    en: 'Shop Checklist: {count} assets unresolved, oldest {days} days →',
+    ms: 'Checklist Kedai: {count} isu aset belum selesai, tertua {days} hari →',
+    en: 'Shop Checklist: {count} asset issues unresolved, oldest {days} days →',
   },
   tugasan_am_banner: {
     ms: 'Tugasan Area Manager: {done}/{total} semakan mingguan selesai →',
@@ -340,6 +340,7 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   hari_terbuka: { ms: '{days} hari terbuka', en: '{days} days open' },
   tanda_selesai: { ms: 'Tanda selesai', en: 'Mark resolved' },
   laporkan_isu: { ms: 'Laporkan isu', en: 'Report an issue' },
+  tambah_isu_lain: { ms: '+ Tambah isu lain', en: '+ Add another issue' },
   terangkan_isu: { ms: 'Terangkan isu ini…', en: 'Describe the issue…' },
 
   // ---------------------------------------------------- reports-only roles

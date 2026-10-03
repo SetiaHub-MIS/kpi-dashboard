@@ -1,17 +1,27 @@
 import { create } from 'zustand';
 import { User, canSeeBranch } from '@/data/users';
-import { AssetRow } from '@/lib/assets';
+import { AssetIssue, AssetRow } from '@/lib/assets';
 
 type AssetsState = {
   rows: AssetRow[];
   hydrate: (rows: AssetRow[]) => void;
-  setRow: (row: AssetRow) => void;
+  addIssue: (assetId: number, issue: AssetIssue) => void;
+  removeIssue: (assetId: number, issueId: number) => void;
 };
 
 export const useAssets = create<AssetsState>((set) => ({
   rows: [],
   hydrate: (rows) => set({ rows }),
-  setRow: (row) => set((s) => ({ rows: s.rows.map((r) => (r.id === row.id ? row : r)) })),
+  addIssue: (assetId, issue) =>
+    set((s) => ({
+      rows: s.rows.map((r) => (r.id === assetId ? { ...r, issues: [...r.issues, issue] } : r)),
+    })),
+  removeIssue: (assetId, issueId) =>
+    set((s) => ({
+      rows: s.rows.map((r) =>
+        r.id === assetId ? { ...r, issues: r.issues.filter((i) => i.id !== issueId) } : r,
+      ),
+    })),
 }));
 
 /**

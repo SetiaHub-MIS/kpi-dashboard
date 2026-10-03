@@ -101,6 +101,7 @@ for (const m of [
   'supabase/migrations/20261003010000_malaysia_date.sql',
   'supabase/migrations/20261003020000_handover_before_friday.sql',
   'supabase/migrations/20261003030000_marked_before_added.sql',
+  'supabase/migrations/20261003040000_asset_issues.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1581,6 +1582,88 @@ console.log('\n=== today is Malaysia\x27s date, and a list before its Friday is 
 
   await db.exec(`DELETE FROM returns WHERE branch_id = 'ZZH'`);
   await db.exec(`DELETE FROM branches WHERE id = 'ZZH'`);
+}
+
+// --- several issues open on one asset row at once.
+// Reported 3 Oct 2026: with aircond A still broken, the Area Manager could
+// not log aircond B without first marking A resolved. Each issue is its own
+// row now, resolved on its own, and the assets row's state follows them.
+{
+  console.log('\n=== an asset row carries several open issues, each resolved on its own ===');
+  const herdi = ACCOUNTS.herdi[0];
+  const aircond = (await db.query(
+    `SELECT id FROM assets WHERE branch_id = 'DMC' AND name = 'A) AIR-COND'`)).rows[0].id;
+  const state = async () => (await db.query(
+    `SELECT is_open, note, opened_on::text, resolved_on::text,
+            (SELECT count(*)::int FROM asset_issues WHERE asset_id = a.id AND resolved_on IS NULL) AS open
+       FROM assets a WHERE id = ${aircond}`)).rows[0];
+
+  const seeded = await state();
+  check('the seeded aircond issue arrives as one open issue on the row',
+    [seeded.is_open, seeded.open, seeded.opened_on], [true, 1, '2026-08-05']);
+
+  const b = (await as(herdi,
+    `INSERT INTO asset_issues (asset_id, note, opened_on) VALUES (${aircond}, 'Aircond B bocor air', DATE '2026-09-20')
+     RETURNING id, opened_by`)).rows[0];
+  check('Herdi logs aircond B while A is still open, stamped as his', b.opened_by, 'AM0001');
+  const both = await state();
+  check('...the row now has two open issues, dated by the older',
+    [both.is_open, both.open, both.opened_on], [true, 2, '2026-08-05']);
+  check('...and its note lists both, oldest first',
+    both.note.split('\n').map((l) => l.slice(0, 10)), ['2 unit a/c', 'Aircond B ']);
+
+  const a = (await db.query(
+    `SELECT id FROM asset_issues WHERE asset_id = ${aircond} AND note LIKE '2 unit%'`)).rows[0].id;
+  const fixed = (await as(herdi,
+    `UPDATE asset_issues SET resolved_on = DATE '2026-09-25' WHERE id = ${a} RETURNING resolved_by`)).rows[0];
+  check('resolving A is stamped with who resolved it', fixed.resolved_by, 'AM0001');
+  const oneLeft = await state();
+  check('...and the row stays open on B alone, dated by B',
+    [oneLeft.is_open, oneLeft.open, oneLeft.opened_on, oneLeft.note, oneLeft.resolved_on],
+    [true, 1, '2026-09-20', 'Aircond B bocor air', null]);
+
+  await as(herdi, `UPDATE asset_issues SET resolved_on = DATE '2026-09-28' WHERE id = ${b.id}`);
+  const allFixed = await state();
+  check('resolving B closes the row, keeping its note and date',
+    [allFixed.is_open, allFixed.open, allFixed.note, allFixed.resolved_on],
+    [false, 0, 'Aircond B bocor air', '2026-09-28']);
+  check('...and both issues stay in the log as history',
+    (await db.query(`SELECT count(*)::int n FROM asset_issues WHERE asset_id = ${aircond}`)).rows[0].n, 2);
+
+  const early = (await as(herdi,
+    `INSERT INTO asset_issues (asset_id, note, opened_on) VALUES (${aircond}, 'Remote hilang', DATE '2026-09-30')
+     RETURNING id`)).rows[0].id;
+  const clamped = (await as(herdi,
+    `UPDATE asset_issues SET resolved_on = DATE '2026-09-29' WHERE id = ${early} RETURNING resolved_on::text`)).rows[0];
+  check('a phone clock behind the opening day resolves on the opening day, not before it',
+    clamped.resolved_on, '2026-09-30');
+
+  check('Farah may NOT log an issue at Machang, which she does not cover',
+    await tryWrite(ACCOUNTS.farah[0],
+      `INSERT INTO asset_issues (asset_id, note) VALUES (${aircond}, 'x')`), 'blocked');
+  check('...nor read its issues',
+    (await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM asset_issues WHERE asset_id = ${aircond}`)).rows[0].n, 0);
+  check('staff may NOT log an asset issue',
+    await tryWrite(ACCOUNTS.syazana[0],
+      `INSERT INTO asset_issues (asset_id, note) VALUES (${aircond}, 'x')`), 'blocked');
+  check('the SV/AS at the outlet may, as they could before',
+    await tryWrite(ACCOUNTS.syahirah[0],
+      `INSERT INTO asset_issues (asset_id, note) VALUES (${aircond}, 'Lampu aircond berkelip')`), 'allowed');
+  check('a blank note is refused',
+    await tryWrite(herdi, `INSERT INTO asset_issues (asset_id, note) VALUES (${aircond}, '   ')`), 'blocked');
+  check('nobody signs an issue in someone else\'s name',
+    await tryWrite(herdi,
+      `INSERT INTO asset_issues (asset_id, note, opened_by) VALUES (${aircond}, 'x', 'AD0001')`), 'blocked');
+  check('nobody deletes an issue from the app',
+    await tryWrite(herdi, `DELETE FROM asset_issues WHERE id = ${b.id}`), 'blocked');
+  check('the assets row itself is no longer written from the app',
+    await tryWrite(herdi, `UPDATE assets SET is_open = false WHERE id = ${aircond}`), 'blocked');
+
+  await db.exec(`DELETE FROM asset_issues WHERE asset_id = ${aircond} AND id <> ${a}`);
+  await db.exec(`UPDATE asset_issues SET resolved_on = NULL WHERE id = ${a}`);
+  const restored = await state();
+  check('(cleanup) the aircond row is back to its seeded state',
+    [restored.is_open, restored.open, restored.opened_on], [true, 1, '2026-08-05']);
 }
 
 // --- the service role, which payroll-auth reads the directory under.

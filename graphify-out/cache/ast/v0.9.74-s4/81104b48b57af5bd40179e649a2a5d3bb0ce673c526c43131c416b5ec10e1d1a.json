@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_reset_password_sql", "label": "reset_password.sql", "file_type": "code", "source_file": "supabase/reset_password.sql", "source_location": null}], "edges": []}

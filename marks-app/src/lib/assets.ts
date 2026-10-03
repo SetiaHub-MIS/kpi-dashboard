@@ -5,77 +5,69 @@ import { supabase } from '@/lib/supabase';
  * Checklist Kedai's asset log, against Postgres.
  *
  * Rows are a fixed catalog per branch (A) AIR-COND .. J) LAIN-LAIN) seeded once
- * per outlet — nobody adds or removes a row here, they only flip its state, so
- * there is no create/delete path, only update.
+ * per outlet — nobody adds or removes a row. What changes is the issues logged
+ * against a row: several may be open at once (two air-conds down), and each is
+ * resolved on its own (20261003040000). The row's own is_open/note columns are
+ * a summary the database keeps for the reports app; the app reads the issues.
  */
+
+export type AssetIssue = {
+  id: number;
+  note: string;
+  openedOn: string;
+};
 
 export type AssetRow = {
   id: number;
   branchId: string;
   name: string;
-  isOpen: boolean;
-  note: string | null;
-  openedOn: string | null;
-  resolvedOn: string | null;
+  /** Open issues only, oldest first. Resolved ones stay in the database as history. */
+  issues: AssetIssue[];
 };
+
+export const isAssetOpen = (a: AssetRow): boolean => a.issues.length > 0;
+
+const toIssue = (i: any): AssetIssue => ({ id: i.id, note: i.note, openedOn: i.opened_on });
 
 export async function fetchAssets(): Promise<AssetRow[]> {
   const { data, error } = await supabase
     .from('assets')
-    .select('id, branch_id, name, is_open, note, opened_on, resolved_on')
+    .select('id, branch_id, name, asset_issues(id, note, opened_on, resolved_on)')
+    .is('asset_issues.resolved_on', null)
     .order('branch_id')
-    .order('id');
+    .order('id')
+    .order('opened_on', { referencedTable: 'asset_issues' })
+    .order('id', { referencedTable: 'asset_issues' });
 
   if (error) throw error;
   return (data ?? []).map((a: any) => ({
     id: a.id,
     branchId: a.branch_id,
     name: a.name,
-    isOpen: a.is_open,
-    note: a.note,
-    openedOn: a.opened_on,
-    resolvedOn: a.resolved_on,
+    issues: (a.asset_issues ?? []).map(toIssue),
   }));
 }
 
-/** Reports a new issue, or replaces the note on one already open. */
-export async function reportAssetIssue(id: number, note: string): Promise<AssetRow> {
+/** Logs a new issue on the row, alongside any already open. */
+export async function reportAssetIssue(assetId: number, note: string): Promise<AssetIssue> {
   const { data, error } = await supabase
-    .from('assets')
-    .update({ is_open: true, note: note.trim(), opened_on: todayIso(), resolved_on: null })
-    .eq('id', id)
-    .select('id, branch_id, name, is_open, note, opened_on, resolved_on')
+    .from('asset_issues')
+    .insert({ asset_id: assetId, note: note.trim(), opened_on: todayIso() })
+    .select('id, note, opened_on')
     .single();
 
   if (error) throw error;
-  return {
-    id: data.id,
-    branchId: data.branch_id,
-    name: data.name,
-    isOpen: data.is_open,
-    note: data.note,
-    openedOn: data.opened_on,
-    resolvedOn: data.resolved_on,
-  };
+  return toIssue(data);
 }
 
-/** Marks an issue fixed. The note stays as the record of what it was. */
-export async function resolveAssetIssue(id: number): Promise<AssetRow> {
-  const { data, error } = await supabase
-    .from('assets')
-    .update({ is_open: false, resolved_on: todayIso() })
-    .eq('id', id)
-    .select('id, branch_id, name, is_open, note, opened_on, resolved_on')
+/** Marks one issue fixed. The others on the row stay open. */
+export async function resolveAssetIssue(issueId: number): Promise<void> {
+  const { error } = await supabase
+    .from('asset_issues')
+    .update({ resolved_on: todayIso() })
+    .eq('id', issueId)
+    .select('id')
     .single();
 
   if (error) throw error;
-  return {
-    id: data.id,
-    branchId: data.branch_id,
-    name: data.name,
-    isOpen: data.is_open,
-    note: data.note,
-    openedOn: data.opened_on,
-    resolvedOn: data.resolved_on,
-  };
 }

@@ -10,6 +10,7 @@ import { notify } from '@/lib/dialog';
 import { exportMonthXlsx } from '@/lib/export';
 import { assetsVisibleTo, useAssets } from '@/store/useAssets';
 import { isHq } from '@/data/branches';
+import { daysBetweenIso, todayIso } from '@/data/period';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { branchesOf, isCrossBranch } from '@/data/users';
 import { roleLabel } from '@/i18n/labels';
@@ -74,12 +75,13 @@ export default function ManagerHome() {
   const stats = monthStats(crew, submitted);
   const gapHeavy = stats.gaps > stats.cellTotal * 0.3;
   const assetRows = useAssets((s) => s.rows);
-  const openAssets = assetsVisibleTo(assetRows, manager).filter((a) => a.isOpen);
-  const oldestAssetDays = openAssets.reduce((max, a) => {
-    if (!a.openedOn) return max;
-    const days = Math.max(0, Math.round((Date.now() - Date.parse(a.openedOn)) / 86_400_000));
-    return Math.max(max, days);
-  }, 0);
+  const openAssets = assetsVisibleTo(assetRows, manager).flatMap((a) => a.issues);
+  // Counted the way the Aset kedai screen counts, so the banner and the
+  // oldest issue there read the same number of days.
+  const oldestAssetDays = openAssets.reduce(
+    (max, i) => Math.max(max, daysBetweenIso(i.openedOn, todayIso())),
+    0,
+  );
 
   // Each role is scored on its own form, so their kategori averages are
   // reported side by side rather than blended into one meaningless number.

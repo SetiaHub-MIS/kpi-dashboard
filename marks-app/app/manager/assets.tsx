@@ -6,7 +6,7 @@ import { Screen } from '@/components/Screen';
 import { isHq } from '@/data/branches';
 import { daysBetweenIso, todayIso } from '@/data/period';
 import { branchesOf, isCrossBranch } from '@/data/users';
-import { AssetRow, reportAssetIssue, resolveAssetIssue } from '@/lib/assets';
+import { AssetRow, isAssetOpen, reportAssetIssue, resolveAssetIssue } from '@/lib/assets';
 import { roleLabel } from '@/i18n/labels';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { assetsVisibleTo, useAssets } from '@/store/useAssets';
@@ -20,13 +20,18 @@ import { C } from '@/theme/scoring';
  * several outlets picks which from a dropdown (home outlet first); the
  * Manager picks from every outlet. With a single outlet there is nothing to
  * pick and the name is simply shown.
+ *
+ * A row can carry several open issues at once — aircond A and aircond B both
+ * down — each with its own age and its own "Tanda selesai". Reporting another
+ * stays possible while earlier ones are open.
  */
 export default function Assets() {
   const branchLabel = useBranchLabel();
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
   const rows = useAssets((s) => s.rows);
-  const setRow = useAssets((s) => s.setRow);
+  const addIssue = useAssets((s) => s.addIssue);
+  const removeIssue = useAssets((s) => s.removeIssue);
   const allOutlets = useActiveBranches().filter((b) => !isHq(b.id)).map((b) => b.id);
   const t = useT();
   const locale = useLocale((s) => s.locale);
@@ -49,7 +54,7 @@ export default function Assets() {
     if (!draftNote.trim() || saving) return;
     setSaving(true);
     try {
-      setRow(await reportAssetIssue(id, draftNote));
+      addIssue(id, await reportAssetIssue(id, draftNote));
       setEditingId(null);
     } catch {
       // Left on screen in the editor; the person can try again.
@@ -58,11 +63,12 @@ export default function Assets() {
     }
   };
 
-  const resolve = async (id: number) => {
+  const resolve = async (assetId: number, issueId: number) => {
     if (saving) return;
     setSaving(true);
     try {
-      setRow(await resolveAssetIssue(id));
+      await resolveAssetIssue(issueId);
+      removeIssue(assetId, issueId);
     } catch {
       // Stays open on screen; retry is just tapping again.
     } finally {
@@ -112,7 +118,7 @@ export default function Assets() {
             onStartReport={() => startReport(a.id)}
             onSubmitReport={() => void submitReport(a.id)}
             onCancel={() => setEditingId(null)}
-            onResolve={() => void resolve(a.id)}
+            onResolve={(issueId) => void resolve(a.id, issueId)}
           />
         ))}
       </View>
@@ -137,65 +143,69 @@ function AssetItem({
   onStartReport: () => void;
   onSubmitReport: () => void;
   onCancel: () => void;
-  onResolve: () => void;
+  onResolve: (issueId: number) => void;
 }) {
   const t = useT();
-  const age = a.isOpen && a.openedOn ? daysBetweenIso(a.openedOn, todayIso()) : null;
+  const open = isAssetOpen(a);
+  const today = todayIso();
 
   return (
     <View
       className="bg-card rounded-xl px-[15px] py-3.5 border"
-      style={{ borderColor: a.isOpen ? C.warnLine : C.line }}
+      style={{ borderColor: open ? C.warnLine : C.line }}
     >
       <View className="flex-row items-center gap-3">
         <View
           className="w-[7px] h-[7px] rounded-full"
-          style={{ backgroundColor: a.isOpen ? C.warn : C.pass }}
+          style={{ backgroundColor: open ? C.warn : C.pass }}
         />
         <Text className="flex-1 font-sans-med text-[13.5px] leading-[18px] text-ink">
           {a.name}
         </Text>
         <View
           className="px-2 py-[5px] rounded-md"
-          style={{ backgroundColor: a.isOpen ? C.warnCard : C.passBg }}
+          style={{ backgroundColor: open ? C.warnCard : C.passBg }}
         >
           <Text
             className="font-mono-semi text-[9.5px]"
-            style={{ color: a.isOpen ? C.warnInk : C.pass }}
+            style={{ color: open ? C.warnInk : C.pass }}
           >
-            {a.isOpen ? t('belum_selesai') : t('ok_status')}
+            {open
+              ? a.issues.length > 1
+                ? `${t('belum_selesai')} · ${a.issues.length}`
+                : t('belum_selesai')
+              : t('ok_status')}
           </Text>
         </View>
       </View>
 
-      {a.isOpen && a.note && (
-        <View className="mt-3 pt-3 border-t border-rule">
-          <Text className="font-sans text-[12.5px] leading-[19px] text-ink-3">{a.note}</Text>
-          {age != null && (
-            <Text className="font-mono text-[11px] text-ink-6 mt-2.5">
-              {t('hari_terbuka', { days: age })}
+      {a.issues.map((issue) => (
+        <View key={issue.id} className="mt-3 pt-3 border-t border-rule">
+          <Text className="font-sans text-[12.5px] leading-[19px] text-ink-3">{issue.note}</Text>
+          <View className="flex-row items-center gap-3 mt-2.5">
+            <Text className="flex-1 font-mono text-[11px] text-ink-6">
+              {t('hari_terbuka', { days: daysBetweenIso(issue.openedOn, today) })}
             </Text>
-          )}
+            <Pressable
+              onPress={() => onResolve(issue.id)}
+              accessibilityRole="button"
+              className="py-2 px-3.5 rounded-[9px] bg-ink items-center active:opacity-80"
+            >
+              <Text className="font-sans-semi text-[12px] text-white">{t('tanda_selesai')}</Text>
+            </Pressable>
+          </View>
         </View>
-      )}
+      ))}
 
-      {a.isOpen && !editing && (
-        <Pressable
-          onPress={onResolve}
-          accessibilityRole="button"
-          className="mt-3 py-2.5 rounded-[9px] bg-ink items-center active:opacity-80"
-        >
-          <Text className="font-sans-semi text-[12.5px] text-white">{t('tanda_selesai')}</Text>
-        </Pressable>
-      )}
-
-      {!a.isOpen && !editing && (
+      {!editing && (
         <Pressable
           onPress={onStartReport}
           accessibilityRole="button"
           className="mt-3 py-2.5 rounded-[9px] border border-line items-center active:opacity-70"
         >
-          <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('laporkan_isu')}</Text>
+          <Text className="font-sans-semi text-[12.5px] text-ink-2">
+            {open ? t('tambah_isu_lain') : t('laporkan_isu')}
+          </Text>
         </Pressable>
       )}
 
