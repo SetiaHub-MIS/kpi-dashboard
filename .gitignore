@@ -17,3 +17,4 @@ node_modules/
 
 # repomix's full-codebase dump, regenerated on demand — not a source file.
 repomix-output.xml
+.graphify-out
