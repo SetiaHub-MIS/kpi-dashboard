@@ -100,6 +100,7 @@ for (const m of [
   'supabase/migrations/20261002040000_due_from_join_week.sql',
   'supabase/migrations/20261003010000_malaysia_date.sql',
   'supabase/migrations/20261003020000_handover_before_friday.sql',
+  'supabase/migrations/20261003030000_marked_before_added.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1472,6 +1473,50 @@ console.log('\n=== a new person is due from the week they were added (2026100204
   await db.exec(`DELETE FROM users WHERE id IN ('NH0001', 'NH0002')`);
   const m3 = await monthly();
   check('put back, Machang September is as it was', [m3.headcount, m3.gaps, m3.due_slots], [m0.headcount, m0.gaps, m0.due_slots]);
+}
+
+console.log('\n=== marked before the week they were added: due all month (20261003030000) ===');
+{
+  // The directory was loaded on 29 September 2026 (week 4), and the September
+  // workbook marks those same people in weeks 1–3. Machang kedai, September.
+  const weekly = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT week_no, headcount, gaps FROM report_branch_weekly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9
+      ORDER BY week_no`)).rows;
+  const monthly = async () => (await as(ACCOUNTS.gm[0],
+    `SELECT due_slots, gaps FROM report_branch_monthly
+      WHERE branch_id = 'DMC' AND form_key = 'kedai' AND period_year = 2026 AND period_month = 9`)).rows[0];
+  const due = async (id) => (await as(ACCOUNTS.gm[0],
+    `SELECT d.first_week, s.due_from_week FROM report_due d
+       JOIN report_staff_monthly s ON s.user_id = d.user_id AND s.period_year = d.period_year AND s.period_month = d.period_month
+      WHERE d.user_id = '${id}' AND d.period_year = 2026 AND d.period_month = 9`)).rows.map((r) => [r.first_week, r.due_from_week]);
+  const w0 = await weekly();
+  const m0 = await monthly();
+
+  await db.exec(`INSERT INTO users (id, name, short_name, initials, role, branch_id, joined_on)
+                 VALUES ('NH0005', 'Pekerja Buku', 'Buku', 'PB', 'staff', 'DMC', DATE '2026-09-29')`);
+  await db.exec(`INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score)
+                 VALUES ('NH0005', 'DMC', 'kedai', 2026, 9, 1, 88, 110), ('NH0005', 'DMC', 'kedai', 2026, 9, 2, 90, 110)`);
+  check('added in week 4 but marked in weeks 1 and 2: due from week 1, in report_due and the staff row alike',
+    await due('NH0005'), [[1, 1]]);
+  const w1 = await weekly();
+  check('...so they count in every week, and only weeks 3 and 4 are gaps',
+    w1.map((r) => [r.headcount - w0[r.week_no - 1].headcount, r.gaps - w0[r.week_no - 1].gaps]),
+    [[1, 0], [1, 0], [1, 1], [1, 1]]);
+  const m1 = await monthly();
+  check('...and the month owes 4 person-weeks from them, 2 of them unmarked',
+    [m1.due_slots - m0.due_slots, m1.gaps - m0.gaps], [4, 2]);
+
+  // Added in week 4 and marked only in week 4: nothing earlier shows they were there.
+  await db.exec(`INSERT INTO users (id, name, short_name, initials, role, branch_id, joined_on)
+                 VALUES ('NH0006', 'Pekerja Baharu', 'Baharu', 'PB', 'staff', 'DMC', DATE '2026-09-29')`);
+  await db.exec(`INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score)
+                 VALUES ('NH0006', 'DMC', 'kedai', 2026, 9, 4, 88, 110)`);
+  check('added in week 4 and marked only that week: still due from week 4', await due('NH0006'), [[4, 4]]);
+
+  await db.exec(`DELETE FROM users WHERE id IN ('NH0005', 'NH0006')`);
+  const m2 = await monthly();
+  check('put back, Machang September is as it was', [m2.due_slots, m2.gaps], [m0.due_slots, m0.gaps]);
 }
 
 console.log('\n=== today is Malaysia\x27s date, and a list before its Friday is not a miss (20261003010000, 20261003020000) ===');
