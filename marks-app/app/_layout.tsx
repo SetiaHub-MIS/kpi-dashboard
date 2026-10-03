@@ -18,8 +18,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { UpdateBanner } from '@/components/UpdateBanner';
 import { HOME_ROUTE, mayOpen } from '@/data/routes';
 import { SessionEnd } from '@/data/sessionLimits';
+import { takeCarriedNotice, useAppUpdates } from '@/lib/appUpdates';
 import { hydrateDirectory, signOutAndClear } from '@/lib/hydrate';
 // Imported for its listener: Chrome fires the install offer once, early, and
 // it has to be caught before any screen has mounted.
@@ -90,7 +92,14 @@ export default function RootLayout() {
     void useQueue.getState().load();
     void useLocale.getState().load();
     restore().then(async () => {
-      if (!live || !useSession.getState().staff) return;
+      if (!live) return;
+      if (!useSession.getState().staff) {
+        // Restarted into an update on the sign-in screen: say again why the
+        // last session ended, as the screen did before the restart.
+        const notice = await takeCarriedNotice();
+        if (notice && live && !useSession.getState().currentUserId) useSession.setState({ error: notice });
+        return;
+      }
       // A stored session resumes only within its limits. One that arrived in a
       // password-reset link has just begun, so its clocks start now.
       if (limitsApply) {
@@ -127,6 +136,12 @@ export default function RootLayout() {
   const role = useSession((s) => s.staff?.role);
   const pathname = usePathname();
   const router = useRouter();
+
+  // A newer version downloaded over the air restarts the app at once while
+  // nobody is signed in (or a stored session is still being restored, which
+  // counts as signed in); a signed-in person is offered the restart instead.
+  const updates = useAppUpdates(!!currentUserId || status === 'restoring');
+
   useEffect(() => {
     if (!isSupabaseConfigured) return; // demo mode has no real session to check
     if (status === 'restoring') return; // a stored session may still resolve
@@ -180,6 +195,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: '#F4F4F2' },
           }}
         />
+        {updates.offer && <UpdateBanner onRestart={updates.restart} onLater={updates.dismiss} />}
       </View>
     </SafeAreaProvider>
   );

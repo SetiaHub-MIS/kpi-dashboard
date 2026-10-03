@@ -97,6 +97,58 @@
       "source_location": "L5"
     },
     {
+      "id": "marks_app_src_components_taboptions_baseof",
+      "label": "BaseOf",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "baseof",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "marks_app_src_components_taboptions_outlinename",
+      "label": "OutlineName",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "outlinename",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L26"
+    },
+    {
+      "id": "marks_app_src_components_taboptions_tabglyph",
+      "label": "TabGlyph",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "tabglyph",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L29"
+    },
+    {
+      "id": "marks_app_src_components_taboptions_tabiconprops",
+      "label": "TabIconProps",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "tabiconprops",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L36"
+    },
+    {
       "id": "marks_app_src_data_branches_branch",
       "label": "Branch",
       "_callable": true,
@@ -318,6 +370,19 @@
       "source_location": "L283"
     },
     {
+      "id": "marks_app_src_data_reconcile_vendorfield",
+      "label": "VendorField",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "pulangan-recon.tsx",
+      "file_type": "code",
+      "norm_label": "vendorfield",
+      "source_file": "marks-app/src/data/reconcile.ts",
+      "source_location": "L16"
+    },
+    {
       "id": "marks_app_src_data_reconcile_vendorrow",
       "label": "VendorRow",
       "_callable": true,
@@ -329,19 +394,6 @@
       "norm_label": "vendorrow",
       "source_file": "marks-app/src/data/reconcile.ts",
       "source_location": "L211"
-    },
-    {
-      "id": "marks_app_src_data_returns_ageingstatus",
-      "label": "ageingStatus",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pulangan-recon.tsx",
-      "file_type": "code",
-      "norm_label": "ageingstatus",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L162"
     },
     {
       "id": "marks_app_src_lib_reminders_reminder",
@@ -448,13 +500,39 @@
       "source_location": "L15"
     },
     {
+      "id": "marks_app_src_data_checklist_formkey",
+      "label": "FormKey",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "formkey",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L143"
+    },
+    {
+      "id": "marks_app_src_data_checklist_kategori",
+      "label": "Kategori",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "kategori",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L3"
+    },
+    {
       "id": "marks_app_src_data_scoring_answer",
       "label": "Answer",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "answer",
       "source_file": "marks-app/src/data/scoring.ts",
@@ -467,7 +545,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "totals",
       "source_file": "marks-app/src/data/scoring.ts",
@@ -480,7 +558,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "draft",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -493,7 +571,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "marksstate",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -506,7 +584,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "savecontext",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -519,7 +597,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "verifycontext",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -628,84 +706,6 @@
       "norm_label": "uploadresult",
       "source_file": "marks-app/src/lib/photos.ts",
       "source_location": "L87"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_baseof",
-      "label": "BaseOf",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "baseof",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L27"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_outlinename",
-      "label": "OutlineName",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "outlinename",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L26"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_tabglyph",
-      "label": "TabGlyph",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "tabglyph",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L29"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_tabiconprops",
-      "label": "TabIconProps",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "tabiconprops",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L36"
-    },
-    {
-      "id": "marks_app_src_data_checklist_formkey",
-      "label": "FormKey",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "formkey",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L143"
-    },
-    {
-      "id": "marks_app_src_data_checklist_kategori",
-      "label": "Kategori",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "kategori",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L3"
     },
     {
       "id": "marks_app_src_lib_marks_lineindex",
@@ -864,19 +864,6 @@
       "source_location": "L28"
     },
     {
-      "id": "marks_app_src_data_reconcile_vendorfield",
-      "label": "VendorField",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "vendorfield",
-      "source_file": "marks-app/src/data/reconcile.ts",
-      "source_location": "L16"
-    },
-    {
       "id": "marks_app_src_lib_install_beforeinstallpromptevent",
       "label": "BeforeInstallPromptEvent",
       "_callable": true,
@@ -927,19 +914,6 @@
       "norm_label": "problems",
       "source_file": "supabase/xlsx_to_import_marks.py",
       "source_location": "L120"
-    },
-    {
-      "id": "marks_app_src_data_returns_stageowner",
-      "label": "StageOwner",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "stageKpi.ts",
-      "file_type": "code",
-      "norm_label": "stageowner",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L47"
     },
     {
       "id": "marks_app_src_data_stagekpi_stagehop",
@@ -1176,6 +1150,32 @@
       "source_location": "L21"
     },
     {
+      "id": "marks_app_src_data_returns_ageingstatus",
+      "label": "ageingStatus",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "data/returns.ts",
+      "file_type": "code",
+      "norm_label": "ageingstatus",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L162"
+    },
+    {
+      "id": "marks_app_src_data_returns_stageowner",
+      "label": "StageOwner",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "data/returns.ts",
+      "file_type": "code",
+      "norm_label": "stageowner",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L47"
+    },
+    {
       "id": "marks_app_app_admin_cawangan_cawangan",
       "label": "Cawangan()",
       "_callable": true,
@@ -1210,6 +1210,18 @@
       "norm_label": "adminusers()",
       "source_file": "marks-app/app/admin/index.tsx",
       "source_location": "L19"
+    },
+    {
+      "id": "marks_app_app_admin_layout_adminlayout",
+      "label": "AdminLayout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "adminlayout()",
+      "source_file": "marks-app/app/admin/_layout.tsx",
+      "source_location": "L5"
     },
     {
       "id": "marks_app_app_admin_peranan_peranan",
@@ -1272,18 +1284,6 @@
       "source_location": "L12"
     },
     {
-      "id": "marks_app_app_done_done",
-      "label": "Done()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "done()",
-      "source_file": "marks-app/app/done.tsx",
-      "source_location": "L12"
-    },
-    {
       "id": "marks_app_app_index_rolepicker",
       "label": "RolePicker()",
       "_callable": true,
@@ -1308,6 +1308,18 @@
       "source_location": "L28"
     },
     {
+      "id": "marks_app_app_manager_assets_failuredetail",
+      "label": "failureDetail()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "failuredetail()",
+      "source_file": "marks-app/app/manager/assets.tsx",
+      "source_location": "L143"
+    },
+    {
       "id": "marks_app_app_manager_gaps_gaps",
       "label": "Gaps()",
       "_callable": true,
@@ -1320,28 +1332,16 @@
       "source_location": "L13"
     },
     {
-      "id": "marks_app_app_manager_index_managerhome",
-      "label": "ManagerHome()",
+      "id": "marks_app_app_manager_layout_managerlayout",
+      "label": "ManagerLayout()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "managerhome()",
-      "source_file": "marks-app/app/manager/index.tsx",
-      "source_location": "L31"
-    },
-    {
-      "id": "marks_app_app_manager_sv_managersvqueue",
-      "label": "ManagerSvQueue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "managersvqueue()",
-      "source_file": "marks-app/app/manager/sv.tsx",
-      "source_location": "L27"
+      "norm_label": "managerlayout()",
+      "source_file": "marks-app/app/manager/_layout.tsx",
+      "source_location": "L5"
     },
     {
       "id": "marks_app_app_manager_tugasan_tugasan",
@@ -1416,6 +1416,18 @@
       "source_location": "L23"
     },
     {
+      "id": "marks_app_app_pulangan_layout_pulanganlayout",
+      "label": "PulanganLayout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "pulanganlayout()",
+      "source_file": "marks-app/app/pulangan/_layout.tsx",
+      "source_location": "L5"
+    },
+    {
       "id": "marks_app_app_pulangan_new_newreturn",
       "label": "NewReturn()",
       "_callable": true,
@@ -1438,6 +1450,42 @@
       "norm_label": "pulangansaya()",
       "source_file": "marks-app/app/pulangan/saya.tsx",
       "source_location": "L27"
+    },
+    {
+      "id": "marks_app_app_pulangan_selesai_avgof",
+      "label": "avgOf()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "avgof()",
+      "source_file": "marks-app/app/pulangan/selesai.tsx",
+      "source_location": "L88"
+    },
+    {
+      "id": "marks_app_app_pulangan_selesai_pulanganselesai",
+      "label": "PulanganSelesai()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "pulanganselesai()",
+      "source_file": "marks-app/app/pulangan/selesai.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "marks_app_app_pulangan_selesai_routestat",
+      "label": "RouteStat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "routestat()",
+      "source_file": "marks-app/app/pulangan/selesai.tsx",
+      "source_location": "L91"
     },
     {
       "id": "marks_app_app_reset_password_resetpassword",
@@ -1464,6 +1512,18 @@
       "source_location": "L21"
     },
     {
+      "id": "marks_app_app_staff_layout_stafflayout",
+      "label": "StaffLayout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "stafflayout()",
+      "source_file": "marks-app/app/staff/_layout.tsx",
+      "source_location": "L5"
+    },
+    {
       "id": "marks_app_app_staff_profil_profil",
       "label": "Profil()",
       "_callable": true,
@@ -1476,28 +1536,16 @@
       "source_location": "L16"
     },
     {
-      "id": "marks_app_app_staff_rekod_staffrekod",
-      "label": "StaffRekod()",
+      "id": "marks_app_app_supervisor_layout_supervisorlayout",
+      "label": "SupervisorLayout()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "staffrekod()",
-      "source_file": "marks-app/app/staff/rekod.tsx",
-      "source_location": "L12"
-    },
-    {
-      "id": "marks_app_app_supervisor_index_supervisorqueue",
-      "label": "SupervisorQueue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "supervisorqueue()",
-      "source_file": "marks-app/app/supervisor/index.tsx",
-      "source_location": "L21"
+      "norm_label": "supervisorlayout()",
+      "source_file": "marks-app/app/supervisor/_layout.tsx",
+      "source_location": "L5"
     },
     {
       "id": "marks_app_app_supervisor_pekerja_pekerja",
@@ -1509,18 +1557,6 @@
       "file_type": "code",
       "norm_label": "pekerja()",
       "source_file": "marks-app/app/supervisor/pekerja.tsx",
-      "source_location": "L13"
-    },
-    {
-      "id": "marks_app_app_supervisor_rekod_rekod",
-      "label": "Rekod()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "rekod()",
-      "source_file": "marks-app/app/supervisor/rekod.tsx",
       "source_location": "L13"
     },
     {
@@ -1632,52 +1668,16 @@
       "source_location": "L15"
     },
     {
-      "id": "marks_app_src_components_periodpicker_periodpicker",
-      "label": "PeriodPicker()",
+      "id": "marks_app_src_components_returnrow_returnrow",
+      "label": "ReturnRow()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "periodpicker()",
-      "source_file": "marks-app/src/components/PeriodPicker.tsx",
-      "source_location": "L18"
-    },
-    {
-      "id": "marks_app_src_components_periodpicker_stepbutton",
-      "label": "StepButton()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "stepbutton()",
-      "source_file": "marks-app/src/components/PeriodPicker.tsx",
-      "source_location": "L90"
-    },
-    {
-      "id": "marks_app_src_components_perkarabars_perkarabars",
-      "label": "PerkaraBars()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "perkarabars()",
-      "source_file": "marks-app/src/components/PerkaraBars.tsx",
-      "source_location": "L7"
-    },
-    {
-      "id": "marks_app_src_components_queuebanner_queuebanner",
-      "label": "QueueBanner()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "queuebanner()",
-      "source_file": "marks-app/src/components/QueueBanner.tsx",
-      "source_location": "L19"
+      "norm_label": "returnrow()",
+      "source_file": "marks-app/src/components/ReturnRow.tsx",
+      "source_location": "L22"
     },
     {
       "id": "marks_app_src_components_screen_screen",
@@ -1714,6 +1714,18 @@
       "norm_label": "signoutbutton()",
       "source_file": "marks-app/src/components/SignOutButton.tsx",
       "source_location": "L21"
+    },
+    {
+      "id": "marks_app_src_components_taboptions_tabicon",
+      "label": "tabIcon()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "tabicon()",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L38"
     },
     {
       "id": "marks_app_src_data_branches_branchlabel",
@@ -1800,28 +1812,16 @@
       "source_location": "L76"
     },
     {
-      "id": "marks_app_src_data_checklist_linekey",
-      "label": "lineKey()",
+      "id": "marks_app_src_data_returns_nextstage",
+      "label": "nextStage()",
       "_callable": true,
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "linekey()",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L160"
-    },
-    {
-      "id": "marks_app_src_data_period_weekrangelabel",
-      "label": "weekRangeLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "weekrangelabel()",
-      "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L97"
+      "norm_label": "nextstage()",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L119"
     },
     {
       "id": "marks_app_src_data_returns_ownerforrole",
@@ -1836,6 +1836,18 @@
       "source_location": "L81"
     },
     {
+      "id": "marks_app_src_data_returns_stagesfor",
+      "label": "stagesFor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "stagesfor()",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L108"
+    },
+    {
       "id": "marks_app_src_data_users_isreportsonly",
       "label": "isReportsOnly()",
       "_callable": true,
@@ -1846,6 +1858,30 @@
       "norm_label": "isreportsonly()",
       "source_file": "marks-app/src/data/users.ts",
       "source_location": "L153"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_dispositionlabel",
+      "label": "dispositionLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "dispositionlabel()",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L87"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_reasonlabel",
+      "label": "reasonLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "reasonlabel()",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L78"
     },
     {
       "id": "marks_app_src_i18n_labels_rolelabel",
@@ -1882,18 +1918,6 @@
       "norm_label": "notify()",
       "source_file": "marks-app/src/lib/dialog.ts",
       "source_location": "L10"
-    },
-    {
-      "id": "marks_app_src_store_useassets_assetsvisibleto",
-      "label": "assetsVisibleTo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "assetsvisibleto()",
-      "source_file": "marks-app/src/store/useAssets.ts",
-      "source_location": "L33"
     },
     {
       "id": "marks_app_src_store_usebranches_useactivebranches",
@@ -1944,66 +1968,6 @@
       "source_location": "L24"
     },
     {
-      "id": "marks_app_src_store_usemarks_formkeyforrole",
-      "label": "formKeyForRole()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "formkeyforrole()",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L21"
-    },
-    {
-      "id": "marks_app_src_store_usemarks_isverified",
-      "label": "isVerified()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "isverified()",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L348"
-    },
-    {
-      "id": "marks_app_src_store_usemarks_monthstats",
-      "label": "monthStats()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "monthstats()",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L355"
-    },
-    {
-      "id": "marks_app_src_store_usemarks_weekkey",
-      "label": "weekKey()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "weekkey()",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L27"
-    },
-    {
-      "id": "marks_app_src_store_usemarks_weekmark",
-      "label": "weekMark()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "weekmark()",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L334"
-    },
-    {
       "id": "marks_app_src_store_usesession_currentuser",
       "label": "currentUser()",
       "_callable": true,
@@ -2014,18 +1978,6 @@
       "norm_label": "currentuser()",
       "source_file": "marks-app/src/store/useSession.ts",
       "source_location": "L92"
-    },
-    {
-      "id": "marks_app_src_store_usetugasan_tugasandonecount",
-      "label": "tugasanDoneCount()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "tugasandonecount()",
-      "source_file": "marks-app/src/store/useTugasan.ts",
-      "source_location": "L218"
     },
     {
       "id": "marks_app_src_store_useusers_byrole",
@@ -2062,18 +2014,6 @@
       "norm_label": "inbranch()",
       "source_file": "marks-app/src/store/useUsers.ts",
       "source_location": "L243"
-    },
-    {
-      "id": "marks_app_src_store_useusers_markingqueue",
-      "label": "markingQueue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "markingqueue()",
-      "source_file": "marks-app/src/store/useUsers.ts",
-      "source_location": "L278"
     },
     {
       "id": "marks_app_src_store_useusers_primaryof",
@@ -2122,30 +2062,6 @@
       "norm_label": "bandcolor()",
       "source_file": "marks-app/src/theme/scoring.ts",
       "source_location": "L44"
-    },
-    {
-      "id": "marks_app_src_theme_scoring_pctbg",
-      "label": "pctBg()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "pctbg()",
-      "source_file": "marks-app/src/theme/scoring.ts",
-      "source_location": "L36"
-    },
-    {
-      "id": "marks_app_src_theme_scoring_pctcolor",
-      "label": "pctColor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "pctcolor()",
-      "source_file": "marks-app/src/theme/scoring.ts",
-      "source_location": "L28"
     },
     {
       "id": "marks_app_app_user_id_userdetail",
@@ -2856,6 +2772,18 @@
       "source_location": "L22"
     },
     {
+      "id": "marks_app_tests_stagekpi_test_bill",
+      "label": "bill()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "useUsers.ts",
+      "file_type": "code",
+      "norm_label": "bill()",
+      "source_file": "marks-app/tests/stageKpi.test.mjs",
+      "source_location": "L14"
+    },
+    {
       "id": "supabase_tests_gen_verify_q",
       "label": "q()",
       "_callable": true,
@@ -3156,16 +3084,16 @@
       "source_location": "L228"
     },
     {
-      "id": "marks_app_src_data_returns_iscleared",
-      "label": "isCleared()",
+      "id": "marks_app_src_data_returns_fmtdate",
+      "label": "fmtDate()",
       "_callable": true,
       "_origin": "ast",
       "community": 15,
       "community_name": "pulangan-recon.tsx",
       "file_type": "code",
-      "norm_label": "iscleared()",
+      "norm_label": "fmtdate()",
       "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L123"
+      "source_location": "L144"
     },
     {
       "id": "marks_app_src_i18n_labels_fieldlabel",
@@ -3178,18 +3106,6 @@
       "norm_label": "fieldlabel()",
       "source_file": "marks-app/src/i18n/labels.ts",
       "source_location": "L110"
-    },
-    {
-      "id": "marks_app_src_store_usereturns_openreturns",
-      "label": "openReturns()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "pulangan-recon.tsx",
-      "file_type": "code",
-      "norm_label": "openreturns()",
-      "source_file": "marks-app/src/store/useReturns.ts",
-      "source_location": "L199"
     },
     {
       "id": "marks_app_tests_reconcile_test_rec",
@@ -3372,16 +3288,160 @@
       "source_location": "L50"
     },
     {
+      "id": "marks_app_app_done_done",
+      "label": "Done()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "done()",
+      "source_file": "marks-app/app/done.tsx",
+      "source_location": "L12"
+    },
+    {
+      "id": "marks_app_app_manager_index_managerhome",
+      "label": "ManagerHome()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "managerhome()",
+      "source_file": "marks-app/app/manager/index.tsx",
+      "source_location": "L31"
+    },
+    {
+      "id": "marks_app_app_manager_sv_managersvqueue",
+      "label": "ManagerSvQueue()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "managersvqueue()",
+      "source_file": "marks-app/app/manager/sv.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "marks_app_app_staff_rekod_staffrekod",
+      "label": "StaffRekod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "staffrekod()",
+      "source_file": "marks-app/app/staff/rekod.tsx",
+      "source_location": "L12"
+    },
+    {
+      "id": "marks_app_app_supervisor_index_supervisorqueue",
+      "label": "SupervisorQueue()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "supervisorqueue()",
+      "source_file": "marks-app/app/supervisor/index.tsx",
+      "source_location": "L21"
+    },
+    {
+      "id": "marks_app_app_supervisor_rekod_rekod",
+      "label": "Rekod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "rekod()",
+      "source_file": "marks-app/app/supervisor/rekod.tsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "marks_app_src_components_periodpicker_periodpicker",
+      "label": "PeriodPicker()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "periodpicker()",
+      "source_file": "marks-app/src/components/PeriodPicker.tsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "marks_app_src_components_periodpicker_stepbutton",
+      "label": "StepButton()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "stepbutton()",
+      "source_file": "marks-app/src/components/PeriodPicker.tsx",
+      "source_location": "L90"
+    },
+    {
+      "id": "marks_app_src_components_perkarabars_perkarabars",
+      "label": "PerkaraBars()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "perkarabars()",
+      "source_file": "marks-app/src/components/PerkaraBars.tsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "marks_app_src_components_queuebanner_queuebanner",
+      "label": "QueueBanner()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "queuebanner()",
+      "source_file": "marks-app/src/components/QueueBanner.tsx",
+      "source_location": "L19"
+    },
+    {
       "id": "marks_app_src_data_checklist_countlines",
       "label": "countLines()",
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "countlines()",
       "source_file": "marks-app/src/data/checklist.ts",
       "source_location": "L157"
+    },
+    {
+      "id": "marks_app_src_data_checklist_linekey",
+      "label": "lineKey()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "linekey()",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L160"
+    },
+    {
+      "id": "marks_app_src_data_period_weekrangelabel",
+      "label": "weekRangeLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "weekrangelabel()",
+      "source_file": "marks-app/src/data/period.ts",
+      "source_location": "L97"
     },
     {
       "id": "marks_app_src_data_scoring_scoredonly",
@@ -3389,7 +3449,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "scoredonly()",
       "source_file": "marks-app/src/data/scoring.ts",
@@ -3401,7 +3461,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "totalsof()",
       "source_file": "marks-app/src/data/scoring.ts",
@@ -3413,11 +3473,47 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "drafttotals()",
       "source_file": "marks-app/src/store/useMarks.ts",
       "source_location": "L326"
+    },
+    {
+      "id": "marks_app_src_store_usemarks_formkeyforrole",
+      "label": "formKeyForRole()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "formkeyforrole()",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "marks_app_src_store_usemarks_isverified",
+      "label": "isVerified()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "isverified()",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L348"
+    },
+    {
+      "id": "marks_app_src_store_usemarks_monthstats",
+      "label": "monthStats()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "monthstats()",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L355"
     },
     {
       "id": "marks_app_src_store_usemarks_perkaraaverages",
@@ -3425,11 +3521,71 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "perkaraaverages()",
       "source_file": "marks-app/src/store/useMarks.ts",
       "source_location": "L382"
+    },
+    {
+      "id": "marks_app_src_store_usemarks_weekkey",
+      "label": "weekKey()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "weekkey()",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L27"
+    },
+    {
+      "id": "marks_app_src_store_usemarks_weekmark",
+      "label": "weekMark()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "weekmark()",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L334"
+    },
+    {
+      "id": "marks_app_src_store_useusers_markingqueue",
+      "label": "markingQueue()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "markingqueue()",
+      "source_file": "marks-app/src/store/useUsers.ts",
+      "source_location": "L278"
+    },
+    {
+      "id": "marks_app_src_theme_scoring_pctbg",
+      "label": "pctBg()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "pctbg()",
+      "source_file": "marks-app/src/theme/scoring.ts",
+      "source_location": "L36"
+    },
+    {
+      "id": "marks_app_src_theme_scoring_pctcolor",
+      "label": "pctColor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "pctcolor()",
+      "source_file": "marks-app/src/theme/scoring.ts",
+      "source_location": "L28"
     },
     {
       "id": "marks_app_src_data_queue_dismissrejection",
@@ -3672,76 +3828,16 @@
       "source_location": "L96"
     },
     {
-      "id": "marks_app_app_admin_layout_adminlayout",
-      "label": "AdminLayout()",
+      "id": "marks_app_app_manager_assets_assetitem",
+      "label": "AssetItem()",
       "_callable": true,
       "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
+      "community": 29,
+      "community_name": "period.ts",
       "file_type": "code",
-      "norm_label": "adminlayout()",
-      "source_file": "marks-app/app/admin/_layout.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "marks_app_app_manager_layout_managerlayout",
-      "label": "ManagerLayout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "managerlayout()",
-      "source_file": "marks-app/app/manager/_layout.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "marks_app_app_pulangan_layout_pulanganlayout",
-      "label": "PulanganLayout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "pulanganlayout()",
-      "source_file": "marks-app/app/pulangan/_layout.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "marks_app_app_staff_layout_stafflayout",
-      "label": "StaffLayout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "stafflayout()",
-      "source_file": "marks-app/app/staff/_layout.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "marks_app_app_supervisor_layout_supervisorlayout",
-      "label": "SupervisorLayout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "supervisorlayout()",
-      "source_file": "marks-app/app/supervisor/_layout.tsx",
-      "source_location": "L5"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_tabicon",
-      "label": "tabIcon()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "tabicon()",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L38"
+      "norm_label": "assetitem()",
+      "source_file": "marks-app/app/manager/assets.tsx",
+      "source_location": "L150"
     },
     {
       "id": "marks_app_src_data_period_currentperiod",
@@ -3749,23 +3845,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "currentperiod()",
       "source_file": "marks-app/src/data/period.ts",
       "source_location": "L33"
     },
     {
-      "id": "marks_app_src_data_period_monthshort",
-      "label": "monthShort()",
+      "id": "marks_app_src_data_period_daysbetweeniso",
+      "label": "daysBetweenIso()",
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
-      "norm_label": "monthshort()",
+      "norm_label": "daysbetweeniso()",
       "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L105"
+      "source_location": "L86"
+    },
+    {
+      "id": "marks_app_src_data_period_pad",
+      "label": "pad()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "period.ts",
+      "file_type": "code",
+      "norm_label": "pad()",
+      "source_file": "marks-app/src/data/period.ts",
+      "source_location": "L19"
     },
     {
       "id": "marks_app_src_data_period_periodlabel",
@@ -3773,7 +3881,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "periodlabel()",
       "source_file": "marks-app/src/data/period.ts",
@@ -3785,23 +3893,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "recentperiods()",
       "source_file": "marks-app/src/data/period.ts",
       "source_location": "L48"
     },
     {
-      "id": "marks_app_src_data_period_sameperiod",
-      "label": "samePeriod()",
+      "id": "marks_app_src_data_period_todayiso",
+      "label": "todayIso()",
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
-      "norm_label": "sameperiod()",
+      "norm_label": "todayiso()",
       "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L40"
+      "source_location": "L22"
     },
     {
       "id": "marks_app_src_data_period_todaylonglabel",
@@ -3809,7 +3917,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "todaylonglabel()",
       "source_file": "marks-app/src/data/period.ts",
@@ -3821,7 +3929,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "weekindexof()",
       "source_file": "marks-app/src/data/period.ts",
@@ -3833,7 +3941,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "weekofmonth()",
       "source_file": "marks-app/src/data/period.ts",
@@ -3845,23 +3953,59 @@
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "weekstarted()",
       "source_file": "marks-app/src/data/period.ts",
       "source_location": "L78"
     },
     {
-      "id": "marks_app_src_lib_marks_fetchmyweeks",
-      "label": "fetchMyWeeks()",
+      "id": "marks_app_src_lib_assets_isassetopen",
+      "label": "isAssetOpen()",
       "_callable": true,
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
-      "norm_label": "fetchmyweeks()",
-      "source_file": "marks-app/src/lib/marks.ts",
-      "source_location": "L331"
+      "norm_label": "isassetopen()",
+      "source_file": "marks-app/src/lib/assets.ts",
+      "source_location": "L28"
+    },
+    {
+      "id": "marks_app_src_lib_assets_resolveassetissue",
+      "label": "resolveAssetIssue()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "period.ts",
+      "file_type": "code",
+      "norm_label": "resolveassetissue()",
+      "source_file": "marks-app/src/lib/assets.ts",
+      "source_location": "L64"
+    },
+    {
+      "id": "marks_app_src_data_period_monthshort",
+      "label": "monthShort()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "marks.ts",
+      "file_type": "code",
+      "norm_label": "monthshort()",
+      "source_file": "marks-app/src/data/period.ts",
+      "source_location": "L105"
+    },
+    {
+      "id": "marks_app_src_data_period_sameperiod",
+      "label": "samePeriod()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "marks.ts",
+      "file_type": "code",
+      "norm_label": "sameperiod()",
+      "source_file": "marks-app/src/data/period.ts",
+      "source_location": "L40"
     },
     {
       "id": "marks_app_src_lib_marks_fetchlineindex",
@@ -3886,6 +4030,18 @@
       "norm_label": "fetchmarkscores()",
       "source_file": "marks-app/src/lib/marks.ts",
       "source_location": "L161"
+    },
+    {
+      "id": "marks_app_src_lib_marks_fetchmyweeks",
+      "label": "fetchMyWeeks()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "marks.ts",
+      "file_type": "code",
+      "norm_label": "fetchmyweeks()",
+      "source_file": "marks-app/src/lib/marks.ts",
+      "source_location": "L331"
     },
     {
       "id": "marks_app_src_lib_marks_lineref",
@@ -3924,16 +4080,16 @@
       "source_location": "L192"
     },
     {
-      "id": "marks_app_src_data_returns_nextreturnid",
-      "label": "nextReturnId()",
+      "id": "marks_app_src_data_returns_iscleared",
+      "label": "isCleared()",
       "_callable": true,
       "_origin": "ast",
       "community": 31,
       "community_name": "useReturns.ts",
       "file_type": "code",
-      "norm_label": "nextreturnid()",
+      "norm_label": "iscleared()",
       "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L390"
+      "source_location": "L123"
     },
     {
       "id": "marks_app_src_lib_returns_createreturn",
@@ -3946,6 +4102,18 @@
       "norm_label": "createreturn()",
       "source_file": "marks-app/src/lib/returns.ts",
       "source_location": "L132"
+    },
+    {
+      "id": "marks_app_src_lib_returns_fetchreturns",
+      "label": "fetchReturns()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "useReturns.ts",
+      "file_type": "code",
+      "norm_label": "fetchreturns()",
+      "source_file": "marks-app/src/lib/returns.ts",
+      "source_location": "L45"
     },
     {
       "id": "marks_app_src_lib_returns_one",
@@ -4006,6 +4174,30 @@
       "norm_label": "unstampstage()",
       "source_file": "marks-app/src/lib/returns.ts",
       "source_location": "L176"
+    },
+    {
+      "id": "marks_app_src_store_usereturns_clearedreturns",
+      "label": "clearedReturns()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "useReturns.ts",
+      "file_type": "code",
+      "norm_label": "clearedreturns()",
+      "source_file": "marks-app/src/store/useReturns.ts",
+      "source_location": "L201"
+    },
+    {
+      "id": "marks_app_src_store_usereturns_openreturns",
+      "label": "openReturns()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "useReturns.ts",
+      "file_type": "code",
+      "norm_label": "openreturns()",
+      "source_file": "marks-app/src/store/useReturns.ts",
+      "source_location": "L199"
     },
     {
       "id": "marks_app_src_store_usereturns_persist",
@@ -4416,18 +4608,6 @@
       "source_location": "L39"
     },
     {
-      "id": "marks_app_tests_stagekpi_test_bill",
-      "label": "bill()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "stageKpi.ts",
-      "file_type": "code",
-      "norm_label": "bill()",
-      "source_file": "marks-app/tests/stageKpi.test.mjs",
-      "source_location": "L14"
-    },
-    {
       "id": "supabase_functions_payroll_auth_index_json",
       "label": "json()",
       "_callable": true,
@@ -4474,18 +4654,6 @@
       "norm_label": "signoffrow()",
       "source_file": "marks-app/app/manager/tugasan.tsx",
       "source_location": "L272"
-    },
-    {
-      "id": "marks_app_src_data_period_pad",
-      "label": "pad()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "useTugasan.ts",
-      "file_type": "code",
-      "norm_label": "pad()",
-      "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L19"
     },
     {
       "id": "marks_app_src_data_tugasan_tugasankey",
@@ -4632,6 +4800,18 @@
       "source_location": "L93"
     },
     {
+      "id": "marks_app_src_store_usetugasan_tugasandonecount",
+      "label": "tugasanDoneCount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "useTugasan.ts",
+      "file_type": "code",
+      "norm_label": "tugasandonecount()",
+      "source_file": "marks-app/src/store/useTugasan.ts",
+      "source_location": "L218"
+    },
+    {
       "id": "marks_app_src_store_usetugasan_tugasansignoff",
       "label": "tugasanSignOff()",
       "_callable": true,
@@ -4716,18 +4896,6 @@
       "source_location": "L155"
     },
     {
-      "id": "marks_app_app_manager_assets_assetitem",
-      "label": "AssetItem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "assetitem()",
-      "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L129"
-    },
-    {
       "id": "marks_app_src_data_checklist_currentweekidx",
       "label": "currentWeekIdx()",
       "_callable": true,
@@ -4738,30 +4906,6 @@
       "norm_label": "currentweekidx()",
       "source_file": "marks-app/src/data/checklist.ts",
       "source_location": "L172"
-    },
-    {
-      "id": "marks_app_src_data_period_daysbetweeniso",
-      "label": "daysBetweenIso()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "daysbetweeniso()",
-      "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L86"
-    },
-    {
-      "id": "marks_app_src_data_period_todayiso",
-      "label": "todayIso()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "todayiso()",
-      "source_file": "marks-app/src/data/period.ts",
-      "source_location": "L22"
     },
     {
       "id": "marks_app_src_data_period_todayshort",
@@ -4788,18 +4932,6 @@
       "source_location": "L32"
     },
     {
-      "id": "marks_app_src_lib_assets_isassetopen",
-      "label": "isAssetOpen()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "isassetopen()",
-      "source_file": "marks-app/src/lib/assets.ts",
-      "source_location": "L28"
-    },
-    {
       "id": "marks_app_src_lib_assets_reportassetissue",
       "label": "reportAssetIssue()",
       "_callable": true,
@@ -4810,18 +4942,6 @@
       "norm_label": "reportassetissue()",
       "source_file": "marks-app/src/lib/assets.ts",
       "source_location": "L52"
-    },
-    {
-      "id": "marks_app_src_lib_assets_resolveassetissue",
-      "label": "resolveAssetIssue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "resolveassetissue()",
-      "source_file": "marks-app/src/lib/assets.ts",
-      "source_location": "L64"
     },
     {
       "id": "marks_app_src_lib_assets_toissue",
@@ -4884,18 +5004,6 @@
       "source_location": "L113"
     },
     {
-      "id": "marks_app_src_lib_returns_fetchreturns",
-      "label": "fetchReturns()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "hydrate.ts",
-      "file_type": "code",
-      "norm_label": "fetchreturns()",
-      "source_file": "marks-app/src/lib/returns.ts",
-      "source_location": "L45"
-    },
-    {
       "id": "marks_app_src_lib_tugasan_fetchtugasan",
       "label": "fetchTugasan()",
       "_callable": true,
@@ -4908,6 +5016,18 @@
       "source_location": "L22"
     },
     {
+      "id": "marks_app_src_store_useassets_assetsvisibleto",
+      "label": "assetsVisibleTo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "hydrate.ts",
+      "file_type": "code",
+      "norm_label": "assetsvisibleto()",
+      "source_file": "marks-app/src/store/useAssets.ts",
+      "source_location": "L33"
+    },
+    {
       "id": "marks_app_src_i18n_strings_translate",
       "label": "translate()",
       "_callable": true,
@@ -4917,7 +5037,7 @@
       "file_type": "code",
       "norm_label": "translate()",
       "source_file": "marks-app/src/i18n/strings.ts",
-      "source_location": "L861"
+      "source_location": "L869"
     },
     {
       "id": "marks_app_src_lib_sessionguard_endedmessage",
@@ -5040,54 +5160,6 @@
       "source_location": "L47"
     },
     {
-      "id": "marks_app_app_pulangan_selesai_avgof",
-      "label": "avgOf()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "avgof()",
-      "source_file": "marks-app/app/pulangan/selesai.tsx",
-      "source_location": "L88"
-    },
-    {
-      "id": "marks_app_app_pulangan_selesai_pulanganselesai",
-      "label": "PulanganSelesai()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "pulanganselesai()",
-      "source_file": "marks-app/app/pulangan/selesai.tsx",
-      "source_location": "L13"
-    },
-    {
-      "id": "marks_app_app_pulangan_selesai_routestat",
-      "label": "RouteStat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "routestat()",
-      "source_file": "marks-app/app/pulangan/selesai.tsx",
-      "source_location": "L91"
-    },
-    {
-      "id": "marks_app_src_components_returnrow_returnrow",
-      "label": "ReturnRow()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "returnrow()",
-      "source_file": "marks-app/src/components/ReturnRow.tsx",
-      "source_location": "L22"
-    },
-    {
       "id": "marks_app_src_data_returns_ageband",
       "label": "ageBand()",
       "_callable": true,
@@ -5148,18 +5220,6 @@
       "source_location": "L69"
     },
     {
-      "id": "marks_app_src_data_returns_fmtdate",
-      "label": "fmtDate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "fmtdate()",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L144"
-    },
-    {
       "id": "marks_app_src_data_returns_gapdays",
       "label": "gapDays()",
       "_callable": true,
@@ -5184,28 +5244,16 @@
       "source_location": "L398"
     },
     {
-      "id": "marks_app_src_data_returns_nextstage",
-      "label": "nextStage()",
+      "id": "marks_app_src_data_returns_nextreturnid",
+      "label": "nextReturnId()",
       "_callable": true,
       "_origin": "ast",
       "community": 8,
       "community_name": "data/returns.ts",
       "file_type": "code",
-      "norm_label": "nextstage()",
+      "norm_label": "nextreturnid()",
       "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L119"
-    },
-    {
-      "id": "marks_app_src_data_returns_stagesfor",
-      "label": "stagesFor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "stagesfor()",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L108"
+      "source_location": "L390"
     },
     {
       "id": "marks_app_src_data_returns_tocsv",
@@ -5230,42 +5278,6 @@
       "norm_label": "turnarounddays()",
       "source_file": "marks-app/src/data/returns.ts",
       "source_location": "L132"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_dispositionlabel",
-      "label": "dispositionLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "dispositionlabel()",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L87"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_reasonlabel",
-      "label": "reasonLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "reasonlabel()",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L78"
-    },
-    {
-      "id": "marks_app_src_store_usereturns_clearedreturns",
-      "label": "clearedReturns()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "clearedreturns()",
-      "source_file": "marks-app/src/store/useReturns.ts",
-      "source_location": "L201"
     },
     {
       "id": "marks_app_tests_returns_test_record",
@@ -5948,6 +5960,17 @@
       "source_location": "L17"
     },
     {
+      "id": "marks_app_app_admin_layout",
+      "label": "admin/_layout.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "admin/_layout.tsx",
+      "source_file": "marks-app/app/admin/_layout.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "marks_app_app_admin_peranan",
       "label": "peranan.tsx",
       "_origin": "ast",
@@ -6000,17 +6023,6 @@
       "file_type": "code",
       "norm_label": "branch-new.tsx",
       "source_file": "marks-app/app/branch-new.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_done",
-      "label": "done.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "done.tsx",
-      "source_file": "marks-app/app/done.tsx",
       "source_location": "L1"
     },
     {
@@ -6080,25 +6092,14 @@
       "source_location": "L1"
     },
     {
-      "id": "marks_app_app_manager_index",
-      "label": "manager/index.tsx",
+      "id": "marks_app_app_manager_layout",
+      "label": "manager/_layout.tsx",
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "manager/index.tsx",
-      "source_file": "marks-app/app/manager/index.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_manager_sv",
-      "label": "sv.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "sv.tsx",
-      "source_file": "marks-app/app/manager/sv.tsx",
+      "norm_label": "manager/_layout.tsx",
+      "source_file": "marks-app/app/manager/_layout.tsx",
       "source_location": "L1"
     },
     {
@@ -6157,6 +6158,17 @@
       "source_location": "L1"
     },
     {
+      "id": "marks_app_app_pulangan_layout",
+      "label": "pulangan/_layout.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "pulangan/_layout.tsx",
+      "source_file": "marks-app/app/pulangan/_layout.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "marks_app_app_pulangan_new",
       "label": "pulangan-new.tsx",
       "_origin": "ast",
@@ -6176,6 +6188,17 @@
       "file_type": "code",
       "norm_label": "saya.tsx",
       "source_file": "marks-app/app/pulangan/saya.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_pulangan_selesai",
+      "label": "selesai.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "selesai.tsx",
+      "source_file": "marks-app/app/pulangan/selesai.tsx",
       "source_location": "L1"
     },
     {
@@ -6201,6 +6224,17 @@
       "source_location": "L1"
     },
     {
+      "id": "marks_app_app_staff_layout",
+      "label": "staff/_layout.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "staff/_layout.tsx",
+      "source_file": "marks-app/app/staff/_layout.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "marks_app_app_staff_profil",
       "label": "profil.tsx",
       "_origin": "ast",
@@ -6212,25 +6246,14 @@
       "source_location": "L1"
     },
     {
-      "id": "marks_app_app_staff_rekod",
-      "label": "staff/rekod.tsx",
+      "id": "marks_app_app_supervisor_layout",
+      "label": "supervisor/_layout.tsx",
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "code",
-      "norm_label": "staff/rekod.tsx",
-      "source_file": "marks-app/app/staff/rekod.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_supervisor_index",
-      "label": "supervisor/index.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "supervisor/index.tsx",
-      "source_file": "marks-app/app/supervisor/index.tsx",
+      "norm_label": "supervisor/_layout.tsx",
+      "source_file": "marks-app/app/supervisor/_layout.tsx",
       "source_location": "L1"
     },
     {
@@ -6253,6 +6276,17 @@
       "file_type": "code",
       "norm_label": "supervisor/rekod.tsx",
       "source_file": "marks-app/app/supervisor/rekod.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_user_new",
+      "label": "user-new.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "user-new.tsx",
+      "source_file": "marks-app/app/user-new.tsx",
       "source_location": "L1"
     },
     {
@@ -6344,39 +6378,6 @@
       "source_location": "L1"
     },
     {
-      "id": "marks_app_src_components_periodpicker",
-      "label": "PeriodPicker.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "periodpicker.tsx",
-      "source_file": "marks-app/src/components/PeriodPicker.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_components_perkarabars",
-      "label": "PerkaraBars.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "perkarabars.tsx",
-      "source_file": "marks-app/src/components/PerkaraBars.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_components_queuebanner",
-      "label": "QueueBanner.tsx",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "queuebanner.tsx",
-      "source_file": "marks-app/src/components/QueueBanner.tsx",
-      "source_location": "L1"
-    },
-    {
       "id": "marks_app_src_components_screen",
       "label": "Screen.tsx",
       "_origin": "ast",
@@ -6408,6 +6409,28 @@
       "norm_label": "signoutbutton.tsx",
       "source_file": "marks-app/src/components/SignOutButton.tsx",
       "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_components_taboptions",
+      "label": "tabOptions.tsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "taboptions.tsx",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_components_taboptions_basetaboptions",
+      "label": "baseTabOptions",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "basetaboptions",
+      "source_file": "marks-app/src/components/tabOptions.tsx",
+      "source_location": "L6"
     },
     {
       "id": "marks_app_src_data_branches",
@@ -6443,39 +6466,6 @@
       "source_location": "L21"
     },
     {
-      "id": "marks_app_src_data_checklist_form",
-      "label": "FORM",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "form",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L10"
-    },
-    {
-      "id": "marks_app_src_data_checklist_months",
-      "label": "MONTHS",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "months",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L167"
-    },
-    {
-      "id": "marks_app_src_data_checklist_week_cols",
-      "label": "WEEK_COLS",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "week_cols",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L169"
-    },
-    {
       "id": "marks_app_src_data_crew",
       "label": "crew.ts",
       "_origin": "ast",
@@ -6507,17 +6497,6 @@
       "norm_label": "dialog.ts",
       "source_file": "marks-app/src/lib/dialog.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_store_useassets_useassets",
-      "label": "useAssets",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "useassets",
-      "source_file": "marks-app/src/store/useAssets.ts",
-      "source_location": "L12"
     },
     {
       "id": "marks_app_src_store_usebranches",
@@ -6564,17 +6543,6 @@
       "source_location": "L20"
     },
     {
-      "id": "marks_app_src_store_usemarks_usemarks",
-      "label": "useMarks",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "useT",
-      "file_type": "code",
-      "norm_label": "usemarks",
-      "source_file": "marks-app/src/store/useMarks.ts",
-      "source_location": "L126"
-    },
-    {
       "id": "marks_app_src_store_usemyweeks_usemyweeks",
       "label": "useMyWeeks",
       "_origin": "ast",
@@ -6584,6 +6552,17 @@
       "norm_label": "usemyweeks",
       "source_file": "marks-app/src/store/useMyWeeks.ts",
       "source_location": "L24"
+    },
+    {
+      "id": "marks_app_src_store_usereturns_usereturns",
+      "label": "useReturns",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "useT",
+      "file_type": "code",
+      "norm_label": "usereturns",
+      "source_file": "marks-app/src/store/useReturns.ts",
+      "source_location": "L76"
     },
     {
       "id": "marks_app_src_store_usesession",
@@ -6674,15 +6653,15 @@
       "source_location": "L26"
     },
     {
-      "id": "ref_react_native_safe_area_context",
-      "label": "react-native-safe-area-context",
+      "id": "ref_react_native_vector_icons_ionicons",
+      "label": "@react-native-vector-icons/ionicons",
       "_origin": "ast",
       "community": 0,
       "community_name": "useT",
       "file_type": "concept",
-      "norm_label": "react-native-safe-area-context",
+      "norm_label": "@react-native-vector-icons/ionicons",
       "source_file": "marks-app/package.json",
-      "source_location": "L28"
+      "source_location": "L9"
     },
     {
       "id": "marks_app_app_user_id",
@@ -6693,17 +6672,6 @@
       "file_type": "code",
       "norm_label": "user/[id].tsx",
       "source_file": "marks-app/app/user/[id].tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_user_new",
-      "label": "user-new.tsx",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "useUsers.ts",
-      "file_type": "code",
-      "norm_label": "user-new.tsx",
-      "source_file": "marks-app/app/user-new.tsx",
       "source_location": "L1"
     },
     {
@@ -6869,6 +6837,17 @@
       "file_type": "code",
       "norm_label": "scoping.test.mjs",
       "source_file": "marks-app/tests/scoping.test.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_tests_stagekpi_test",
+      "label": "stageKpi.test.mjs",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "useUsers.ts",
+      "file_type": "code",
+      "norm_label": "stagekpi.test.mjs",
+      "source_file": "marks-app/tests/stageKpi.test.mjs",
       "source_location": "L1"
     },
     {
@@ -7675,50 +7654,6 @@
       "source_location": "L65"
     },
     {
-      "id": "supabase_migrations_20260918010000_auto_provision_logins",
-      "label": "20260918010000_auto_provision_logins.sql",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "users",
-      "file_type": "code",
-      "norm_label": "20260918010000_auto_provision_logins.sql",
-      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
-      "source_location": null
-    },
-    {
-      "id": "supabase_migrations_20260918010000_auto_provision_logins_login_settings",
-      "label": "login_settings",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "users",
-      "file_type": "code",
-      "norm_label": "login_settings",
-      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
-      "source_location": "L32"
-    },
-    {
-      "id": "supabase_migrations_20260918010000_auto_provision_logins_provision_login",
-      "label": "provision_login()",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "users",
-      "file_type": "code",
-      "norm_label": "provision_login()",
-      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
-      "source_location": "L50"
-    },
-    {
-      "id": "supabase_migrations_20260918010000_auto_provision_logins_users_provision_login",
-      "label": "users_provision_login",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "users",
-      "file_type": "code",
-      "norm_label": "users_provision_login",
-      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
-      "source_location": "L116"
-    },
-    {
       "id": "supabase_migrations_20260918030000_manager_manages_outlets",
       "label": "20260918030000_manager_manages_outlets.sql",
       "_origin": "ast",
@@ -7778,7 +7713,7 @@
       "label": "report_due",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_due",
       "source_file": "",
@@ -7789,73 +7724,106 @@
       "label": "checklist_forms",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "checklist_forms",
       "source_file": "supabase/migrations/20260909010000_init.sql",
       "source_location": "L132"
     },
     {
-      "id": "supabase_migrations_20260909010000_init_mark_coverage",
-      "label": "mark_coverage",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "marks",
-      "file_type": "code",
-      "norm_label": "mark_coverage",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L369"
-    },
-    {
       "id": "supabase_migrations_20260909010000_init_marks",
       "label": "marks",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "marks",
       "source_file": "supabase/migrations/20260909010000_init.sql",
       "source_location": "L169"
     },
     {
-      "id": "supabase_migrations_20260909010000_init_marks_branch_period_idx",
-      "label": "marks_branch_period_idx",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "marks",
-      "file_type": "code",
-      "norm_label": "marks_branch_period_idx",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L194"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_marks_user_idx",
-      "label": "marks_user_idx",
-      "_origin": "ast",
-      "community": 14,
-      "community_name": "marks",
-      "file_type": "code",
-      "norm_label": "marks_user_idx",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L195"
-    },
-    {
       "id": "supabase_migrations_20260909010000_init_scoring_rules",
       "label": "scoring_rules",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "scoring_rules",
       "source_file": "supabase/migrations/20260909010000_init.sql",
       "source_location": "L158"
     },
     {
+      "id": "supabase_migrations_20260918040000_report_views",
+      "label": "20260918040000_report_views.sql",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "20260918040000_report_views.sql",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": null
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_branches_default_scoring_rule",
+      "label": "branches_default_scoring_rule()",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "branches_default_scoring_rule()",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L44"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_branch_monthly",
+      "label": "report_branch_monthly",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_branch_monthly",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L231"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_branch_weekly",
+      "label": "report_branch_weekly",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_branch_weekly",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L166"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_company_monthly",
+      "label": "report_company_monthly",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_company_monthly",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L278"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_company_weekly",
+      "label": "report_company_weekly",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_company_weekly",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L259"
+    },
+    {
       "id": "supabase_migrations_20260918040000_report_views_report_due",
       "label": "report_due",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_due",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
@@ -7866,7 +7834,7 @@
       "label": "report_marks",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_marks",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
@@ -7877,7 +7845,7 @@
       "label": "report_periods",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_periods",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
@@ -7888,18 +7856,40 @@
       "label": "report_staff_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_staff_monthly",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
       "source_location": "L304"
     },
     {
+      "id": "supabase_migrations_20260918040000_report_views_report_today",
+      "label": "report_today()",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_today()",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L66"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_week_of",
+      "label": "report_week_of()",
+      "_origin": "ast",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
+      "file_type": "code",
+      "norm_label": "report_week_of()",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L75"
+    },
+    {
       "id": "supabase_migrations_20260919070000_supervisor_title_report_staff_monthly",
       "label": "report_staff_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_staff_monthly",
       "source_file": "supabase/migrations/20260919070000_supervisor_title.sql",
@@ -7910,7 +7900,7 @@
       "label": "20261002020000_report_form_from_marks.sql",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "20261002020000_report_form_from_marks.sql",
       "source_file": "supabase/migrations/20261002020000_report_form_from_marks.sql",
@@ -7921,7 +7911,7 @@
       "label": "report_due",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_due",
       "source_file": "supabase/migrations/20261002020000_report_form_from_marks.sql",
@@ -7932,7 +7922,7 @@
       "label": "report_staff_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_staff_monthly",
       "source_file": "supabase/migrations/20261002020000_report_form_from_marks.sql",
@@ -7943,7 +7933,7 @@
       "label": "20261002040000_due_from_join_week.sql",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "20261002040000_due_from_join_week.sql",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -7954,7 +7944,7 @@
       "label": "report_branch_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_branch_monthly",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -7965,7 +7955,7 @@
       "label": "report_branch_weekly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_branch_weekly",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -7976,7 +7966,7 @@
       "label": "report_company_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_company_monthly",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -7987,7 +7977,7 @@
       "label": "report_due",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_due",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -7998,7 +7988,7 @@
       "label": "report_first_week()",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_first_week()",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -8009,7 +7999,7 @@
       "label": "report_staff_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_staff_monthly",
       "source_file": "supabase/migrations/20261002040000_due_from_join_week.sql",
@@ -8020,7 +8010,7 @@
       "label": "20261003030000_marked_before_added.sql",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "20261003030000_marked_before_added.sql",
       "source_file": "supabase/migrations/20261003030000_marked_before_added.sql",
@@ -8031,7 +8021,7 @@
       "label": "report_due",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_due",
       "source_file": "supabase/migrations/20261003030000_marked_before_added.sql",
@@ -8042,7 +8032,7 @@
       "label": "report_first_week()",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_first_week()",
       "source_file": "supabase/migrations/20261003030000_marked_before_added.sql",
@@ -8053,7 +8043,7 @@
       "label": "report_staff_monthly",
       "_origin": "ast",
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "file_type": "code",
       "norm_label": "report_staff_monthly",
       "source_file": "supabase/migrations/20261003030000_marked_before_added.sql",
@@ -8102,6 +8092,17 @@
       "norm_label": "empty_mapping",
       "source_file": "marks-app/src/data/reconcile.ts",
       "source_location": "L39"
+    },
+    {
+      "id": "marks_app_src_data_reconcile_field_label",
+      "label": "FIELD_LABEL",
+      "_origin": "ast",
+      "community": 15,
+      "community_name": "pulangan-recon.tsx",
+      "file_type": "code",
+      "norm_label": "field_label",
+      "source_file": "marks-app/src/data/reconcile.ts",
+      "source_location": "L27"
     },
     {
       "id": "marks_app_src_data_reconcile_vendor_fields",
@@ -8192,39 +8193,6 @@
       "source_location": null
     },
     {
-      "id": "supabase_migrations_20260909010000_init_assets",
-      "label": "assets",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "assets",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L257"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_branch_changes",
-      "label": "branch_changes",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "branch_changes",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L121"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_branches",
-      "label": "branches",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "branches",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L47"
-    },
-    {
       "id": "supabase_migrations_20260909010000_init_checklist_categories",
       "label": "checklist_categories",
       "_origin": "ast",
@@ -8247,6 +8215,17 @@
       "source_location": "L146"
     },
     {
+      "id": "supabase_migrations_20260909010000_init_mark_coverage",
+      "label": "mark_coverage",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "mark_coverage",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L369"
+    },
+    {
       "id": "supabase_migrations_20260909010000_init_mark_lines",
       "label": "mark_lines",
       "_origin": "ast",
@@ -8256,6 +8235,94 @@
       "norm_label": "mark_lines",
       "source_file": "supabase/migrations/20260909010000_init.sql",
       "source_location": "L199"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_marks_branch_period_idx",
+      "label": "marks_branch_period_idx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "marks_branch_period_idx",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L194"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_marks_user_idx",
+      "label": "marks_user_idx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "marks_user_idx",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L195"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_return_events",
+      "label": "return_events",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "return_events",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L299"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_return_events_return_idx",
+      "label": "return_events_return_idx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "return_events_return_idx",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L309"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_return_stage_gaps",
+      "label": "return_stage_gaps",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "return_stage_gaps",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L349"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_return_turnaround",
+      "label": "return_turnaround",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "return_turnaround",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L315"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_returns",
+      "label": "returns",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "returns",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L280"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_returns_branch_idx",
+      "label": "returns_branch_idx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "20260909010000_init.sql",
+      "file_type": "code",
+      "norm_label": "returns_branch_idx",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L296"
     },
     {
       "id": "supabase_migrations_20260909010000_init_role_changes",
@@ -8291,37 +8358,15 @@
       "source_location": "L335"
     },
     {
-      "id": "supabase_migrations_20260909010000_init_tugasan_checks",
-      "label": "tugasan_checks",
+      "id": "supabase_migrations_20260909010000_init_suppliers",
+      "label": "suppliers",
       "_origin": "ast",
       "community": 16,
       "community_name": "20260909010000_init.sql",
       "file_type": "code",
-      "norm_label": "tugasan_checks",
+      "norm_label": "suppliers",
       "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L226"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_tugasan_items",
-      "label": "tugasan_items",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "tugasan_items",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L219"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_tugasan_signoffs",
-      "label": "tugasan_signoffs",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "tugasan_signoffs",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L240"
+      "source_location": "L273"
     },
     {
       "id": "supabase_migrations_20260909010000_init_user_branches",
@@ -8390,59 +8435,37 @@
       "source_location": "L123"
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views_report_tugasan_branch_monthly",
-      "label": "report_tugasan_branch_monthly",
+      "id": "supabase_migrations_20260918040000_report_views_report_returns_open",
+      "label": "report_returns_open",
       "_origin": "ast",
       "community": 16,
       "community_name": "20260909010000_init.sql",
       "file_type": "code",
-      "norm_label": "report_tugasan_branch_monthly",
+      "norm_label": "report_returns_open",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L424"
+      "source_location": "L388"
     },
     {
-      "id": "supabase_migrations_20260919040000_assets_for_every_outlet",
-      "label": "20260919040000_assets_for_every_outlet.sql",
+      "id": "supabase_migrations_20261003010000_malaysia_date",
+      "label": "20261003010000_malaysia_date.sql",
       "_origin": "ast",
       "community": 16,
       "community_name": "20260909010000_init.sql",
       "file_type": "code",
-      "norm_label": "20260919040000_assets_for_every_outlet.sql",
-      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
+      "norm_label": "20261003010000_malaysia_date.sql",
+      "source_file": "supabase/migrations/20261003010000_malaysia_date.sql",
       "source_location": null
     },
     {
-      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_asset_catalogue",
-      "label": "asset_catalogue()",
+      "id": "supabase_migrations_20261003010000_malaysia_date_return_turnaround",
+      "label": "return_turnaround",
       "_origin": "ast",
       "community": 16,
       "community_name": "20260909010000_init.sql",
       "file_type": "code",
-      "norm_label": "asset_catalogue()",
-      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
-      "source_location": "L14"
-    },
-    {
-      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_branches_default_assets",
-      "label": "branches_default_assets()",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "branches_default_assets()",
-      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
-      "source_location": "L29"
-    },
-    {
-      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_branches_default_assets_trigger",
-      "label": "branches_default_assets_trigger()",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "20260909010000_init.sql",
-      "file_type": "code",
-      "norm_label": "branches_default_assets_trigger()",
-      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
-      "source_location": "L48"
+      "norm_label": "return_turnaround",
+      "source_file": "supabase/migrations/20261003010000_malaysia_date.sql",
+      "source_location": "L19"
     },
     {
       "id": "marks_app_package",
@@ -8542,28 +8565,6 @@
       "norm_label": "expo-font",
       "source_file": "marks-app/package.json",
       "source_location": "L15"
-    },
-    {
-      "id": "ref_expo_image_manipulator",
-      "label": "expo-image-manipulator",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "marks-app/package.json",
-      "file_type": "concept",
-      "norm_label": "expo-image-manipulator",
-      "source_file": "marks-app/package.json",
-      "source_location": "L16"
-    },
-    {
-      "id": "ref_expo_image_picker",
-      "label": "expo-image-picker",
-      "_origin": "ast",
-      "community": 17,
-      "community_name": "marks-app/package.json",
-      "file_type": "concept",
-      "norm_label": "expo-image-picker",
-      "source_file": "marks-app/package.json",
-      "source_location": "L17"
     },
     {
       "id": "ref_expo_linking",
@@ -8923,17 +8924,6 @@
       "source_location": "L10"
     },
     {
-      "id": "ref_zustand",
-      "label": "zustand",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "peringatan.tsx",
-      "file_type": "concept",
-      "norm_label": "zustand",
-      "source_file": "marks-app/package.json",
-      "source_location": "L33"
-    },
-    {
       "id": "marks_app_src_lib_auth",
       "label": "auth.ts",
       "_origin": "ast",
@@ -9044,22 +9034,374 @@
       "source_location": "L10"
     },
     {
+      "id": "supabase_migrations_20261002010000_tugasan_read_by_managers",
+      "label": "20261002010000_tugasan_read_by_managers.sql",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "tugasan_checks table",
+      "file_type": "code",
+      "norm_label": "20261002010000_tugasan_read_by_managers.sql",
+      "source_file": "supabase/migrations/20261002010000_tugasan_read_by_managers.sql",
+      "source_location": null
+    },
+    {
+      "id": "supabase_migrations_20261002010000_tugasan_read_by_managers_app_can_read_tugasan",
+      "label": "app_can_read_tugasan()",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "tugasan_checks table",
+      "file_type": "code",
+      "norm_label": "app_can_read_tugasan()",
+      "source_file": "supabase/migrations/20261002010000_tugasan_read_by_managers.sql",
+      "source_location": "L16"
+    },
+    {
+      "id": "supabase_tests_verify_policies",
+      "label": "verify_policies.sql",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "tugasan_checks table",
+      "file_type": "code",
+      "norm_label": "verify_policies.sql",
+      "source_file": "supabase/tests/verify_policies.sql",
+      "source_location": null
+    },
+    {
+      "id": "marks_app_app_done",
+      "label": "done.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "done.tsx",
+      "source_file": "marks-app/app/done.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_manager_index",
+      "label": "manager/index.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "manager/index.tsx",
+      "source_file": "marks-app/app/manager/index.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_manager_sv",
+      "label": "sv.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "sv.tsx",
+      "source_file": "marks-app/app/manager/sv.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_staff_rekod",
+      "label": "staff/rekod.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "staff/rekod.tsx",
+      "source_file": "marks-app/app/staff/rekod.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_app_supervisor_index",
+      "label": "supervisor/index.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "supervisor/index.tsx",
+      "source_file": "marks-app/app/supervisor/index.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_components_periodpicker",
+      "label": "PeriodPicker.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "periodpicker.tsx",
+      "source_file": "marks-app/src/components/PeriodPicker.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_components_perkarabars",
+      "label": "PerkaraBars.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "perkarabars.tsx",
+      "source_file": "marks-app/src/components/PerkaraBars.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_components_queuebanner",
+      "label": "QueueBanner.tsx",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "queuebanner.tsx",
+      "source_file": "marks-app/src/components/QueueBanner.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_data_checklist",
+      "label": "checklist.ts",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "checklist.ts",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_data_checklist_form",
+      "label": "FORM",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "form",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L10"
+    },
+    {
+      "id": "marks_app_src_data_checklist_form_label",
+      "label": "FORM_LABEL",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "form_label",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L151"
+    },
+    {
+      "id": "marks_app_src_data_checklist_forms",
+      "label": "FORMS",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "forms",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L145"
+    },
+    {
+      "id": "marks_app_src_data_checklist_months",
+      "label": "MONTHS",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "months",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L167"
+    },
+    {
+      "id": "marks_app_src_data_checklist_periods",
+      "label": "PERIODS",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "periods",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L166"
+    },
+    {
+      "id": "marks_app_src_data_checklist_stor_form",
+      "label": "STOR_FORM",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "stor_form",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L63"
+    },
+    {
+      "id": "marks_app_src_data_checklist_sv_form",
+      "label": "SV_FORM",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "sv_form",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L114"
+    },
+    {
+      "id": "marks_app_src_data_checklist_week_cols",
+      "label": "WEEK_COLS",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "week_cols",
+      "source_file": "marks-app/src/data/checklist.ts",
+      "source_location": "L169"
+    },
+    {
       "id": "marks_app_src_data_scoring",
       "label": "data/scoring.ts",
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "data/scoring.ts",
       "source_file": "marks-app/src/data/scoring.ts",
       "source_location": "L1"
     },
     {
+      "id": "marks_app_src_data_users_role_blurb",
+      "label": "ROLE_BLURB",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "role_blurb",
+      "source_file": "marks-app/src/data/users.ts",
+      "source_location": "L109"
+    },
+    {
+      "id": "marks_app_src_data_users_role_label",
+      "label": "ROLE_LABEL",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "role_label",
+      "source_file": "marks-app/src/data/users.ts",
+      "source_location": "L97"
+    },
+    {
+      "id": "marks_app_src_data_users_supervisor_title_label",
+      "label": "SUPERVISOR_TITLE_LABEL",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "supervisor_title_label",
+      "source_file": "marks-app/src/data/users.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "marks_app_src_i18n_labels",
+      "label": "labels.ts",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "labels.ts",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_disposition_en",
+      "label": "DISPOSITION_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "disposition_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L82"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_field_en",
+      "label": "FIELD_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "field_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L101"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_form_en",
+      "label": "FORM_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "form_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L91"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_reason_en",
+      "label": "REASON_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "reason_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L76"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_role_blurb_en",
+      "label": "ROLE_BLURB_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "role_blurb_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L37"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_role_en",
+      "label": "ROLE_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "role_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L21"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_stage_en",
+      "label": "STAGE_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "stage_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L62"
+    },
+    {
+      "id": "marks_app_src_i18n_labels_supervisor_title_en",
+      "label": "SUPERVISOR_TITLE_EN",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "supervisor_title_en",
+      "source_file": "marks-app/src/i18n/labels.ts",
+      "source_location": "L53"
+    },
+    {
       "id": "marks_app_src_store_usemarks",
       "label": "useMarks.ts",
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "usemarks.ts",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -9070,7 +9412,7 @@
       "label": "emptyDraft",
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "emptydraft",
       "source_file": "marks-app/src/store/useMarks.ts",
@@ -9081,18 +9423,29 @@
       "label": "emptyPeriod",
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "emptyperiod",
       "source_file": "marks-app/src/store/useMarks.ts",
       "source_location": "L117"
     },
     {
+      "id": "marks_app_src_store_usemarks_usemarks",
+      "label": "useMarks",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "manager/index.tsx",
+      "file_type": "code",
+      "norm_label": "usemarks",
+      "source_file": "marks-app/src/store/useMarks.ts",
+      "source_location": "L126"
+    },
+    {
       "id": "marks_app_tests_scoring_test",
       "label": "scoring.test.mjs",
       "_origin": "ast",
       "community": 23,
-      "community_name": "useMarks.ts",
+      "community_name": "manager/index.tsx",
       "file_type": "code",
       "norm_label": "scoring.test.mjs",
       "source_file": "marks-app/tests/scoring.test.mjs",
@@ -9209,242 +9562,77 @@
       "source_location": "L19"
     },
     {
-      "id": "marks_app_app_admin_layout",
-      "label": "admin/_layout.tsx",
+      "id": "ref_expo_image_manipulator",
+      "label": "expo-image-manipulator",
       "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "admin/_layout.tsx",
-      "source_file": "marks-app/app/admin/_layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_manager_layout",
-      "label": "manager/_layout.tsx",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "manager/_layout.tsx",
-      "source_file": "marks-app/app/manager/_layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_pulangan_layout",
-      "label": "pulangan/_layout.tsx",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "pulangan/_layout.tsx",
-      "source_file": "marks-app/app/pulangan/_layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_staff_layout",
-      "label": "staff/_layout.tsx",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "staff/_layout.tsx",
-      "source_file": "marks-app/app/staff/_layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_app_supervisor_layout",
-      "label": "supervisor/_layout.tsx",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "supervisor/_layout.tsx",
-      "source_file": "marks-app/app/supervisor/_layout.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_components_taboptions",
-      "label": "tabOptions.tsx",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "taboptions.tsx",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_components_taboptions_basetaboptions",
-      "label": "baseTabOptions",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
-      "file_type": "code",
-      "norm_label": "basetaboptions",
-      "source_file": "marks-app/src/components/tabOptions.tsx",
-      "source_location": "L6"
-    },
-    {
-      "id": "ref_react_native_vector_icons_ionicons",
-      "label": "@react-native-vector-icons/ionicons",
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "tabOptions.tsx",
+      "community": 25,
+      "community_name": "ReturnPhotos.tsx",
       "file_type": "concept",
-      "norm_label": "@react-native-vector-icons/ionicons",
+      "norm_label": "expo-image-manipulator",
       "source_file": "marks-app/package.json",
-      "source_location": "L9"
+      "source_location": "L16"
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views",
-      "label": "20260918040000_report_views.sql",
+      "id": "ref_expo_image_picker",
+      "label": "expo-image-picker",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
+      "community": 25,
+      "community_name": "ReturnPhotos.tsx",
+      "file_type": "concept",
+      "norm_label": "expo-image-picker",
+      "source_file": "marks-app/package.json",
+      "source_location": "L17"
+    },
+    {
+      "id": "supabase_migrations_20260918010000_auto_provision_logins",
+      "label": "20260918010000_auto_provision_logins.sql",
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "20260918010000_auto_provision_logins.sql",
       "file_type": "code",
-      "norm_label": "20260918040000_report_views.sql",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "norm_label": "20260918010000_auto_provision_logins.sql",
+      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
       "source_location": null
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views_branches_default_scoring_rule",
-      "label": "branches_default_scoring_rule()",
+      "id": "supabase_migrations_20260918010000_auto_provision_logins_login_settings",
+      "label": "login_settings",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
+      "community": 26,
+      "community_name": "20260918010000_auto_provision_logins.sql",
       "file_type": "code",
-      "norm_label": "branches_default_scoring_rule()",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L44"
+      "norm_label": "login_settings",
+      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
+      "source_location": "L32"
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views_report_branch_monthly",
-      "label": "report_branch_monthly",
+      "id": "supabase_migrations_20260918010000_auto_provision_logins_provision_login",
+      "label": "provision_login()",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
+      "community": 26,
+      "community_name": "20260918010000_auto_provision_logins.sql",
       "file_type": "code",
-      "norm_label": "report_branch_monthly",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L231"
+      "norm_label": "provision_login()",
+      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
+      "source_location": "L50"
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views_report_branch_weekly",
-      "label": "report_branch_weekly",
+      "id": "supabase_migrations_20260918010000_auto_provision_logins_users_provision_login",
+      "label": "users_provision_login",
       "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
+      "community": 26,
+      "community_name": "20260918010000_auto_provision_logins.sql",
       "file_type": "code",
-      "norm_label": "report_branch_weekly",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L166"
-    },
-    {
-      "id": "supabase_migrations_20260918040000_report_views_report_company_monthly",
-      "label": "report_company_monthly",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
-      "file_type": "code",
-      "norm_label": "report_company_monthly",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L278"
-    },
-    {
-      "id": "supabase_migrations_20260918040000_report_views_report_company_weekly",
-      "label": "report_company_weekly",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
-      "file_type": "code",
-      "norm_label": "report_company_weekly",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L259"
-    },
-    {
-      "id": "supabase_migrations_20260918040000_report_views_report_today",
-      "label": "report_today()",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
-      "file_type": "code",
-      "norm_label": "report_today()",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L66"
-    },
-    {
-      "id": "supabase_migrations_20260918040000_report_views_report_week_of",
-      "label": "report_week_of()",
-      "_origin": "ast",
-      "community": 27,
-      "community_name": "20260918040000_report_views.sql",
-      "file_type": "code",
-      "norm_label": "report_week_of()",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L75"
-    },
-    {
-      "id": "marks_app_src_data_checklist",
-      "label": "checklist.ts",
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "checklist.ts",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_data_checklist_form_label",
-      "label": "FORM_LABEL",
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "form_label",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L151"
-    },
-    {
-      "id": "marks_app_src_data_checklist_forms",
-      "label": "FORMS",
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "forms",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L145"
-    },
-    {
-      "id": "marks_app_src_data_checklist_stor_form",
-      "label": "STOR_FORM",
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "stor_form",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L63"
-    },
-    {
-      "id": "marks_app_src_data_checklist_sv_form",
-      "label": "SV_FORM",
-      "_origin": "ast",
-      "community": 29,
-      "community_name": "checklist.ts",
-      "file_type": "code",
-      "norm_label": "sv_form",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L114"
+      "norm_label": "users_provision_login",
+      "source_file": "supabase/migrations/20260918010000_auto_provision_logins.sql",
+      "source_location": "L116"
     },
     {
       "id": "marks_app_src_data_period",
       "label": "period.ts",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "period.ts",
       "source_file": "marks-app/src/data/period.ts",
@@ -9455,7 +9643,7 @@
       "label": "DAY_NAMES",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "day_names",
       "source_file": "marks-app/src/data/period.ts",
@@ -9466,7 +9654,7 @@
       "label": "FULL_MONTH",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "full_month",
       "source_file": "marks-app/src/data/period.ts",
@@ -9477,7 +9665,7 @@
       "label": "MONTH_NAMES",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "month_names",
       "source_file": "marks-app/src/data/period.ts",
@@ -9488,7 +9676,7 @@
       "label": "SHORT_MONTH",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "short_month",
       "source_file": "marks-app/src/data/period.ts",
@@ -9499,7 +9687,7 @@
       "label": "period.test.mjs",
       "_origin": "ast",
       "community": 29,
-      "community_name": "checklist.ts",
+      "community_name": "period.ts",
       "file_type": "code",
       "norm_label": "period.test.mjs",
       "source_file": "marks-app/tests/period.test.mjs",
@@ -9537,17 +9725,6 @@
       "norm_label": "usereturns.ts",
       "source_file": "marks-app/src/store/useReturns.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_store_usereturns_usereturns",
-      "label": "useReturns",
-      "_origin": "ast",
-      "community": 31,
-      "community_name": "useReturns.ts",
-      "file_type": "code",
-      "norm_label": "usereturns",
-      "source_file": "marks-app/src/store/useReturns.ts",
-      "source_location": "L76"
     },
     {
       "id": "marks_app_metro_config",
@@ -9616,182 +9793,6 @@
       "source_location": "L23"
     },
     {
-      "id": "marks_app_src_data_reconcile_field_label",
-      "label": "FIELD_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "field_label",
-      "source_file": "marks-app/src/data/reconcile.ts",
-      "source_location": "L27"
-    },
-    {
-      "id": "marks_app_src_data_returns_disposition_label",
-      "label": "DISPOSITION_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "disposition_label",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L23"
-    },
-    {
-      "id": "marks_app_src_data_returns_reason_label",
-      "label": "REASON_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "reason_label",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L15"
-    },
-    {
-      "id": "marks_app_src_data_returns_stage_label",
-      "label": "STAGE_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "stage_label",
-      "source_file": "marks-app/src/data/returns.ts",
-      "source_location": "L37"
-    },
-    {
-      "id": "marks_app_src_data_users_role_blurb",
-      "label": "ROLE_BLURB",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "role_blurb",
-      "source_file": "marks-app/src/data/users.ts",
-      "source_location": "L109"
-    },
-    {
-      "id": "marks_app_src_data_users_role_label",
-      "label": "ROLE_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "role_label",
-      "source_file": "marks-app/src/data/users.ts",
-      "source_location": "L97"
-    },
-    {
-      "id": "marks_app_src_data_users_supervisor_title_label",
-      "label": "SUPERVISOR_TITLE_LABEL",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "supervisor_title_label",
-      "source_file": "marks-app/src/data/users.ts",
-      "source_location": "L92"
-    },
-    {
-      "id": "marks_app_src_i18n_labels",
-      "label": "labels.ts",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "labels.ts",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_disposition_en",
-      "label": "DISPOSITION_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "disposition_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L82"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_field_en",
-      "label": "FIELD_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "field_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L101"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_form_en",
-      "label": "FORM_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "form_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L91"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_reason_en",
-      "label": "REASON_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "reason_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L76"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_role_blurb_en",
-      "label": "ROLE_BLURB_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "role_blurb_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L37"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_role_en",
-      "label": "ROLE_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "role_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L21"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_stage_en",
-      "label": "STAGE_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "stage_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L62"
-    },
-    {
-      "id": "marks_app_src_i18n_labels_supervisor_title_en",
-      "label": "SUPERVISOR_TITLE_EN",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "labels.ts",
-      "file_type": "code",
-      "norm_label": "supervisor_title_en",
-      "source_file": "marks-app/src/i18n/labels.ts",
-      "source_location": "L53"
-    },
-    {
       "id": "supabase_migrations_20261003040000_asset_issues",
       "label": "20261003040000_asset_issues.sql",
       "_origin": "ast",
@@ -9858,88 +9859,11 @@
       "source_location": "L67"
     },
     {
-      "id": "supabase_migrations_20260909010000_init_return_events",
-      "label": "return_events",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "return_events",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L299"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_return_events_return_idx",
-      "label": "return_events_return_idx",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "return_events_return_idx",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L309"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_return_stage_gaps",
-      "label": "return_stage_gaps",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "return_stage_gaps",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L349"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_return_turnaround",
-      "label": "return_turnaround",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "return_turnaround",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L315"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_returns",
-      "label": "returns",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "returns",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L280"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_returns_branch_idx",
-      "label": "returns_branch_idx",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "returns_branch_idx",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L296"
-    },
-    {
-      "id": "supabase_migrations_20260909010000_init_suppliers",
-      "label": "suppliers",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "suppliers",
-      "source_file": "supabase/migrations/20260909010000_init.sql",
-      "source_location": "L273"
-    },
-    {
       "id": "supabase_migrations_20260909020100_return_kpi",
       "label": "20260909020100_return_kpi.sql",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "20260909020100_return_kpi.sql",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -9950,7 +9874,7 @@
       "label": "return_age_limit_days()",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_age_limit_days()",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -9961,7 +9885,7 @@
       "label": "return_ageing",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_ageing",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -9972,7 +9896,7 @@
       "label": "return_due_on()",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_due_on()",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -9983,7 +9907,7 @@
       "label": "return_grace_days()",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_grace_days()",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -9994,7 +9918,7 @@
       "label": "return_submission",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_submission",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -10005,7 +9929,7 @@
       "label": "return_submission_kpi",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_submission_kpi",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -10016,7 +9940,7 @@
       "label": "return_turnaround",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_turnaround",
       "source_file": "",
@@ -10027,7 +9951,7 @@
       "label": "stage_rank()",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "stage_rank()",
       "source_file": "supabase/migrations/20260909020100_return_kpi.sql",
@@ -10038,62 +9962,29 @@
       "label": "report_returns_branch_monthly",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "report_returns_branch_monthly",
       "source_file": "supabase/migrations/20260918040000_report_views.sql",
       "source_location": "L364"
     },
     {
-      "id": "supabase_migrations_20260918040000_report_views_report_returns_open",
-      "label": "report_returns_open",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "report_returns_open",
-      "source_file": "supabase/migrations/20260918040000_report_views.sql",
-      "source_location": "L388"
-    },
-    {
       "id": "supabase_migrations_20260918040000_report_views_sql_return_turnaround",
       "label": "return_turnaround",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_turnaround",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "supabase_migrations_20261003010000_malaysia_date",
-      "label": "20261003010000_malaysia_date.sql",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "20261003010000_malaysia_date.sql",
-      "source_file": "supabase/migrations/20261003010000_malaysia_date.sql",
-      "source_location": null
-    },
-    {
-      "id": "supabase_migrations_20261003010000_malaysia_date_return_turnaround",
-      "label": "return_turnaround",
-      "_origin": "ast",
-      "community": 35,
-      "community_name": "returns",
-      "file_type": "code",
-      "norm_label": "return_turnaround",
-      "source_file": "supabase/migrations/20261003010000_malaysia_date.sql",
-      "source_location": "L19"
-    },
-    {
       "id": "supabase_migrations_20261003020000_handover_before_friday",
       "label": "20261003020000_handover_before_friday.sql",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "20261003020000_handover_before_friday.sql",
       "source_file": "supabase/migrations/20261003020000_handover_before_friday.sql",
@@ -10104,7 +9995,7 @@
       "label": "report_returns_branch_monthly",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "report_returns_branch_monthly",
       "source_file": "supabase/migrations/20261003020000_handover_before_friday.sql",
@@ -10115,7 +10006,7 @@
       "label": "return_turnaround",
       "_origin": "ast",
       "community": 35,
-      "community_name": "returns",
+      "community_name": "20260909020100_return_kpi.sql",
       "file_type": "code",
       "norm_label": "return_turnaround",
       "source_file": "",
@@ -10329,17 +10220,6 @@
       "norm_label": "stage_owners",
       "source_file": "marks-app/src/data/stageKpi.ts",
       "source_location": "L18"
-    },
-    {
-      "id": "marks_app_tests_stagekpi_test",
-      "label": "stageKpi.test.mjs",
-      "_origin": "ast",
-      "community": 40,
-      "community_name": "stageKpi.ts",
-      "file_type": "code",
-      "norm_label": "stagekpi.test.mjs",
-      "source_file": "marks-app/tests/stageKpi.test.mjs",
-      "source_location": "L1"
     },
     {
       "id": "supabase_functions_payroll_auth_index",
@@ -10859,17 +10739,6 @@
       "source_location": "L7"
     },
     {
-      "id": "marks_app_src_data_checklist_periods",
-      "label": "PERIODS",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "useTugasan.ts",
-      "file_type": "code",
-      "norm_label": "periods",
-      "source_file": "marks-app/src/data/checklist.ts",
-      "source_location": "L166"
-    },
-    {
       "id": "marks_app_src_data_tugasan",
       "label": "data/tugasan.ts",
       "_origin": "ast",
@@ -11123,17 +10992,6 @@
       "source_location": "L24"
     },
     {
-      "id": "marks_app_src_lib_sessionguard_arrivedwithresetlink",
-      "label": "arrivedWithResetLink",
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "app/_layout.tsx",
-      "file_type": "code",
-      "norm_label": "arrivedwithresetlink",
-      "source_file": "marks-app/src/lib/sessionGuard.ts",
-      "source_location": "L90"
-    },
-    {
       "id": "marks_app_tests_routes_test",
       "label": "routes.test.mjs",
       "_origin": "ast",
@@ -11189,6 +11047,17 @@
       "source_location": "L22"
     },
     {
+      "id": "ref_react_native_safe_area_context",
+      "label": "react-native-safe-area-context",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "app/_layout.tsx",
+      "file_type": "concept",
+      "norm_label": "react-native-safe-area-context",
+      "source_file": "marks-app/package.json",
+      "source_location": "L28"
+    },
+    {
       "id": "marks_app_src_lib_assets",
       "label": "lib/assets.ts",
       "_origin": "ast",
@@ -11220,6 +11089,28 @@
       "norm_label": "useassets.ts",
       "source_file": "marks-app/src/store/useAssets.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_store_useassets_useassets",
+      "label": "useAssets",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "hydrate.ts",
+      "file_type": "code",
+      "norm_label": "useassets",
+      "source_file": "marks-app/src/store/useAssets.ts",
+      "source_location": "L12"
+    },
+    {
+      "id": "ref_zustand",
+      "label": "zustand",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "hydrate.ts",
+      "file_type": "concept",
+      "norm_label": "zustand",
+      "source_file": "marks-app/package.json",
+      "source_location": "L33"
     },
     {
       "id": "public_return_events",
@@ -11860,11 +11751,77 @@
       "source_location": "L18"
     },
     {
+      "id": "supabase_migrations_20260909010000_init_assets",
+      "label": "assets",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "assets",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L257"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_branch_changes",
+      "label": "branch_changes",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "branch_changes",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L121"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_branches",
+      "label": "branches",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "branches",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L47"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_tugasan_checks",
+      "label": "tugasan_checks",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "tugasan_checks",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L226"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_tugasan_items",
+      "label": "tugasan_items",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "tugasan_items",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L219"
+    },
+    {
+      "id": "supabase_migrations_20260909010000_init_tugasan_signoffs",
+      "label": "tugasan_signoffs",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "tugasan_signoffs",
+      "source_file": "supabase/migrations/20260909010000_init.sql",
+      "source_location": "L240"
+    },
+    {
       "id": "supabase_migrations_20260910030100_reminders",
       "label": "20260910030100_reminders.sql",
       "_origin": "ast",
       "community": 64,
-      "community_name": "reminders",
+      "community_name": "branches",
       "file_type": "code",
       "norm_label": "20260910030100_reminders.sql",
       "source_file": "supabase/migrations/20260910030100_reminders.sql",
@@ -11875,7 +11832,7 @@
       "label": "reminders",
       "_origin": "ast",
       "community": 64,
-      "community_name": "reminders",
+      "community_name": "branches",
       "file_type": "code",
       "norm_label": "reminders",
       "source_file": "supabase/migrations/20260910030100_reminders.sql",
@@ -11886,11 +11843,66 @@
       "label": "reminders_recipient_idx",
       "_origin": "ast",
       "community": 64,
-      "community_name": "reminders",
+      "community_name": "branches",
       "file_type": "code",
       "norm_label": "reminders_recipient_idx",
       "source_file": "supabase/migrations/20260910030100_reminders.sql",
       "source_location": "L21"
+    },
+    {
+      "id": "supabase_migrations_20260918040000_report_views_report_tugasan_branch_monthly",
+      "label": "report_tugasan_branch_monthly",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "report_tugasan_branch_monthly",
+      "source_file": "supabase/migrations/20260918040000_report_views.sql",
+      "source_location": "L424"
+    },
+    {
+      "id": "supabase_migrations_20260919040000_assets_for_every_outlet",
+      "label": "20260919040000_assets_for_every_outlet.sql",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "20260919040000_assets_for_every_outlet.sql",
+      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
+      "source_location": null
+    },
+    {
+      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_asset_catalogue",
+      "label": "asset_catalogue()",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "asset_catalogue()",
+      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
+      "source_location": "L14"
+    },
+    {
+      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_branches_default_assets",
+      "label": "branches_default_assets()",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "branches_default_assets()",
+      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
+      "source_location": "L29"
+    },
+    {
+      "id": "supabase_migrations_20260919040000_assets_for_every_outlet_branches_default_assets_trigger",
+      "label": "branches_default_assets_trigger()",
+      "_origin": "ast",
+      "community": 64,
+      "community_name": "branches",
+      "file_type": "code",
+      "norm_label": "branches_default_assets_trigger()",
+      "source_file": "supabase/migrations/20260919040000_assets_for_every_outlet.sql",
+      "source_location": "L48"
     },
     {
       "id": "marks_app_nativewind_env_d",
@@ -12012,6 +12024,17 @@
       "norm_label": "sessionguard.ts",
       "source_file": "marks-app/src/lib/sessionGuard.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "marks_app_src_lib_sessionguard_arrivedwithresetlink",
+      "label": "arrivedWithResetLink",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "sessionGuard.ts",
+      "file_type": "code",
+      "norm_label": "arrivedwithresetlink",
+      "source_file": "marks-app/src/lib/sessionGuard.ts",
+      "source_location": "L90"
     },
     {
       "id": "marks_app_src_lib_sessionguard_limitsapply",
@@ -12168,17 +12191,6 @@
       "source_location": null
     },
     {
-      "id": "marks_app_app_pulangan_selesai",
-      "label": "selesai.tsx",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "data/returns.ts",
-      "file_type": "code",
-      "norm_label": "selesai.tsx",
-      "source_file": "marks-app/app/pulangan/selesai.tsx",
-      "source_location": "L1"
-    },
-    {
       "id": "marks_app_src_components_returnrow",
       "label": "ReturnRow.tsx",
       "_origin": "ast",
@@ -12245,6 +12257,17 @@
       "source_location": "L151"
     },
     {
+      "id": "marks_app_src_data_returns_disposition_label",
+      "label": "DISPOSITION_LABEL",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "data/returns.ts",
+      "file_type": "code",
+      "norm_label": "disposition_label",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L23"
+    },
+    {
       "id": "marks_app_src_data_returns_grace_days",
       "label": "GRACE_DAYS",
       "_origin": "ast",
@@ -12256,6 +12279,17 @@
       "source_location": "L62"
     },
     {
+      "id": "marks_app_src_data_returns_reason_label",
+      "label": "REASON_LABEL",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "data/returns.ts",
+      "file_type": "code",
+      "norm_label": "reason_label",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L15"
+    },
+    {
       "id": "marks_app_src_data_returns_seed_returns",
       "label": "SEED_RETURNS",
       "_origin": "ast",
@@ -12265,6 +12299,17 @@
       "norm_label": "seed_returns",
       "source_file": "marks-app/src/data/returns.ts",
       "source_location": "L271"
+    },
+    {
+      "id": "marks_app_src_data_returns_stage_label",
+      "label": "STAGE_LABEL",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "data/returns.ts",
+      "file_type": "code",
+      "norm_label": "stage_label",
+      "source_file": "marks-app/src/data/returns.ts",
+      "source_location": "L37"
     },
     {
       "id": "marks_app_src_data_returns_stage_owner",
@@ -12377,28 +12422,6 @@
       "source_location": null
     },
     {
-      "id": "supabase_migrations_20261002010000_tugasan_read_by_managers",
-      "label": "20261002010000_tugasan_read_by_managers.sql",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "file_type": "code",
-      "norm_label": "20261002010000_tugasan_read_by_managers.sql",
-      "source_file": "supabase/migrations/20261002010000_tugasan_read_by_managers.sql",
-      "source_location": null
-    },
-    {
-      "id": "supabase_migrations_20261002010000_tugasan_read_by_managers_app_can_read_tugasan",
-      "label": "app_can_read_tugasan()",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "file_type": "code",
-      "norm_label": "app_can_read_tugasan()",
-      "source_file": "supabase/migrations/20261002010000_tugasan_read_by_managers.sql",
-      "source_location": "L16"
-    },
-    {
       "id": "supabase_seed",
       "label": "seed.sql",
       "_origin": "ast",
@@ -12407,17 +12430,6 @@
       "file_type": "code",
       "norm_label": "seed.sql",
       "source_file": "supabase/seed.sql",
-      "source_location": null
-    },
-    {
-      "id": "supabase_tests_verify_policies",
-      "label": "verify_policies.sql",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "file_type": "code",
-      "norm_label": "verify_policies.sql",
-      "source_file": "supabase/tests/verify_policies.sql",
       "source_location": null
     },
     {
@@ -12496,8 +12508,8 @@
       "source_url": null
     },
     {
-      "id": "docs_reports_web_brief_report_staff_monthly",
-      "label": "report_staff_monthly view",
+      "id": "docs_reports_web_brief_report_returns_open",
+      "label": "report_returns_open view",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
@@ -12505,7 +12517,22 @@
       "community_name": "report_* views data contract",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "report_staff_monthly view",
+      "norm_label": "report_returns_open view",
+      "source_file": "docs/reports-web-brief.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_reports_web_brief_report_today",
+      "label": "report_today() (Malaysia date)",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 11,
+      "community_name": "report_* views data contract",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "report_today() (malaysia date)",
       "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
@@ -12668,48 +12695,17 @@
       "source_url": null
     },
     {
-      "id": "db_erd_rls_test_suite",
-      "label": "supabase/tests/rls.test.mjs (npm run test:rls)",
+      "id": "docs_reports_web_brief_report_staff_monthly",
+      "label": "report_staff_monthly view",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
-      "community": 13,
-      "community_name": "users",
+      "community": 14,
+      "community_name": "20260918040000_report_views.sql",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "supabase/tests/rls.test.mjs (npm run test:rls)",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_pglite",
-      "label": "PGlite (Postgres engine for tests)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 13,
-      "community_name": "users",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "pglite (postgres engine for tests)",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_permissive_rls_fails_silently",
-      "label": "Permissive RLS fails silently",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 13,
-      "community_name": "users",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "permissive rls fails silently",
-      "rationale": "Wrong policies still return rows, just the wrong ones; so tests assert what each role cannot read.",
-      "source_file": "db/ERD.md",
+      "norm_label": "report_staff_monthly view",
+      "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
     },
@@ -12720,7 +12716,7 @@
       "author": null,
       "captured_at": null,
       "community": 14,
-      "community_name": "marks",
+      "community_name": "20260918040000_report_views.sql",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "one mark per person per week (promotions)",
@@ -12742,6 +12738,37 @@
       "norm_label": "app_can_see_branch(text)",
       "rationale": "Single predicate every scoped policy calls; change the scoping rule in one place, not twenty policies.",
       "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_reports_web_brief_payroll_auth",
+      "label": "payroll-auth Edge Function",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 18,
+      "community_name": "Reporting web app (reports-web, GM/HR)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "payroll-auth edge function",
+      "rationale": "Supabase Auth only knows e-mail; function resolves payroll number to login address server-side so the browser never sees it.",
+      "source_file": "docs/reports-web-brief.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_reports_web_brief_payroll_id_changes",
+      "label": "payroll_id_changes table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 18,
+      "community_name": "Reporting web app (reports-web, GM/HR)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "payroll_id_changes table",
+      "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
     },
@@ -12833,6 +12860,22 @@
       "file_type": "concept",
       "norm_label": "phone app role-gated sections",
       "source_file": "docs/marks-import-2026.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_reports_web_brief_payroll_number_identity",
+      "label": "Payroll number identity (users.id)",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 18,
+      "community_name": "Reporting web app (reports-web, GM/HR)",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "payroll number identity (users.id)",
+      "rationale": "Identity is the payroll number; it can change on transfer via payroll_id_changes, so key lists on users.id and don't cache number-to-person maps.",
+      "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
     },
@@ -13022,125 +13065,123 @@
       "source_url": null
     },
     {
-      "id": "db_erd_branch_changes",
-      "label": "branch_changes table",
+      "id": "db_erd_tugasan_checks",
+      "label": "tugasan_checks table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 22,
-      "community_name": "users table",
+      "community_name": "tugasan_checks table",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "branch_changes table",
+      "norm_label": "tugasan_checks table",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "db_erd_role_changes",
-      "label": "role_changes table",
+      "id": "db_erd_tugasan_items",
+      "label": "tugasan_items table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 22,
-      "community_name": "users table",
+      "community_name": "tugasan_checks table",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "role_changes table",
+      "norm_label": "tugasan_items table",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "db_erd_users",
-      "label": "users table",
+      "id": "db_erd_tugasan_signoffs",
+      "label": "tugasan_signoffs table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 22,
-      "community_name": "users table",
+      "community_name": "tugasan_checks table",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "users table",
-      "rationale": "Every account; role and branch_id mutable, id (payroll no.) is not.",
+      "norm_label": "tugasan_signoffs table",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "db_erd_useusers",
-      "label": "useUsers Zustand store",
+      "id": "db_erd_usetugasan",
+      "label": "useTugasan Zustand store",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 22,
-      "community_name": "users table",
+      "community_name": "tugasan_checks table",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "useusers zustand store",
+      "norm_label": "usetugasan zustand store",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "docs_reports_web_brief_payroll_auth",
-      "label": "payroll-auth Edge Function",
+      "id": "docs_reports_web_brief_report_tugasan_branch_monthly",
+      "label": "report_tugasan_branch_monthly view",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 22,
-      "community_name": "users table",
+      "community_name": "tugasan_checks table",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "payroll-auth edge function",
-      "rationale": "Supabase Auth only knows e-mail; function resolves payroll number to login address server-side so the browser never sees it.",
+      "norm_label": "report_tugasan_branch_monthly view",
       "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "docs_reports_web_brief_payroll_id_changes",
-      "label": "payroll_id_changes table",
+      "id": "db_erd_rls_test_suite",
+      "label": "supabase/tests/rls.test.mjs (npm run test:rls)",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
-      "community": 22,
-      "community_name": "users table",
+      "community": 27,
+      "community_name": "supabase/tests/rls.test.mjs (npm run test:rls)",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "payroll_id_changes table",
-      "source_file": "docs/reports-web-brief.md",
+      "norm_label": "supabase/tests/rls.test.mjs (npm run test:rls)",
+      "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "docs_reports_web_brief_reminders",
-      "label": "reminders table",
+      "id": "db_erd_pglite",
+      "label": "PGlite (Postgres engine for tests)",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
-      "community": 22,
-      "community_name": "users table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "reminders table",
-      "source_file": "docs/reports-web-brief.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_reports_web_brief_payroll_number_identity",
-      "label": "Payroll number identity (users.id)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 22,
-      "community_name": "users table",
+      "community": 27,
+      "community_name": "supabase/tests/rls.test.mjs (npm run test:rls)",
       "contributor": null,
       "file_type": "concept",
-      "norm_label": "payroll number identity (users.id)",
-      "rationale": "Identity is the payroll number; it can change on transfer via payroll_id_changes, so key lists on users.id and don't cache number-to-person maps.",
-      "source_file": "docs/reports-web-brief.md",
+      "norm_label": "pglite (postgres engine for tests)",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_permissive_rls_fails_silently",
+      "label": "Permissive RLS fails silently",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 27,
+      "community_name": "supabase/tests/rls.test.mjs (npm run test:rls)",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "permissive rls fails silently",
+      "rationale": "Wrong policies still return rows, just the wrong ones; so tests assert what each role cannot read.",
+      "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
@@ -13777,93 +13818,18 @@
       "source_url": null
     },
     {
-      "id": "db_erd_checklist_lines",
-      "label": "checklist_lines table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "checklist_lines table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_mark_lines",
-      "label": "mark_lines table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "mark_lines table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
       "id": "db_erd_mark_verifications",
       "label": "mark_verifications table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "code",
       "norm_label": "mark_verifications table",
       "rationale": "The manager pass; absence is the signal.",
       "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_marks",
-      "label": "marks table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "marks table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_usemarks",
-      "label": "useMarks Zustand store",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "usemarks zustand store",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_marks_import_2026_import_marks_sql",
-      "label": "supabase/import_marks.sql (importer)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "supabase/import_marks.sql (importer)",
-      "source_file": "docs/marks-import-2026.md",
       "source_location": null,
       "source_url": null
     },
@@ -13874,7 +13840,7 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "code",
       "norm_label": "report_marks view",
@@ -13889,7 +13855,7 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "null scored_by (no scorer recorded)",
@@ -13905,7 +13871,7 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "final_pct (adjusted total when present)",
@@ -13920,76 +13886,12 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "concept",
       "norm_label": "pass threshold (scoring_rules.pass_threshold)",
       "rationale": "Join, don't hardcode 80.",
       "source_file": "docs/reports-web-brief.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_mark_context_snapshot",
-      "label": "Marks snapshot their context (branch_id, form_key)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "marks snapshot their context (branch_id, form_key)",
-      "rationale": "People transfer branches and change roles; a mark must stay attached to the branch and form it was scored under or historical reports silently rewrite themselves.",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_usemarks_draft_client_state",
-      "label": "useMarks.draft stays client state",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "usemarks.draft stays client state",
-      "rationale": "An in-progress checklist is client state until submitted; add mark_drafts keyed by (user_id, scored_by) only if drafts must survive reinstall.",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_marks_import_2026_keep_mode",
-      "label": "keep mode (never overwrite app-entered week)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "keep mode (never overwrite app-entered week)",
-      "rationale": "A week already marked in the phone app was kept and the workbook version skipped, so live monthly totals may differ by a handful.",
-      "source_file": "docs/marks-import-2026.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_marks_import_2026_outlet_at_import_time",
-      "label": "Imported marks filed under current outlet",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 43,
-      "community_name": "marks table",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "imported marks filed under current outlet",
-      "rationale": "marks.branch_id set to person's outlet at import; transfers during 2026 file earlier weeks under current outlet.",
-      "source_file": "docs/marks-import-2026.md",
       "source_location": null,
       "source_url": null
     },
@@ -14000,7 +13902,7 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "verification not recorded before the app",
@@ -14016,7 +13918,7 @@
       "author": null,
       "captured_at": null,
       "community": 43,
-      "community_name": "marks table",
+      "community_name": "mark_verifications table",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "a confirmed mark is fixed (app_mark_verified())",
@@ -14072,6 +13974,51 @@
       "source_url": null
     },
     {
+      "id": "db_erd_returns",
+      "label": "returns table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 45,
+      "community_name": "return_events table",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "returns table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_suppliers",
+      "label": "suppliers table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 45,
+      "community_name": "return_events table",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "suppliers table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_usereturns",
+      "label": "useReturns Zustand store",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 45,
+      "community_name": "return_events table",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "usereturns zustand store",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
       "id": "docs_reports_web_brief_report_returns_branch_monthly",
       "label": "report_returns_branch_monthly view",
       "_origin": "semantic",
@@ -14082,36 +14029,6 @@
       "contributor": null,
       "file_type": "code",
       "norm_label": "report_returns_branch_monthly view",
-      "source_file": "docs/reports-web-brief.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_reports_web_brief_report_returns_open",
-      "label": "report_returns_open view",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 45,
-      "community_name": "return_events table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "report_returns_open view",
-      "source_file": "docs/reports-web-brief.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "docs_reports_web_brief_report_today",
-      "label": "report_today() (Malaysia date)",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 45,
-      "community_name": "return_events table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "report_today() (malaysia date)",
       "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
@@ -14241,21 +14158,6 @@
       "source_url": null
     },
     {
-      "id": "db_erd_checklist_categories",
-      "label": "checklist_categories table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 50,
-      "community_name": "checklist_forms table",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "checklist_categories table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
       "id": "db_erd_checklist_forms",
       "label": "checklist_forms table",
       "_origin": "semantic",
@@ -14267,6 +14169,21 @@
       "file_type": "code",
       "norm_label": "checklist_forms table",
       "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_marks_import_2026_import_marks_sql",
+      "label": "supabase/import_marks.sql (importer)",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 50,
+      "community_name": "checklist_forms table",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "supabase/import_marks.sql (importer)",
+      "source_file": "docs/marks-import-2026.md",
       "source_location": null,
       "source_url": null
     },
@@ -14327,6 +14244,22 @@
       "file_type": "document",
       "norm_label": "2026 marks history import (jan-sep)",
       "rationale": "Paper-era workbooks for Jan-Sep 2026 imported 2 Oct 2026 so the reports app has nine months of history; 6,411 staff and 931 SV/AS week-marks.",
+      "source_file": "docs/marks-import-2026.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_marks_import_2026_keep_mode",
+      "label": "keep mode (never overwrite app-entered week)",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 50,
+      "community_name": "checklist_forms table",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "keep mode (never overwrite app-entered week)",
+      "rationale": "A week already marked in the phone app was kept and the workbook version skipped, so live monthly totals may differ by a handful.",
       "source_file": "docs/marks-import-2026.md",
       "source_location": null,
       "source_url": null
@@ -14394,6 +14327,21 @@
       "source_url": null
     },
     {
+      "id": "db_erd_branch_changes",
+      "label": "branch_changes table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "branch_changes table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
       "id": "db_erd_branches",
       "label": "branches table",
       "_origin": "semantic",
@@ -14410,8 +14358,8 @@
       "source_url": null
     },
     {
-      "id": "db_erd_returns",
-      "label": "returns table",
+      "id": "db_erd_checklist_categories",
+      "label": "checklist_categories table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
@@ -14419,7 +14367,67 @@
       "community_name": "Checklist Mingguan data model (ERD)",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "returns table",
+      "norm_label": "checklist_categories table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_checklist_lines",
+      "label": "checklist_lines table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "checklist_lines table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_mark_lines",
+      "label": "mark_lines table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "mark_lines table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_marks",
+      "label": "marks table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "marks table",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_role_changes",
+      "label": "role_changes table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "role_changes table",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
@@ -14441,66 +14449,6 @@
       "source_url": null
     },
     {
-      "id": "db_erd_suppliers",
-      "label": "suppliers table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "suppliers table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_tugasan_checks",
-      "label": "tugasan_checks table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "tugasan_checks table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_tugasan_items",
-      "label": "tugasan_items table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "tugasan_items table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "db_erd_tugasan_signoffs",
-      "label": "tugasan_signoffs table",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 9,
-      "community_name": "Checklist Mingguan data model (ERD)",
-      "contributor": null,
-      "file_type": "code",
-      "norm_label": "tugasan_signoffs table",
-      "source_file": "db/ERD.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
       "id": "db_erd_usebranches",
       "label": "useBranches Zustand store",
       "_origin": "semantic",
@@ -14516,8 +14464,8 @@
       "source_url": null
     },
     {
-      "id": "db_erd_usereturns",
-      "label": "useReturns Zustand store",
+      "id": "db_erd_usemarks",
+      "label": "useMarks Zustand store",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
@@ -14525,7 +14473,23 @@
       "community_name": "Checklist Mingguan data model (ERD)",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "usereturns zustand store",
+      "norm_label": "usemarks zustand store",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_users",
+      "label": "users table",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "users table",
+      "rationale": "Every account; role and branch_id mutable, id (payroll no.) is not.",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
@@ -14546,8 +14510,8 @@
       "source_url": null
     },
     {
-      "id": "db_erd_usetugasan",
-      "label": "useTugasan Zustand store",
+      "id": "db_erd_useusers",
+      "label": "useUsers Zustand store",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
@@ -14555,14 +14519,14 @@
       "community_name": "Checklist Mingguan data model (ERD)",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "usetugasan zustand store",
+      "norm_label": "useusers zustand store",
       "source_file": "db/ERD.md",
       "source_location": null,
       "source_url": null
     },
     {
-      "id": "docs_reports_web_brief_report_tugasan_branch_monthly",
-      "label": "report_tugasan_branch_monthly view",
+      "id": "docs_reports_web_brief_reminders",
+      "label": "reminders table",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
@@ -14570,7 +14534,7 @@
       "community_name": "Checklist Mingguan data model (ERD)",
       "contributor": null,
       "file_type": "code",
-      "norm_label": "report_tugasan_branch_monthly view",
+      "norm_label": "reminders table",
       "source_file": "docs/reports-web-brief.md",
       "source_location": null,
       "source_url": null
@@ -14618,6 +14582,54 @@
       "file_type": "document",
       "norm_label": "checklist mingguan data model (erd)",
       "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_mark_context_snapshot",
+      "label": "Marks snapshot their context (branch_id, form_key)",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "marks snapshot their context (branch_id, form_key)",
+      "rationale": "People transfer branches and change roles; a mark must stay attached to the branch and form it was scored under or historical reports silently rewrite themselves.",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "db_erd_usemarks_draft_client_state",
+      "label": "useMarks.draft stays client state",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "usemarks.draft stays client state",
+      "rationale": "An in-progress checklist is client state until submitted; add mark_drafts keyed by (user_id, scored_by) only if drafts must survive reinstall.",
+      "source_file": "db/ERD.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "docs_marks_import_2026_outlet_at_import_time",
+      "label": "Imported marks filed under current outlet",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 9,
+      "community_name": "Checklist Mingguan data model (ERD)",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "imported marks filed under current outlet",
+      "rationale": "marks.branch_id set to person's outlet at import; transfers during 2026 file earlier weeks under current outlet.",
+      "source_file": "docs/marks-import-2026.md",
       "source_location": null,
       "source_url": null
     },
@@ -16430,7 +16442,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L148",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -16442,7 +16454,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L149",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -16454,7 +16466,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L150",
+      "source_location": "L175",
       "weight": 1.0
     },
     {
@@ -16466,7 +16478,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L187",
+      "source_location": "L212",
       "weight": 1.0
     },
     {
@@ -16478,7 +16490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L103",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -16490,7 +16502,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L112",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -16610,7 +16622,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -16622,7 +16634,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -16634,7 +16646,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -16646,7 +16658,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L57",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "marks_app_app_manager_assets_assets",
+      "target": "marks_app_app_manager_assets_failuredetail",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "marks-app/app/manager/assets.tsx",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -16658,7 +16682,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L70",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -16670,7 +16694,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L80",
+      "source_location": "L87",
       "weight": 1.0
     },
     {
@@ -16682,7 +16706,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L84",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -16694,7 +16718,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L85",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -16706,7 +16730,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L91",
+      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -49040,13 +49064,24 @@
     },
     {
       "source": "marks_app_app_manager_assets",
+      "target": "marks_app_app_manager_assets_failuredetail",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "marks-app/app/manager/assets.tsx",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "marks_app_app_manager_assets",
       "target": "marks_app_app_manager_assets_assetitem",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "marks-app/app/manager/assets.tsx",
-      "source_location": "L129",
+      "source_location": "L150",
       "weight": 1.0
     },
     {
@@ -52698,7 +52733,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "marks-app/src/i18n/strings.ts",
-      "source_location": "L861",
+      "source_location": "L869",
       "weight": 1.0
     },
     {
@@ -62539,5 +62574,5 @@
       "source_file": "db/ERD.md"
     }
   ],
-  "built_at_commit": "f97d6b5221c9f6d2fa6cd646c22609ccecd34c7d"
+  "built_at_commit": "d8c35d69e1cbfb435e062846b9d94cb5bbf01576"
 }

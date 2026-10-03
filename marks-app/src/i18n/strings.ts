@@ -36,6 +36,14 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     ms: 'Sesi anda telah tamat. Sila log masuk semula.',
     en: 'Your session has ended. Please sign in again.',
   },
+  // A newer version downloaded over the air (lib/appUpdates.ts).
+  versi_baharu_tajuk: { ms: 'Versi baharu sedia', en: 'New version ready' },
+  versi_baharu_badan: {
+    ms: 'Mula semula aplikasi untuk menggunakannya. Hantar dahulu borang yang sedang diisi.',
+    en: 'Restart the app to use it. Send any form you are filling in first.',
+  },
+  versi_baharu_mula: { ms: 'Mula semula', en: 'Restart' },
+  versi_baharu_nanti: { ms: 'Nanti', en: 'Later' },
   tukar_peranan: { ms: 'Tukar peranan', en: 'Switch role' },
   marks_pending_warning: {
     ms: '{count} markah masih menunggu sambungan. Ia kekal dalam telefon ini dan akan dihantar sendiri, walaupun selepas log keluar.',

@@ -3,6 +3,14 @@
     "name": "Checklist Mingguan",
     "slug": "marks-app",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e0f3ebdd-3b09-40ac-b500-2024894abe6a",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "scheme": "markapp",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,7 +39,7 @@
     "android": {
       "package": "com.markapp.checklist",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
