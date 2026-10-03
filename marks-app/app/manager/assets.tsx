@@ -40,6 +40,8 @@ export default function Assets() {
   const [draftNote, setDraftNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
+  // Why the last send or resolve on a row failed, shown on that row.
+  const [failure, setFailure] = useState<{ assetId: number; text: string } | null>(null);
 
   const outlets = me ? (isCrossBranch(me.role) ? allOutlets : branchesOf(me)) : [];
   const branchId = picked && outlets.includes(picked) ? picked : (outlets[0] ?? null);
@@ -48,16 +50,19 @@ export default function Assets() {
   const startReport = (id: number) => {
     setEditingId(id);
     setDraftNote('');
+    setFailure(null);
   };
 
   const submitReport = async (id: number) => {
     if (!draftNote.trim() || saving) return;
     setSaving(true);
+    setFailure(null);
     try {
       addIssue(id, await reportAssetIssue(id, draftNote));
       setEditingId(null);
-    } catch {
-      // Left on screen in the editor; the person can try again.
+    } catch (err) {
+      // The note stays in the editor; the person can try again.
+      setFailure({ assetId: id, text: t('isu_gagal_hantar', { detail: failureDetail(err) }) });
     } finally {
       setSaving(false);
     }
@@ -66,11 +71,13 @@ export default function Assets() {
   const resolve = async (assetId: number, issueId: number) => {
     if (saving) return;
     setSaving(true);
+    setFailure(null);
     try {
       await resolveAssetIssue(issueId);
       removeIssue(assetId, issueId);
-    } catch {
+    } catch (err) {
       // Stays open on screen; retry is just tapping again.
+      setFailure({ assetId, text: t('isu_gagal_selesai', { detail: failureDetail(err) }) });
     } finally {
       setSaving(false);
     }
@@ -94,6 +101,7 @@ export default function Assets() {
             onChange={(id) => {
               setPicked(id);
               setEditingId(null);
+              setFailure(null);
             }}
           />
         </View>
@@ -114,10 +122,15 @@ export default function Assets() {
             asset={a}
             editing={editingId === a.id}
             draftNote={draftNote}
+            saving={saving}
+            failure={failure?.assetId === a.id ? failure.text : null}
             onDraftNote={setDraftNote}
             onStartReport={() => startReport(a.id)}
             onSubmitReport={() => void submitReport(a.id)}
-            onCancel={() => setEditingId(null)}
+            onCancel={() => {
+              setEditingId(null);
+              setFailure(null);
+            }}
             onResolve={(issueId) => void resolve(a.id, issueId)}
           />
         ))}
@@ -126,10 +139,20 @@ export default function Assets() {
   );
 }
 
+/** The database's or network's own words, for the failure message. */
+function failureDetail(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string' && err.message) {
+    return err.message;
+  }
+  return String(err);
+}
+
 function AssetItem({
   asset: a,
   editing,
   draftNote,
+  saving,
+  failure,
   onDraftNote,
   onStartReport,
   onSubmitReport,
@@ -139,6 +162,8 @@ function AssetItem({
   asset: AssetRow;
   editing: boolean;
   draftNote: string;
+  saving: boolean;
+  failure: string | null;
   onDraftNote: (text: string) => void;
   onStartReport: () => void;
   onSubmitReport: () => void;
@@ -222,11 +247,14 @@ function AssetItem({
           <View className="flex-row gap-2 mt-2.5">
             <Pressable
               onPress={onSubmitReport}
+              disabled={saving}
               accessibilityRole="button"
               className="flex-1 py-2.5 rounded-[9px] bg-ink items-center active:opacity-80"
-              style={{ opacity: draftNote.trim() ? 1 : 0.5 }}
+              style={{ opacity: draftNote.trim() && !saving ? 1 : 0.5 }}
             >
-              <Text className="font-sans-semi text-[12.5px] text-white">{t('hantar')}</Text>
+              <Text className="font-sans-semi text-[12.5px] text-white">
+                {saving ? t('menghantar') : t('hantar')}
+              </Text>
             </Pressable>
             <Pressable
               onPress={onCancel}
@@ -236,6 +264,18 @@ function AssetItem({
               <Text className="font-sans-semi text-[12.5px] text-ink-2">{t('batal')}</Text>
             </Pressable>
           </View>
+        </View>
+      )}
+
+      {failure && (
+        <View
+          accessibilityRole="alert"
+          className="mt-2.5 rounded-[9px] px-3 py-2.5 border"
+          style={{ backgroundColor: C.failBg, borderColor: C.fail }}
+        >
+          <Text className="font-sans-med text-[12px] leading-[17px]" style={{ color: C.fail }}>
+            {failure}
+          </Text>
         </View>
       )}
     </View>

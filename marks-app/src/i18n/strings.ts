@@ -342,6 +342,14 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   laporkan_isu: { ms: 'Laporkan isu', en: 'Report an issue' },
   tambah_isu_lain: { ms: '+ Tambah isu lain', en: '+ Add another issue' },
   terangkan_isu: { ms: 'Terangkan isu ini…', en: 'Describe the issue…' },
+  isu_gagal_hantar: {
+    ms: 'Isu tidak dapat dihantar. Cuba lagi. ({detail})',
+    en: 'The issue could not be sent. Try again. ({detail})',
+  },
+  isu_gagal_selesai: {
+    ms: 'Isu tidak dapat ditanda selesai. Cuba lagi. ({detail})',
+    en: 'The issue could not be marked resolved. Try again. ({detail})',
+  },
 
   // ---------------------------------------------------- reports-only roles
   guna_aplikasi_laporan: { ms: 'Guna aplikasi laporan', en: 'Use the reporting app' },
