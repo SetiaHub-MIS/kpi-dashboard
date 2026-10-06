@@ -6,6 +6,7 @@ import {
   TUGASAN_SEED_SIGNOFF,
   tugasanKey,
 } from '@/data/tugasan';
+import { AUTOSAVE_MS, createUnsaved, dateReady } from '@/data/tugasanAutosave';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import {
   TugasanSnapshot,
@@ -44,7 +45,9 @@ type SignOffByMonth = Record<string, Record<number, WeekSignOff>>;
  * Every change is written to Postgres before the screen changes, the same
  * way the directory works: a refusal is shown rather than a tick that comes
  * back unticked on the next reload. Notes and dates are the exception — they
- * are typed, so the keystrokes stay local and `commitEntry` writes on blur.
+ * are typed, so the keystrokes stay local and are written a moment after
+ * typing stops, or at once by `commitEntry` when the box or its row goes
+ * away (data/tugasanAutosave.ts).
  * Without Supabase (demo mode) everything stays in memory, as it always did.
  */
 type TugasanState = {
@@ -64,8 +67,17 @@ type TugasanState = {
   ) => Promise<WriteResult>;
   setNote: (scope: string, itemKey: string, weekIdx: number, note: string) => void;
   setTarikh: (scope: string, itemKey: string, weekIdx: number, tarikh: string) => void;
-  /** Write the entry as it stands (note, date). Refuses a date that is not one. */
-  commitEntry: (scope: string, itemKey: string, weekIdx: number) => Promise<WriteResult>;
+  /**
+   * Write what was typed in the entry (note, date), if anything. Refuses a
+   * date that is not one — unless `quiet`, the autosave, which leaves a
+   * half-typed date for the person to finish.
+   */
+  commitEntry: (
+    scope: string,
+    itemKey: string,
+    weekIdx: number,
+    opts?: { quiet?: boolean }
+  ) => Promise<WriteResult>;
   /** DIPERIKSA OLEH: the caller confirms the week under their own number. */
   stampChecked: (scope: string, weekIdx: number, byId: string) => Promise<WriteResult>;
 };
@@ -108,6 +120,33 @@ const persistSignOff = async (
   });
 };
 
+/** The entry's row, across outlets and months. */
+const rowId = (scope: string, itemKey: string, weekIdx: number) => `${scope}|${tugasanKey(itemKey, weekIdx)}`;
+
+/** Notes and dates typed but not yet written, and their autosave timers. */
+const unsaved = createUnsaved();
+const timers = new Map<string, ReturnType<typeof setTimeout>>();
+
+const cancelAutosave = (row: string) => {
+  const timer = timers.get(row);
+  if (timer) clearTimeout(timer);
+  timers.delete(row);
+};
+
+/** Something was typed: write it once typing stops. */
+const typed = (scope: string, itemKey: string, weekIdx: number) => {
+  const row = rowId(scope, itemKey, weekIdx);
+  unsaved.edit(row);
+  cancelAutosave(row);
+  timers.set(
+    row,
+    setTimeout(() => {
+      timers.delete(row);
+      void useTugasan.getState().commitEntry(scope, itemKey, weekIdx, { quiet: true });
+    }, AUTOSAVE_MS)
+  );
+};
+
 export const useTugasan = create<TugasanState>((set, get) => ({
   entriesByMonth: { [TUGASAN_SEED_SCOPE]: TUGASAN_SEED_ENTRIES },
   signOffByMonth: { [TUGASAN_SEED_SCOPE]: TUGASAN_SEED_SIGNOFF },
@@ -131,8 +170,12 @@ export const useTugasan = create<TugasanState>((set, get) => ({
         ? { ...curSignOff, filledBy: byId, tarikh: curSignOff.tarikh || today }
         : curSignOff;
 
+    const row = rowId(scope, itemKey, weekIdx);
+    const typedVersion = unsaved.current(row);
     const wrote = await persistEntry(scope, itemKey, weekIdx, nextEntry);
     if (!wrote.ok) return wrote;
+    // The tick wrote the note and date as they stood, typing included.
+    if (typedVersion !== undefined) unsaved.saved(row, typedVersion);
     if (nextSignOff !== curSignOff) {
       const signed = await persistSignOff(scope, weekIdx, nextSignOff);
       if (!signed.ok) return signed;
@@ -151,7 +194,7 @@ export const useTugasan = create<TugasanState>((set, get) => ({
     return { ok: true };
   },
 
-  setNote: (scope, itemKey, weekIdx, note) =>
+  setNote: (scope, itemKey, weekIdx, note) => {
     set((s) => {
       const key = tugasanKey(itemKey, weekIdx);
       const scopeEntries = s.entriesByMonth[scope] ?? {};
@@ -161,9 +204,11 @@ export const useTugasan = create<TugasanState>((set, get) => ({
           [scope]: { ...scopeEntries, [key]: { ...(scopeEntries[key] ?? emptyEntry), note } },
         },
       };
-    }),
+    });
+    typed(scope, itemKey, weekIdx);
+  },
 
-  setTarikh: (scope, itemKey, weekIdx, tarikh) =>
+  setTarikh: (scope, itemKey, weekIdx, tarikh) => {
     set((s) => {
       const key = tugasanKey(itemKey, weekIdx);
       const scopeEntries = s.entriesByMonth[scope] ?? {};
@@ -173,14 +218,23 @@ export const useTugasan = create<TugasanState>((set, get) => ({
           [scope]: { ...scopeEntries, [key]: { ...(scopeEntries[key] ?? emptyEntry), tarikh } },
         },
       };
-    }),
+    });
+    typed(scope, itemKey, weekIdx);
+  },
 
-  commitEntry: async (scope, itemKey, weekIdx) => {
+  commitEntry: async (scope, itemKey, weekIdx, opts) => {
+    const row = rowId(scope, itemKey, weekIdx);
+    cancelAutosave(row);
+    const version = unsaved.current(row);
+    // Nothing typed since the last write: opening and closing a row writes nothing.
+    if (version === undefined) return { ok: true };
     const entry = get().entriesByMonth[scope]?.[tugasanKey(itemKey, weekIdx)] ?? emptyEntry;
-    if (entry.tarikh.trim() && !shortToIso(entry.tarikh)) {
-      return { ok: false, message: 'Tarikh seperti 18/9/2026.' };
+    if (!dateReady(entry.tarikh)) {
+      return opts?.quiet ? { ok: true } : { ok: false, message: 'Tarikh seperti 18/9/2026.' };
     }
-    return persistEntry(scope, itemKey, weekIdx, entry);
+    const wrote = await persistEntry(scope, itemKey, weekIdx, entry);
+    if (wrote.ok) unsaved.saved(row, version);
+    return wrote;
   },
 
   stampChecked: async (scope, weekIdx, byId) => {

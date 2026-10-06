@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, Pressable, Text, TextInput, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { Card, MonoLabel } from '@/components/Card';
 import { OutletPicker } from '@/components/OutletPicker';
 import { todayShort } from '@/data/period';
@@ -11,6 +12,7 @@ import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
 import { findUser, useUsers } from '@/store/useUsers';
 import { TUGASAN_ITEMS, tugasanScope } from '@/data/tugasan';
+import { rowOfKey } from '@/data/tugasanAutosave';
 import { Screen } from '@/components/Screen';
 import { useMarks } from '@/store/useMarks';
 import { currentUser, useSession } from '@/store/useSession';
@@ -62,6 +64,38 @@ export default function Tugasan() {
   const nameOf = (id: string | null) => (id ? (findUser(users, id)?.name ?? id) : '');
 
   const [openKey, setOpenKey] = useState<string | null>(null);
+
+  // What is typed in the open row is written a moment after typing stops
+  // (store/useTugasan.ts), and here at once whenever the row goes away: it is
+  // closed or another opened, the outlet or month changes, the screen is left,
+  // or the app goes to the background. A box that disappears never blurs, so
+  // the blur alone used to leave a remark typed after the tick unsaved.
+  const latest = useRef({ scope, openKey, save: (_scope: string, _key: string) => {} });
+  latest.current = {
+    scope,
+    openKey,
+    save: (rowScope, key) => {
+      const row = rowOfKey(key);
+      if (row) void commitEntry(rowScope, row.itemKey, row.weekIdx).then(report);
+    },
+  };
+  const saveOpenRow = useCallback(() => {
+    const { scope: rowScope, openKey: key, save } = latest.current;
+    if (key) save(rowScope, key);
+  }, []);
+  useEffect(() => {
+    if (!openKey) return;
+    const rowScope = scope;
+    const key = openKey;
+    return () => latest.current.save(rowScope, key);
+  }, [scope, openKey]);
+  useFocusEffect(useCallback(() => saveOpenRow, [saveOpenRow]));
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') saveOpenRow();
+    });
+    return () => sub.remove();
+  }, [saveOpenRow]);
 
   const totalTicks = WEEK_COLS.length * TUGASAN_ITEMS.length;
   const doneTicks = WEEK_COLS.reduce(
