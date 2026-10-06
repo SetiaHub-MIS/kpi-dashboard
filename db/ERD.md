@@ -1,5 +1,11 @@
 # Checklist Mingguan — data model
 
+> **Superseded as the reference.** This is the original design note from
+> 9 Sep 2026; its reasoning still holds, but the migration list and tables
+> below stop at the first three migrations. The current, complete reference —
+> server, sign-in, every table, view, function, trigger, policy and migration —
+> is [`docs/database.md`](../docs/database.md).
+
 PostgreSQL 15+ (Supabase). Migrations run in filename order:
 
 ```
