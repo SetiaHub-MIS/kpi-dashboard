@@ -103,6 +103,7 @@ for (const m of [
   'supabase/migrations/20261003030000_marked_before_added.sql',
   'supabase/migrations/20261003040000_asset_issues.sql',
   'supabase/migrations/20261006010000_hr_administers.sql',
+  'supabase/migrations/20261006020000_staff_see_own_marks.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1417,9 +1418,14 @@ console.log('\n=== reads answered once per query, for exactly the same rows (202
   // original expression allowed. n_old is the original expression evaluated
   // as that caller with RLS out of the way; n_new is what the policy shows
   // them; n_both is both at once, so equal counts mean equal sets.
+  // The marks rule carries 20261006020000 on top: staff, store and clerk
+  // read their own marks only. That was a deliberate narrowing, so it is part
+  // of the reference expression the fast path must agree with.
+  const OWN_OR_SCOPED = (alias) =>
+    `(${alias}user_id = app_user_id() OR (app_role() NOT IN ('staff', 'store', 'clerk') AND app_can_see_mark(${alias}branch_id, ${alias}form_key)))`;
   const ORIGINAL = {
-    marks: 'app_can_see_mark(branch_id, form_key)',
-    mark_verifications: 'EXISTS (SELECT 1 FROM marks m WHERE m.id = mark_id AND app_can_see_mark(m.branch_id, m.form_key))',
+    marks: OWN_OR_SCOPED(''),
+    mark_verifications: `EXISTS (SELECT 1 FROM marks m WHERE m.id = mark_id AND ${OWN_OR_SCOPED('m.')})`,
     users: 'app_is_admin() OR auth_user_id = auth.uid() OR app_can_see_branch(branch_id)',
     scoring_rules: 'app_can_see_branch(branch_id)',
     user_branches: 'app_is_cross_branch() OR user_id = app_user_id() OR app_can_see_branch(branch_id)',
@@ -1697,6 +1703,48 @@ console.log('\n=== today is Malaysia\x27s date, and a list before its Friday is 
   const restored = await state();
   check('(cleanup) the aircond row is back to its seeded state',
     [restored.is_open, restored.open, restored.opened_on], [true, 1, '2026-08-05']);
+}
+
+// --- staff read their own marks and nobody else's (20261006020000).
+{
+  console.log("\n=== staff read their own marks, not their colleagues' (20261006020000) ===");
+  const ownOnly = async (who, id) => {
+    const r = await as(ACCOUNTS[who][0], `SELECT DISTINCT user_id FROM marks ORDER BY 1`);
+    return r.rows.map((x) => x.user_id).every((u) => u === id) && r.rows.length === 1;
+  };
+  check('Machang shop staff reads only their own marks', await ownOnly('syazana', 'KP0093'), true);
+  check('...and so does a colleague at the same outlet', await ownOnly('putri', 'KP0103'), true);
+  check('HQ store staff reads only their own marks', await ownOnly('hafiz', 'ST0001'), true);
+
+  const theirs = (await db.query(`SELECT id FROM marks WHERE user_id = 'KP0103' ORDER BY id LIMIT 1`)).rows[0].id;
+  check("a colleague's mark is not there even asked for by id",
+    (await as(ACCOUNTS.syazana[0], `SELECT count(*)::int n FROM marks WHERE id = ${theirs}`)).rows[0].n, 0);
+  // Lines and verifications are checked against the full table: what the
+  // staff member sees must be exactly their own, while others' exist.
+  const count = async (sql) => (await db.query(sql)).rows[0].n;
+  const ownLines = await count(`SELECT count(*)::int n FROM mark_lines l JOIN marks m ON m.id = l.mark_id WHERE m.user_id = 'KP0093'`);
+  const otherLines = await count(`SELECT count(*)::int n FROM mark_lines l JOIN marks m ON m.id = l.mark_id WHERE m.user_id <> 'KP0093' AND m.branch_id = 'DMC'`);
+  check("...nor its per-perkara lines: only their own lines show, while others' exist",
+    [(await as(ACCOUNTS.syazana[0], `SELECT count(*)::int n FROM mark_lines`)).rows[0].n, otherLines > 0],
+    [ownLines, true]);
+  const ownVer = await count(`SELECT count(*)::int n FROM mark_verifications v JOIN marks m ON m.id = v.mark_id WHERE m.user_id = 'KP0093'`);
+  check("...nor its verification",
+    (await as(ACCOUNTS.syazana[0], `SELECT count(*)::int n FROM mark_verifications`)).rows[0].n, ownVer);
+  check('the report views narrow the same way: report_marks holds their own marks only',
+    (await as(ACCOUNTS.syazana[0], `SELECT DISTINCT user_id FROM report_marks`)).rows.map((r) => r.user_id), ['KP0093']);
+  // report_staff_monthly is built from the directory (who was due), which
+  // staff may read; a colleague's row is listed but carries no score at all.
+  const colleague = await as(ACCOUNTS.syazana[0],
+    `SELECT count(*)::int n FROM report_staff_monthly
+      WHERE user_id <> 'KP0093'
+        AND (w1_pct IS NOT NULL OR w2_pct IS NOT NULL OR w3_pct IS NOT NULL OR w4_pct IS NOT NULL
+             OR avg_pct IS NOT NULL OR marked_weeks > 0)`);
+  check("...and in report_staff_monthly a colleague's row shows no score", colleague.rows[0].n, 0);
+
+  const sv = await as(ACCOUNTS.syahirah[0], `SELECT count(DISTINCT user_id)::int n FROM marks WHERE branch_id = 'DMC'`);
+  check('the SV/AS still reads every mark at their outlet', sv.rows[0].n > 1, true);
+  const am = await as(ACCOUNTS.herdi[0], `SELECT count(DISTINCT branch_id)::int n FROM marks`);
+  check('the Area Manager still reads both outlets', am.rows[0].n, 2);
 }
 
 // --- the service role, which payroll-auth reads the directory under.

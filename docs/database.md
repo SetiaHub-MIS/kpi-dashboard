@@ -1,8 +1,8 @@
 # Checklist Mingguan — database reference
 
-**As of 6 October 2026**, up to and including migration `20261006010000_hr_administers.sql`.
+**As of 6 October 2026**, up to and including migration `20261006020000_staff_see_own_marks.sql`.
 
-This document was written from the schema itself: all 41 migrations were
+This document was written from the schema itself: all 42 migrations were
 applied to a real Postgres (the PGlite test harness) and the catalog was read
 back. The live database matches it — `supabase/tests/verify_policies.sql` ran
 on the live project on 6 Oct 2026 and every check passed. When the two
@@ -123,18 +123,20 @@ Manager, General Manager, HR and Admin hold no outlet and see all of them.
 
 | Role | Sees | Writes |
 |---|---|---|
-| Shop Staff (`staff`) | People, marks and returns at their outlet. | Nothing but their own e-mail. |
-| Store Staff / Store Clerk (`store`, `clerk`) | People and marks at HQ; every outlet's returns. | Returns, return stages, photos, new suppliers. |
+| Shop Staff (`staff`) | **Their own marks only**; the people and returns at their outlet. | Nothing but their own e-mail. |
+| Store Staff / Store Clerk (`store`, `clerk`) | **Their own marks only**; the people at HQ; every outlet's returns. | Returns, return stages, photos, new suppliers. |
 | Supervisor (`supervisor`, SV or Asisten) | People, marks and returns at their outlet. | Marks for shop and store staff; adds Shop Staff; asset issues at their outlet. |
 | Area Manager (`area_manager`) | The same, at every outlet they cover; plus Tugasan. | Marks for supervisors; verifies marks; Tugasan; asset issues; reminders; adds Shop Staff and Supervisors; tags SV/Asisten. |
 | Manager (`manager`) | Every outlet, kedai side only — no returns, no store marks. | As an Area Manager, over every outlet. |
 | General Manager (`general_manager`) | Everything, including returns. | Marks, verifications, reminders and returns anywhere. Set only through SQL. |
 | HR (`human_resources`) and Admin (`admin`) | Everything except returns. | Accounts, roles, outlets, change logs, checklist reference data, scoring rules, SV/Asisten titles. As head office the database also lets them correct marks and verifications, though the app gives them no screen for it. Since 6 Oct 2026 HR has exactly Admin's rights. |
 
-**What the app shows is narrower than what the database allows.** For
-example, Shop Staff can read every mark at their outlet at the database level,
-but the app only ever shows them their own. The database rules above are the
-security boundary; the app's screens are a choice of what to display.
+**The database rules above are the security boundary**; the app's screens
+only choose what to display. Since `20261006020000` the two agree on marks:
+Shop Staff, Store Staff and Clerks can read their own marks and nobody else's,
+even by calling the API directly. Their per-perkara lines and verifications
+follow the mark. In `report_staff_monthly` a colleague still appears as a row
+(it is built from the staff list, which they may read), but with no score in it.
 
 **Table privileges.** Row-level security only filters rows; the signed-in role
 also needs table privileges. `authenticated` is granted select, insert, update
@@ -183,7 +185,7 @@ Read by anyone signed in (scoring rules: by those who reach the outlet); written
 
 | Table | Holds | Key rules |
 |---|---|---|
-| `marks` | One weekly score per person: `user_id`, `branch_id`, `form_key`, year, month, `week_no` (1–4), `total_score`, `max_score`, `note`, `scored_by`. One per person per week. | `pct` is **generated** from total ÷ max, never typed. `branch_id` and `form_key` are a snapshot of where the person was when marked. Readable by whoever reaches the outlet (store marks hidden from the Manager). Written by those allowed to score. **Locked once verified.** |
+| `marks` | One weekly score per person: `user_id`, `branch_id`, `form_key`, year, month, `week_no` (1–4), `total_score`, `max_score`, `note`, `scored_by`. One per person per week. | `pct` is **generated** from total ÷ max, never typed. `branch_id` and `form_key` are a snapshot of where the person was when marked. Staff, store staff and clerks read only their own; others read whatever outlets they reach (store marks hidden from the Manager). Written by those allowed to score. **Locked once verified.** |
 | `mark_lines` | The score for each perkara (0 up to the scale). | A perkara marked N/A has no row and does not count in `max_score`; 0 counts. Locked with its mark. |
 | `mark_verifications` | The Area Manager's confirmation, optionally with `adjusted_to` (a corrected total). | Absence means "not yet verified". |
 
@@ -420,6 +422,7 @@ Run in this order. Each file explains itself in its opening comment.
 | `20261003030000_marked_before_added` | Someone marked before they were added is due all month. |
 | `20261003040000_asset_issues` | Several open issues per asset, each resolved on its own. |
 | `20261006010000_hr_administers` | HR has exactly Admin's rights; HR leaves returns. |
+| `20261006020000_staff_see_own_marks` | Shop staff, store staff and clerks read only their own marks. |
 
 ---
 

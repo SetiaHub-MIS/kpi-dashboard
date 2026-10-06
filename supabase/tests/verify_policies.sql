@@ -119,7 +119,7 @@ expected_pol(tbl, pol, cmd, fns, roles) AS (VALUES
   ('mark_verifications', 'verifications_read', 'SELECT', 'app_can_see_mark,app_is_exec', ''),
   ('mark_verifications', 'verifications_write', 'ALL', 'app_can_see_mark,app_is_exec,app_manages_outlets', ''),
   ('marks', 'marks_insert', 'INSERT', 'app_can_score,app_can_see_mark', ''),
-  ('marks', 'marks_read', 'SELECT', 'app_can_see_mark,app_can_see_store_ops,app_is_cross_branch', ''),
+  ('marks', 'marks_read', 'SELECT', 'app_can_see_mark,app_can_see_store_ops,app_is_cross_branch,app_role,app_user_id', 'clerk,staff,store'),
   ('marks', 'marks_update', 'UPDATE', 'app_can_score,app_can_see_mark,app_mark_verified', ''),
   ('payroll_id_changes', 'payroll_id_changes_read', 'SELECT', 'app_is_admin', ''),
   ('payroll_id_changes', 'payroll_id_changes_write', 'INSERT', 'app_is_admin', ''),

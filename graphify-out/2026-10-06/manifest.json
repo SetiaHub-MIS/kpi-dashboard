@@ -1032,21 +1032,21 @@
     "semantic_hash": ""
   },
   "supabase/tests/gen_verify.mjs": {
-    "mtime": 1791259807.8748457,
-    "seen": 1791259930.8343396,
-    "ast_hash": "92b82d2eff7c4cb765f255c60258d241",
+    "mtime": 1791243737.5083623,
+    "seen": 1791244180.2273846,
+    "ast_hash": "2b7bff1d570c0ee35ae544684e5f513d",
     "semantic_hash": ""
   },
   "supabase/tests/rls.test.mjs": {
-    "mtime": 1791259882.3646111,
-    "seen": 1791259930.8343396,
-    "ast_hash": "0ddee0a0baed114c23d9b1884afea763",
+    "mtime": 1791243906.1338708,
+    "seen": 1791244180.2273846,
+    "ast_hash": "c3374c19680969bb4b2a521ffc25cb00",
     "semantic_hash": ""
   },
   "supabase/tests/verify_policies.sql": {
-    "mtime": 1791259893.6815145,
-    "seen": 1791259930.8343396,
-    "ast_hash": "6c70b800ac30a82ccc4f858208a77724",
+    "mtime": 1791244172.076286,
+    "seen": 1791244180.2273846,
+    "ast_hash": "7f60ae57fb5870f0a0dac32f907dd0f9",
     "semantic_hash": ""
   },
   "supabase/xlsx_to_import_marks.py": {
@@ -1218,21 +1218,9 @@
     "semantic_hash": ""
   },
   "docs/database.md": {
-    "mtime": 1791259921.298674,
-    "seen": 1791259930.8343396,
-    "ast_hash": "f0da448358597dca17133d3dabc2f342",
-    "semantic_hash": ""
-  },
-  "supabase/migrations/20261006020000_staff_see_own_marks.sql": {
-    "mtime": 1791259800.520887,
-    "seen": 1791259930.8343396,
-    "ast_hash": "74e1062ea76148b013ca77824d1bbeb6",
-    "semantic_hash": ""
-  },
-  "docs/database.pdf": {
-    "mtime": 1791253669.4862819,
-    "seen": 1791259930.8343396,
-    "ast_hash": "dd82464bda40f5e96837a466b4d7085f",
+    "mtime": 1791253035.9669838,
+    "seen": 1791253051.3147862,
+    "ast_hash": "46e6e6b9aa511ed774b894c790a557e0",
     "semantic_hash": ""
   }
 }

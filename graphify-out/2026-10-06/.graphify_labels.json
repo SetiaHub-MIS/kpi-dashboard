@@ -85,6 +85,5 @@
   "83": "20261002030000_rls_once_per_query.sql",
   "84": "provision_logins.sql",
   "85": "reset_password.sql",
-  "86": "schedule_photo_purge.sql",
-  "87": "20261006020000_staff_see_own_marks.sql"
+  "86": "schedule_photo_purge.sql"
 }

@@ -1,17 +1,17 @@
 # Graph Report - Performance marking app dashboard  (2026-10-06)
 
 ## Corpus Check
-- 194 files · ~323,408 words
+- 193 files · ~322,641 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: (none) 3, .example 1, .css 1)
 
 ## Summary
-- 1287 nodes · 4175 edges · 88 communities (59 shown, 29 thin omitted)
+- 1286 nodes · 4175 edges · 87 communities (59 shown, 28 thin omitted)
 - Extraction: 97% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 102 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8dcf8122`
+- Built from commit: `e91a5a01`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -116,7 +116,7 @@
 - **report_* views data contract for GM/HR reports** — docs_reports_web_brief_report_views_data_contract, docs_reports_web_brief_report_marks, docs_reports_web_brief_report_branch_weekly, docs_reports_web_brief_report_branch_monthly, docs_reports_web_brief_report_company_monthly, docs_reports_web_brief_report_staff_monthly, docs_reports_web_brief_pct_sum_reaggregation, docs_reports_web_brief_due_definition [EXTRACTED 1.00]
 - **RLS branch scoping mechanism** — db_erd_rls_branch_scoping, db_erd_security_definer_helpers, db_erd_app_can_see_branch, db_erd_security_invoker_views, db_erd_rls_test_suite, db_erd_permissive_rls_fails_silently [INFERRED 0.85]
 
-## Communities (88 total, 29 thin omitted)
+## Communities (87 total, 28 thin omitted)
 
 ### Community 0 - "useT"
 Cohesion: 0.11
@@ -364,8 +364,8 @@ Nodes (10): assets, branch_changes, branches, tugasan_checks, tugasan_items, tug
 
 ## Knowledge Gaps
 - **297 isolated node(s):** `name`, `slug`, `version`, `policy`, `url` (+292 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 413 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 412 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
