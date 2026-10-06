@@ -4,13 +4,14 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
+import { OutletPicker } from '@/components/OutletPicker';
 import { Screen } from '@/components/Screen';
 import { isHq } from '@/data/branches';
 import { WEEK_COLS } from '@/data/checklist';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import {
-  branchChangeBlocker,
   branchesOf,
+  coverageChangeBlocker,
   APP_ROLES,
   ROLE_LEVEL,
   Role,
@@ -26,6 +27,7 @@ import {
   promotionsFor,
   roleChangeBlocker,
   transfersFor,
+  withHome,
 } from '@/data/users';
 import { formLabel, roleBlurb, roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
@@ -134,15 +136,23 @@ export default function UserDetail() {
     } else {
       picked = [...covered, next];
     }
-    const [home, ...extras] = picked;
-    if (home !== user.branchId) {
-      const blocked = branchChangeBlocker(users, user.id, home);
-      if (blocked) {
-        notify(t('tak_boleh_tukar_cawangan'), blocked);
-        return;
-      }
+    // Only outlets this person stops covering can strand anyone; a home
+    // posting that moves to another outlet they keep is never refused.
+    const blocked = coverageChangeBlocker(users, user.id, picked);
+    if (blocked) {
+      notify(t('tak_boleh_tukar_cawangan'), blocked);
+      return;
     }
+    const [home, ...extras] = picked;
     void persist(() => setPosting(user.id, home, extras, me?.id ?? null));
+  };
+
+  // An Area Manager's home posting, chosen directly among the outlets they
+  // cover — no need to remove the old home first.
+  const setHome = (home: string | null) => {
+    if (!home || home === user.branchId) return;
+    const [first, ...extras] = withHome(covered, home);
+    void persist(() => setPosting(user.id, first, extras, me?.id ?? null));
   };
 
   const toggleActive = () => {
@@ -487,6 +497,16 @@ export default function UserDetail() {
               <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
                 {t('liputan_edit_hint')}
               </Text>
+            )}
+            {multi && covered.length > 1 && user.branchId && (
+              <View className="mt-3">
+                <OutletPicker
+                  label={t('cawangan_utama')}
+                  outlets={covered}
+                  value={user.branchId}
+                  onChange={setHome}
+                />
+              </View>
             )}
           </>
         )}

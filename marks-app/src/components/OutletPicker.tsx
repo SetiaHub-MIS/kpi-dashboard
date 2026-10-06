@@ -18,12 +18,15 @@ export function OutletPicker({
   onChange,
   allLabel,
   countOf,
+  label,
 }: {
   outlets: string[];
   value: string | null;
   onChange: (branchId: string | null) => void;
   allLabel?: string;
   countOf?: (branchId: string | null) => number;
+  /** The small caption above the choice; "Outlet" unless given. */
+  label?: string;
 }) {
   const [open, setOpen] = useState(false);
   const branchLabel = useBranchLabel();
@@ -46,7 +49,7 @@ export function OutletPicker({
       >
         <View className="min-w-0 flex-1">
           <Text className="font-mono-med text-[9.5px] uppercase tracking-label text-ink-5">
-            {t('cawangan')}
+            {label ?? t('cawangan')}
           </Text>
           <Text className="font-sans-semi text-[14px] text-ink mt-1" numberOfLines={1}>
             {withCount(value)}

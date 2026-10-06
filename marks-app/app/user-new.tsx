@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { BackLink } from '@/components/BackLink';
 import { Card, MonoLabel } from '@/components/Card';
+import { OutletPicker } from '@/components/OutletPicker';
 import { Screen } from '@/components/Screen';
 import { isHq } from '@/data/branches';
 import {
@@ -23,6 +24,7 @@ import {
   isCrossBranch,
   newUserBlocker,
   postingFor,
+  withHome,
 } from '@/data/users';
 import { roleBlurb, roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { payrollBlocker } from '@/lib/auth';
@@ -332,6 +334,16 @@ export default function NewUser() {
             <Text className="font-sans text-[11.5px] leading-[17px] text-ink-4 mt-2">
               {multi ? t('liputan_hint') : t('cawangan_hint_sv')}
             </Text>
+          )}
+          {multi && effectivePicked.length > 1 && (
+            <View className="mt-3">
+              <OutletPicker
+                label={t('cawangan_utama')}
+                outlets={effectivePicked}
+                value={effectivePicked[0]}
+                onChange={(home) => home && setPicked(withHome(effectivePicked, home))}
+              />
+            </View>
           )}
         </Card>
 

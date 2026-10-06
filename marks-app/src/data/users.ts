@@ -303,25 +303,33 @@ export const transfersFor = (role: Role): Role[] =>
   movesFrom(role, ROLE_LEVEL[role]).filter((r) => r !== role);
 
 /**
- * Remaining holders of a user's role who would still cover their post.
- * Area Managers are counted per branch — losing the only one at a kedai strands
- * that kedai even when other branches have one. Head office is counted globally.
+ * Of these outlets, the ones no other active Area Manager covers — by home
+ * posting or as an extra outlet. Counting the home posting alone used to
+ * refuse moving an Area Manager's home between two outlets they keep
+ * covering ("last Area Manager at DMC") even though DMC kept its Area
+ * Manager.
  */
-function remainingHolders(users: User[], user: User): User[] {
-  return users.filter(
-    (u) =>
-      u.active &&
-      u.role === user.role &&
-      u.id !== user.id &&
-      (isCrossBranch(user.role) || u.branchId === user.branchId)
-  );
+function uncoveredWithout(users: User[], user: User, outlets: string[]): string[] {
+  const others = users.filter((u) => u.active && u.role === 'area_manager' && u.id !== user.id);
+  return outlets.filter((b) => !others.some((u) => branchesOf(u).includes(b)));
 }
 
-function guard(users: User[], user: User, action: string): string | null {
+/**
+ * Why taking these outlets away from this person would strand them, or null.
+ * Area Managers are counted per outlet — losing the only one at a kedai
+ * strands that kedai even when other outlets have one. Admin is counted
+ * company-wide.
+ */
+function guard(users: User[], user: User, action: string, losing: string[] = branchesOf(user)): string | null {
   if (!REQUIRED_ROLES.includes(user.role)) return null;
-  if (remainingHolders(users, user).length > 0) return null;
-  const where = isCrossBranch(user.role) || !user.branchId ? '' : ` ${user.branchId}`;
-  return `${ROLE_LABEL[user.role]}${where} terakhir — lantik pengganti dahulu sebelum ${action}.`;
+  if (user.role === 'area_manager') {
+    const stranded = uncoveredWithout(users, user, losing);
+    return stranded.length === 0
+      ? null
+      : `${ROLE_LABEL[user.role]} ${stranded.join(', ')} terakhir — lantik pengganti dahulu sebelum ${action}.`;
+  }
+  const others = users.filter((u) => u.active && u.role === user.role && u.id !== user.id);
+  return others.length > 0 ? null : `${ROLE_LABEL[user.role]} terakhir — lantik pengganti dahulu sebelum ${action}.`;
 }
 
 /** Why a role change must be refused, or null when it is allowed. */
@@ -337,12 +345,29 @@ export function deactivateBlocker(users: User[], id: string): string | null {
   return guard(users, user, 'nyahaktif');
 }
 
-/** Moving a branch also vacates a post, so it needs the same guard. */
+/**
+ * Why changing the outlets this person covers must be refused, or null. Only
+ * the outlets they would stop covering matter: moving an Area Manager's home
+ * between outlets they keep is never refused.
+ */
+export function coverageChangeBlocker(users: User[], id: string, next: string[]): string | null {
+  const user = users.find((u) => u.id === id);
+  if (!user) return null;
+  const losing = branchesOf(user).filter((b) => !next.includes(b));
+  if (losing.length === 0) return null;
+  return guard(users, user, 'tukar cawangan', losing);
+}
+
+/** Moving a one-outlet person to another outlet: the same guard. */
 export function branchChangeBlocker(users: User[], id: string, next: string | null): string | null {
   const user = users.find((u) => u.id === id);
   if (!user || user.branchId === next) return null;
-  return guard(users, user, 'tukar cawangan');
+  return coverageChangeBlocker(users, id, next ? [next] : []);
 }
+
+/** The covered outlets reordered so `home` comes first — the home posting. */
+export const withHome = (covered: string[], home: string): string[] =>
+  covered.includes(home) ? [home, ...covered.filter((b) => b !== home)] : covered;
 
 /** Why a new account is invalid, or null when it can be created. */
 /** Why a name change is unusable, or null when it is fine. */

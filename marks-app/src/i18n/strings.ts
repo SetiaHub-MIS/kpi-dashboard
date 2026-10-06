@@ -788,9 +788,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'A head-office role — no branch, sees every outlet.',
   },
   liputan_hint: {
-    ms: 'Pilih setiap cawangan yang diliputi. Yang pertama dipilih ialah cawangan utama.',
-    en: 'Pick every outlet they cover. The first one picked is the home posting.',
+    ms: 'Pilih setiap cawangan yang diliputi. Cawangan utama boleh ditukar di bawah.',
+    en: 'Pick every outlet they cover. Choose the home outlet below.',
   },
+  cawangan_utama: { ms: 'Cawangan utama', en: 'Home outlet' },
   cawangan_utama_badge: { ms: 'UTAMA', en: 'HOME' },
   pilih_satu_cawangan: { ms: 'Pilih sekurang-kurangnya satu cawangan.', en: 'Pick at least one branch.' },
   liputan_gagal_title: { ms: 'Akaun dicipta, liputan tidak disimpan', en: 'Account created, coverage not saved' },
@@ -854,8 +855,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ---------------------------------------------------- user/[id], editing
   liputan_edit_hint: {
-    ms: 'Ketik untuk tambah atau tanggal cawangan. Yang pertama ialah cawangan utama.',
-    en: 'Tap to add or remove an outlet. The first one is the home posting.',
+    ms: 'Ketik untuk tambah atau tanggal cawangan. Pilih cawangan utama di bawah.',
+    en: 'Tap to add or remove an outlet. Choose the home outlet below.',
   },
   cawangan_terakhir: {
     ms: 'Sekurang-kurangnya satu cawangan diperlukan.',

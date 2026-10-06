@@ -12,6 +12,8 @@ import {
   APP_ROLES,
   ROLE_LADDER,
   branchChangeBlocker,
+  coverageChangeBlocker,
+  withHome,
   canSetSupervisorTitle,
   deactivateBlocker,
   demotionsFor,
@@ -250,4 +252,41 @@ test('an e-mail is optional, but has to look like one', () => {
   assert.match(emailBlocker('nama'), /E-mel/);
   assert.match(emailBlocker('nama@contoh'), /E-mel/);
   assert.match(emailBlocker('nama contoh@x.com'), /E-mel/);
+});
+
+// --- an Area Manager's home outlet moves freely among the outlets they cover
+// (6 Oct 2026). The guard used to count home postings only, so moving Herdi's
+// home from DMC to DKB — both still covered — was refused as "last Area
+// Manager DMC", and the old home had to be replaced first.
+
+const herdi = () => mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'] });
+
+test('moving the home outlet between covered outlets is never refused', () => {
+  const users = [herdi()];
+  assert.equal(coverageChangeBlocker(users, 'AM0001', ['DKB', 'DMC']), null);
+  assert.deepEqual(withHome(['DMC', 'DKB', 'DPM'], 'DPM'), ['DPM', 'DMC', 'DKB']);
+  assert.deepEqual(withHome(['DMC', 'DKB'], 'XXX'), ['DMC', 'DKB'], 'an outlet not covered is not made home');
+});
+
+test('dropping an outlet nobody else covers is refused, naming that outlet', () => {
+  const users = [herdi()];
+  assert.match(coverageChangeBlocker(users, 'AM0001', ['DMC']), /Area Manager DKB terakhir/);
+  assert.match(coverageChangeBlocker(users, 'AM0001', ['DKB']), /Area Manager DMC terakhir/);
+});
+
+test('dropping an outlet another Area Manager covers as an extra outlet is allowed', () => {
+  const users = [herdi(), mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DPM', branchIds: ['DKB'] })];
+  assert.equal(coverageChangeBlocker(users, 'AM0001', ['DMC']), null);
+});
+
+test('an Area Manager whose outlets are all covered by others may leave', () => {
+  const users = [
+    herdi(),
+    mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DKB', branchIds: ['DMC'] }),
+  ];
+  assert.equal(deactivateBlocker(users, 'AM0001'), null);
+  assert.equal(roleChangeBlocker(users, 'AM0001', 'supervisor'), null);
+  // ...but not once the other one is inactive.
+  users[1].active = false;
+  assert.match(deactivateBlocker(users, 'AM0001'), /Area Manager DMC, DKB terakhir/);
 });
