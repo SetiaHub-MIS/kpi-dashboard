@@ -1,37 +1,37 @@
 # Graph Report - Performance marking app dashboard  (2026-10-06)
 
 ## Corpus Check
-- 194 files · ~323,408 words
+- 199 files · ~325,675 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: (none) 3, .example 1, .css 1)
 
 ## Summary
-- 1287 nodes · 4175 edges · 88 communities (59 shown, 29 thin omitted)
-- Extraction: 97% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 102 edges (avg confidence: 0.81)
+- 1321 nodes · 4252 edges · 80 communities (49 shown, 31 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 103 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8dcf8122`
+- Built from commit: `32c49c47`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - useT
-- users.ts
+- useUsers.ts
 - WS-SUPV-2026_1e28b2d4.md
 - Cawangan branch list (Kod Cawangan / Nama kedai)
 - xlsx_to_import_marks.py
 - useTugasan.ts
 - expo
 - sessionGuard.ts
-- data/returns.ts
+- useSession.ts
 - Checklist Mingguan data model (ERD)
 - dependencies
-- 20260918040000_report_views.sql
+- report_* views data contract
 - rls.test.mjs
 - users
-- marks
-- pulangan-recon.tsx
+- 20260918040000_report_views.sql
+- reconcile.ts
 - 20260909010000_init.sql
 - marks-app/package.json
 - Reporting web app (reports-web, GM/HR)
@@ -42,43 +42,36 @@
 - manager/index.tsx
 - useQueue.ts
 - ReturnPhotos.tsx
-- useUsers.ts
+- tabOptions.tsx
 - labels.ts
 - App Icon (1024px master)
 - Checklist Mingguan — database reference
-- marks.ts
+- pulangan-recon.tsx
 - useReturns.ts
-- user-new.tsx
+- 20260918010000_auto_provision_logins.sql
 - appUpdates.ts
 - asset_issues
 - 20260909020100_return_kpi.sql
 - supabase/xlsx_to_import_marks.py (converter)
 - Kod Cawangan (three-letter branch code)
 - install.ts
-- assets.tsx
-- stageKpi.ts
+- stub-resolve.mjs
+- stub-supabase.ts
 - xlsx-export/index.ts
 - manifest.json
 - marks table
-- app/index.tsx
+- mark_verifications
 - return_events table
 - 20260910020000_return_photos.sql
 - scripts
 - tsconfig.json
 - vercel.json
 - Phone app updates (EAS Update)
-- mark_coverage view
 - devDependencies
 - app/_layout.tsx
-- useMarks.ts
 - return_photos_due_for_purge
-- hydrate.ts
-- supabase.ts
-- useBranches.ts
-- LanguageToggle.tsx
 - resolve-alias.mjs
 - import_marks.sql
-- data/assets.ts
 - mark_queries
 - branches
 - graphify knowledge graph (project rules)
@@ -97,16 +90,16 @@
 10. `useMarks` - 49 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `3. Who may do what` --references--> `store()`  [INFERRED]
+  docs/database.md → marks-app/tests/tugasanAutosave.test.mjs
 - `report_* views data contract` --semantically_similar_to--> `Generated pct column (never stored as input)`  [INFERRED] [semantically similar]
-  docs/reports-web-brief.md → db/ERD.md
-- `return_ageing view` --conceptually_related_to--> `Ageing is derived, never stored`  [INFERRED]
-  docs/reports-web-brief.md → db/ERD.md
-- `return_submission / return_submission_kpi views` --references--> `return_events table`  [INFERRED]
   docs/reports-web-brief.md → db/ERD.md
 - `Totals summed from perkara, not JUMLAH cell` --conceptually_related_to--> `Generated pct column (never stored as input)`  [INFERRED]
   docs/marks-import-2026.md → db/ERD.md
 - `Read Expo v57 versioned docs before coding` --rationale_for--> `Phone app (marks-app, Expo)`  [INFERRED]
   marks-app/AGENTS.md → docs/reports-web-brief.md
+- `reminders table` --references--> `users table`  [INFERRED]
+  docs/reports-web-brief.md → db/ERD.md
 
 ## Import Cycles
 - None detected.
@@ -116,15 +109,15 @@
 - **report_* views data contract for GM/HR reports** — docs_reports_web_brief_report_views_data_contract, docs_reports_web_brief_report_marks, docs_reports_web_brief_report_branch_weekly, docs_reports_web_brief_report_branch_monthly, docs_reports_web_brief_report_company_monthly, docs_reports_web_brief_report_staff_monthly, docs_reports_web_brief_pct_sum_reaggregation, docs_reports_web_brief_due_definition [EXTRACTED 1.00]
 - **RLS branch scoping mechanism** — db_erd_rls_branch_scoping, db_erd_security_definer_helpers, db_erd_app_can_see_branch, db_erd_security_invoker_views, db_erd_rls_test_suite, db_erd_permissive_rls_fails_silently [INFERRED 0.85]
 
-## Communities (88 total, 29 thin omitted)
+## Communities (80 total, 31 thin omitted)
 
 ### Community 0 - "useT"
-Cohesion: 0.11
-Nodes (91): Cawangan(), Stat(), AdminUsers(), Filter, FILTERS, AdminLayout(), Peranan(), Akaun() (+83 more)
+Cohesion: 0.09
+Nodes (103): Cawangan(), Stat(), AdminUsers(), Filter, FILTERS, Peranan(), Akaun(), ReturnDetail() (+95 more)
 
-### Community 1 - "users.ts"
-Cohesion: 0.15
-Nodes (29): UserDetail(), APP_ROLES, branchChangeBlocker(), CROSS_BRANCH_ROLES, deactivateBlocker(), demotionsFor(), emailBlocker(), guard() (+21 more)
+### Community 1 - "useUsers.ts"
+Cohesion: 0.05
+Nodes (95): BRANCH_ROLES, HQ_ROLES, RolePicker(), STORE_ROLES, UserDetail(), NewUser(), LanguageToggle(), SignInForm() (+87 more)
 
 ### Community 2 - "WS-SUPV-2026_1e28b2d4.md"
 Cohesion: 0.40
@@ -139,80 +132,80 @@ Cohesion: 0.07
 Nodes (20): as_date(), bare_number(), catatan_scores(), comment(), find_people_and_blocks(), line_up(), main(), name_like() (+12 more)
 
 ### Community 5 - "useTugasan.ts"
-Cohesion: 0.12
-Nodes (34): SignOffRow(), PERIODS, pad(), TUGASAN_ITEMS, TUGASAN_SEED_ENTRIES, TUGASAN_SEED_MONTH_IDX, TUGASAN_SEED_SCOPE, TUGASAN_SEED_SIGNOFF (+26 more)
+Cohesion: 0.05
+Nodes (57): SignOffRow(), pad(), chain(), days(), nextStage(), STAGE_OWNERS, StageHop, stageKpi (+49 more)
 
 ### Community 6 - "expo"
 Cohesion: 0.05
 Nodes (40): backgroundColor, backgroundImage, foregroundImage, monochromeImage, adaptiveIcon, package, predictiveBackGestureEnabled, projectId (+32 more)
 
 ### Community 7 - "sessionGuard.ts"
-Cohesion: 0.21
-Nodes (15): sawActivity(), IDLE_LIMIT_MS, MAX_SESSION_MS, mergeStamps(), sessionEnd, SessionStamps, checkSession(), clearSession() (+7 more)
+Cohesion: 0.17
+Nodes (17): sawActivity(), IDLE_LIMIT_MS, MAX_SESSION_MS, mergeStamps(), sessionEnd, SessionStamps, STRINGS, translate() (+9 more)
 
-### Community 8 - "data/returns.ts"
-Cohesion: 0.16
-Nodes (31): ReturnDetail(), PulanganAktif(), BAND_BG, BAND_COLOR, ReturnRow(), AGE_LIMIT_DAYS, ageBand(), AGEING_LABEL (+23 more)
+### Community 8 - "useSession.ts"
+Cohesion: 0.21
+Nodes (14): AUTH_EMAIL_DOMAIN, emailForPayroll(), establishSession(), fetchSignedInStaff(), SignedInStaff, SignInResult, signInWithPayroll(), signOutOfSupabase() (+6 more)
 
 ### Community 9 - "Checklist Mingguan data model (ERD)"
-Cohesion: 0.24
-Nodes (10): assets table, branches table, Checklist Mingguan data model (ERD), scoring_rules table, Seed provenance (REAL vs NEW rows), tugasan_checks table, tugasan_items table, tugasan_signoffs table (+2 more)
+Cohesion: 0.17
+Nodes (16): assets table, branches table, Checklist Mingguan data model (ERD), returns table, scoring_rules table, Seed provenance (REAL vs NEW rows), suppliers table, tugasan_checks table (+8 more)
 
 ### Community 10 - "dependencies"
 Cohesion: 0.07
 Nodes (30): dependencies, expo, expo-clipboard, expo-constants, expo-file-system, expo-font, @expo-google-fonts/ibm-plex-mono, @expo-google-fonts/public-sans (+22 more)
 
-### Community 11 - "20260918040000_report_views.sql"
-Cohesion: 0.13
-Nodes (17): report_branch_monthly view, report_branch_weekly view, report_company_monthly view, report_company_weekly view, report_periods view, report_returns_branch_monthly view, report_returns_open view, report_staff_monthly view (+9 more)
+### Community 11 - "report_* views data contract"
+Cohesion: 0.20
+Nodes (9): Coverage / unmarked weeks KPI, report_branch_monthly view, report_branch_weekly view, report_company_monthly view, report_company_weekly view, report_periods view, report_staff_monthly view, v1 report list (Dashboard, Outlets, Staff, Pulangan) (+1 more)
 
 ### Community 12 - "rls.test.mjs"
 Cohesion: 0.08
 Nodes (20): description, devDependencies, @electric-sql/pglite, name, private, scripts, test:rls, verify:policies (+12 more)
 
 ### Community 13 - "users"
-Cohesion: 0.07
-Nodes (22): users, app_branch_id(), app_can_see_store_ops(), app_is_admin(), app_is_cross_branch(), app_is_exec(), app_role(), app_user_id() (+14 more)
+Cohesion: 0.08
+Nodes (23): mark_coverage, user_branches_area_manager_only(), users, users_branch_role_idx, app_branch_id(), app_can_see_store_ops(), app_is_admin(), app_is_cross_branch() (+15 more)
 
-### Community 14 - "marks"
-Cohesion: 0.15
-Nodes (23): checklist_forms, mark_coverage, mark_verifications, marks, marks_branch_period_idx, marks_user_idx, scoring_rules, report_branch_weekly (+15 more)
+### Community 14 - "20260918040000_report_views.sql"
+Cohesion: 0.16
+Nodes (21): checklist_forms, marks, scoring_rules, report_branch_monthly, report_branch_weekly, report_company_monthly, report_company_weekly, report_due (+13 more)
 
-### Community 15 - "pulangan-recon.tsx"
-Cohesion: 0.11
-Nodes (36): RFC-4180, Chip(), Clash(), Note(), PulanganRecon(), Section(), Stat(), ALIASES (+28 more)
+### Community 15 - "reconcile.ts"
+Cohesion: 0.13
+Nodes (21): RFC-4180, ALIASES, EMPTY_MAPPING, FieldClash, looseEq(), Mapping, Match, normaliseBill() (+13 more)
 
 ### Community 16 - "20260909010000_init.sql"
 Cohesion: 0.13
-Nodes (22): PGlite (Postgres engine for tests), supabase/tests/rls.test.mjs (npm run test:rls), checklist_categories, checklist_lines, mark_lines, return_events, return_events_return_idx, return_stage_gaps (+14 more)
+Nodes (22): PGlite (Postgres engine for tests), supabase/tests/rls.test.mjs (npm run test:rls), checklist_categories, checklist_lines, mark_lines, marks_branch_period_idx, marks_user_idx, return_events (+14 more)
 
 ### Community 17 - "marks-app/package.json"
 Cohesion: 0.08
 Nodes (23): config, { getDefaultConfig }, { withNativeWind }, main, name, private, version, babel-preset-expo (+15 more)
 
 ### Community 18 - "Reporting web app (reports-web, GM/HR)"
-Cohesion: 0.11
-Nodes (14): app_can_see_branch(text), Phone app role-gated sections, Phone app (marks-app, Expo), Reporting web app (reports-web, GM/HR), Supabase back end (Postgres RLS, Auth, Edge Functions), user_branches table (Area Manager extra outlets), user_role enum (nine roles), Workbook week (week_no 1-4, not ISO) (+6 more)
+Cohesion: 0.12
+Nodes (12): app_can_see_branch(text), Phone app role-gated sections, Phone app (marks-app, Expo), Reporting web app (reports-web, GM/HR), Supabase back end (Postgres RLS, Auth, Edge Functions), user_branches table (Area Manager extra outlets), user_role enum (nine roles), marks-app CLAUDE.md includes AGENTS.md (+4 more)
 
 ### Community 19 - "KP-STAFF-2026_89c12a68.md"
 Cohesion: 0.18
 Nodes (10): Sheet: CHECKLIST KEDAI, Sheet: CHECKLIST STAFF, Sheet: KP0093_SYAZANA IZZAH ZAFIRAH, Sheet: KP0103_PUTRI WAHIDA AMALIN, Sheet: KP0108_NOR ASYIKIN, Sheet: KP0110_FILZAH DIYANA, Sheet: KP0111_PUTERI NUR HAFIZA, Sheet: MY0544_U TIN TUN (+2 more)
 
 ### Community 20 - "users table"
-Cohesion: 0.22
-Nodes (11): branch_changes table, role_changes table, useBranches Zustand store, users table, useSession Zustand store (auth, not persisted), useUsers Zustand store, Zustand store to table mapping, payroll-auth Edge Function (+3 more)
+Cohesion: 0.32
+Nodes (8): branch_changes table, role_changes table, users table, useUsers Zustand store, payroll-auth Edge Function, payroll_id_changes table, Payroll number identity (users.id), reminders table
 
 ### Community 21 - "checklist_forms table"
-Cohesion: 0.32
-Nodes (7): checklist_categories table, checklist_forms table, checklist_lines table, kedai form (22 perkara, staff), 2026 marks history import (Jan-Sep), sv form (19 perkara, SV/AS), stor form (17 perkara, store)
+Cohesion: 0.38
+Nodes (6): checklist_categories table, checklist_forms table, kedai form (22 perkara, staff), 2026 marks history import (Jan-Sep), sv form (19 perkara, SV/AS), stor form (17 perkara, store)
 
 ### Community 22 - "20260918020000_payroll_number_changes.sql"
 Cohesion: 0.50
 Nodes (3): payroll_id_changes, payroll_id_changes_user_idx, users_sync_auth_email
 
 ### Community 23 - "manager/index.tsx"
-Cohesion: 0.14
-Nodes (29): ManagerHome(), PeriodPicker(), StepButton(), currentWeekIdx(), FORM, MONTHS, STOR_FORM, SV_FORM (+21 more)
+Cohesion: 0.05
+Nodes (104): Done(), AssetItem(), Assets(), failureDetail(), ManagerHome(), ManagerSvQueue(), StaffRekod(), SupervisorQueue() (+96 more)
 
 ### Community 24 - "useQueue.ts"
 Cohesion: 0.24
@@ -222,13 +215,13 @@ Nodes (18): dismissRejection(), drainOrder(), emptyQueue, enqueue(), isRetryable
 Cohesion: 0.20
 Nodes (17): ReturnPhotos(), compress(), deleteReturnPhoto(), fetchReturnPhotos(), MAX_PER_RETURN, MAX_WIDTH, pathFor(), PickedPhoto (+9 more)
 
-### Community 26 - "useUsers.ts"
-Cohesion: 0.14
-Nodes (29): Role, SupervisorTitle, User, asResult(), createBranch(), createUser(), CreateUserResult, emptyPerkara() (+21 more)
+### Community 26 - "tabOptions.tsx"
+Cohesion: 0.23
+Nodes (11): AdminLayout(), ManagerLayout(), PulanganLayout(), StaffLayout(), SupervisorLayout(), BaseOf, baseTabOptions, OutlineName (+3 more)
 
 ### Community 27 - "labels.ts"
-Cohesion: 0.12
-Nodes (15): FORM_LABEL, DISPOSITION_LABEL, REASON_LABEL, STAGE_LABEL, ROLE_BLURB, ROLE_LABEL, SUPERVISOR_TITLE_LABEL, DISPOSITION_EN (+7 more)
+Cohesion: 0.11
+Nodes (18): FORM_LABEL, FIELD_LABEL, VendorField, DISPOSITION_LABEL, REASON_LABEL, STAGE_LABEL, ROLE_BLURB, ROLE_LABEL (+10 more)
 
 ### Community 28 - "App Icon (1024px master)"
 Cohesion: 0.12
@@ -236,19 +229,15 @@ Nodes (18): Android Adaptive Icon Background, Blueprint Construction Guides (con
 
 ### Community 29 - "Checklist Mingguan — database reference"
 Cohesion: 0.07
-Nodes (27): 10. Scheduled jobs, 11. Admin scripts, 12. Migration history, 1. The server, 2. Sign-in and accounts (Auth), 3. Who may do what, 4. Tables, 5. Views (+19 more)
+Nodes (28): 10. Scheduled jobs, 11. Admin scripts, 12. Migration history, 1. The server, 2. Sign-in and accounts (Auth), 3. Who may do what, 4. Tables, 5. Views (+20 more)
 
-### Community 30 - "marks.ts"
-Cohesion: 0.14
-Nodes (18): FormKey, monthShort(), Period, samePeriod(), ExportResult, fetchLineIndex(), fetchMarkScores(), fetchMyWeeks() (+10 more)
+### Community 30 - "pulangan-recon.tsx"
+Cohesion: 0.27
+Nodes (13): Chip(), Clash(), Note(), PulanganRecon(), Section(), Stat(), canReconcile(), guessMapping() (+5 more)
 
 ### Community 31 - "useReturns.ts"
-Cohesion: 0.23
-Nodes (15): Disposition, nextReturnId(), ReturnReason, SEED_RETURNS, createReturn(), NewReturn, ReturnIds, ReturnRow (+7 more)
-
-### Community 32 - "user-new.tsx"
 Cohesion: 0.18
-Nodes (14): NewUser(), canSetSupervisorTitle(), hiringScope, isAdministrator(), isCentralStore(), isCrossBranch(), marksRoles(), newUserBlocker() (+6 more)
+Nodes (19): Disposition, nextReturnId(), ReturnReason, ReturnRecord, SEED_RETURNS, Stage, createReturn(), fetchReturns() (+11 more)
 
 ### Community 33 - "appUpdates.ts"
 Cohesion: 0.30
@@ -263,20 +252,12 @@ Cohesion: 0.18
 Nodes (5): return_ageing, return_submission, return_submission_kpi, report_returns_branch_monthly, report_returns_branch_monthly
 
 ### Community 36 - "supabase/xlsx_to_import_marks.py (converter)"
-Cohesion: 0.20
-Nodes (7): Workbook #DIV/0! problem, _check.sql pre-flight file, Reconciliation with workbook JUMLAH MARKAH, Scorer list / scorer_ids.xlsx mapping, *-STAFF-2026.xlsx outlet workbooks, *-SUPV-2026.xlsx outlet workbooks, supabase/xlsx_to_import_marks.py (converter)
+Cohesion: 0.17
+Nodes (8): mark_coverage view, Workbook #DIV/0! problem, _check.sql pre-flight file, Reconciliation with workbook JUMLAH MARKAH, Scorer list / scorer_ids.xlsx mapping, *-STAFF-2026.xlsx outlet workbooks, *-SUPV-2026.xlsx outlet workbooks, supabase/xlsx_to_import_marks.py (converter)
 
 ### Community 38 - "install.ts"
 Cohesion: 0.25
 Nodes (13): InstallCard(), BeforeInstallPromptEvent, installState, isInAppBrowser(), isIos(), isStandalone(), listeners, notify() (+5 more)
-
-### Community 39 - "assets.tsx"
-Cohesion: 0.25
-Nodes (15): AssetItem(), Assets(), failureDetail(), branchesOf(), canSeeBranch(), AssetIssue, AssetRow, fetchAssets() (+7 more)
-
-### Community 40 - "stageKpi.ts"
-Cohesion: 0.24
-Nodes (9): ReturnRecord, Stage, StageOwner, chain(), days(), nextStage(), STAGE_OWNERS, StageHop (+1 more)
 
 ### Community 41 - "xlsx-export/index.ts"
 Cohesion: 0.17
@@ -287,16 +268,12 @@ Cohesion: 0.18
 Nodes (10): background_color, display, icons, lang, name, orientation, scope, short_name (+2 more)
 
 ### Community 43 - "marks table"
-Cohesion: 0.17
-Nodes (9): mark_lines table, mark_verifications table, marks table, useMarks Zustand store, supabase/import_marks.sql (importer), NULL scored_by (no scorer recorded), final_pct (adjusted total when present), Pass threshold (scoring_rules.pass_threshold) (+1 more)
-
-### Community 44 - "app/index.tsx"
-Cohesion: 0.22
-Nodes (14): BRANCH_ROLES, HQ_ROLES, RolePicker(), STORE_ROLES, LanguageToggle(), SignInForm(), isHq(), ME_ID (+6 more)
+Cohesion: 0.16
+Nodes (10): checklist_lines table, mark_lines table, mark_verifications table, marks table, useMarks Zustand store, supabase/import_marks.sql (importer), NULL scored_by (no scorer recorded), final_pct (adjusted total when present) (+2 more)
 
 ### Community 45 - "return_events table"
-Cohesion: 0.36
-Nodes (6): return_events table, return_stage_gaps view, return_turnaround view, returns table, suppliers table, useReturns Zustand store
+Cohesion: 0.19
+Nodes (11): return_events table, return_stage_gaps view, return_turnaround view, report_returns_branch_monthly view, report_returns_open view, report_today() (Malaysia date), return_ageing view, return_submission / return_submission_kpi views (+3 more)
 
 ### Community 46 - "20260910020000_return_photos.sql"
 Cohesion: 0.39
@@ -318,41 +295,17 @@ Nodes (6): buildCommand, cleanUrls, devCommand, framework, outputDirectory, rewr
 Cohesion: 0.29
 Nodes (6): Cost, Every change after that: publish an update, Once: the last APK installed by hand, Phone app updates (EAS Update), What a phone does with it, When a new APK is still needed
 
-### Community 51 - "mark_coverage view"
-Cohesion: 0.40
-Nodes (3): mark_coverage view, Coverage / unmarked weeks KPI, Verification rate KPI
-
 ### Community 52 - "devDependencies"
 Cohesion: 0.40
 Nodes (5): devDependencies, babel-preset-expo, tailwindcss, @types/react, typescript
 
 ### Community 53 - "app/_layout.tsx"
-Cohesion: 0.16
-Nodes (15): endSession(), nameOf(), PUBLIC_ROUTES, RootLayout(), UpdateBanner(), HOME_ROUTE, mayOpen(), SECTION_OWNERS (+7 more)
-
-### Community 54 - "useMarks.ts"
 Cohesion: 0.17
-Nodes (13): FORMS, Kategori, Answer, scoredOnly(), Totals, totalsOf(), verifyMark(), Draft (+5 more)
-
-### Community 56 - "hydrate.ts"
-Cohesion: 0.21
-Nodes (13): todayShort(), fetchRoleChanges(), hydrateDirectory(), notePeriod(), fetchMyReminders(), markReminderRead(), Reminder, sendReminder() (+5 more)
-
-### Community 57 - "supabase.ts"
-Cohesion: 0.18
-Nodes (13): AUTH_EMAIL_DOMAIN, emailForPayroll(), establishSession(), fetchSignedInStaff(), SignedInStaff, SignInResult, signInWithPayroll(), signOutOfSupabase() (+5 more)
-
-### Community 58 - "useBranches.ts"
-Cohesion: 0.22
-Nodes (11): Branch, branchLabel(), closeBranchBlocker(), defaultShort(), findBranch(), HQ_BRANCH_ID, newBranchBlocker(), SEED_BRANCHES (+3 more)
-
-### Community 59 - "LanguageToggle.tsx"
-Cohesion: 0.40
-Nodes (4): Locale, STRINGS, translate(), endedMessage()
+Nodes (14): endSession(), nameOf(), PUBLIC_ROUTES, RootLayout(), UpdateBanner(), takeCarriedNotice(), signOutAndClear(), arrivedWithResetLink (+6 more)
 
 ### Community 64 - "branches"
-Cohesion: 0.20
-Nodes (10): assets, branch_changes, branches, tugasan_checks, tugasan_items, tugasan_signoffs, reminders, reminders_recipient_idx (+2 more)
+Cohesion: 0.18
+Nodes (11): assets, branch_changes, branches, tugasan_checks, tugasan_items, tugasan_signoffs, reminders, reminders_recipient_idx (+3 more)
 
 ## Ambiguous Edges - Review These
 - `QPJ - Miri` → `Branch group Q* (Sarawak)`  [AMBIGUOUS]
@@ -363,9 +316,9 @@ Nodes (10): assets, branch_changes, branches, tugasan_checks, tugasan_items, tug
   marks-app/assets/splash-icon.png · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **297 isolated node(s):** `name`, `slug`, `version`, `policy`, `url` (+292 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 413 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **307 isolated node(s):** `name`, `slug`, `version`, `policy`, `url` (+302 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 426 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -376,11 +329,11 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `App Icon (1024px master)` and `Splash Screen Icon`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `dependencies` connect `dependencies` to `marks-app/package.json`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `react-native` connect `useT` to `user-new.tsx`, `users.ts`, `appUpdates.ts`, `install.ts`, `assets.tsx`, `data/returns.ts`, `sessionGuard.ts`, `app/index.tsx`, `pulangan-recon.tsx`, `marks-app/package.json`, `app/_layout.tsx`, `manager/index.tsx`, `ReturnPhotos.tsx`, `LanguageToggle.tsx`, `supabase.ts`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **Why does `zustand` connect `useBranches.ts` to `useT`, `useUsers.ts`, `useTugasan.ts`, `assets.tsx`, `marks-app/package.json`, `useMarks.ts`, `useQueue.ts`, `hydrate.ts`, `useReturns.ts`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `store()` connect `Checklist Mingguan — database reference` to `useTugasan.ts`?**
+  _High betweenness centrality (0.225) - this node is a cross-community bridge._
 - **What connects `name`, `slug`, `version` to the rest of the system?**
-  _297 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _307 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `useT` be split into smaller, more focused modules?**
+  _Cohesion score 0.0916970353590072 - nodes in this community are weakly interconnected._
+- **Should `useUsers.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.05317703024125042 - nodes in this community are weakly interconnected._
