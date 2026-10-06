@@ -102,6 +102,7 @@ for (const m of [
   'supabase/migrations/20261003020000_handover_before_friday.sql',
   'supabase/migrations/20261003030000_marked_before_added.sql',
   'supabase/migrations/20261003040000_asset_issues.sql',
+  'supabase/migrations/20261006010000_hr_administers.sql',
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -313,14 +314,19 @@ console.log('\n=== the report_* views say what the reports app shows (2026091804
     [co.rows[0].headcount, co.rows[0].marked, co.rows[0].passed, co.rows[0].pass_rate_pct], [11, 12, 8, 67]);
 
   // Returns: the month a list was received in. Machang, August 2026: one
-  // list, handed over on time, cleared in ten days.
-  const ret = await as(ACCOUNTS.hr[0],
+  // list, handed over on time, cleared in ten days. The seed dates PR0005
+  // 65 days before today (it has to be in breach), so from 5 Oct 2026 it is
+  // received in August too: open, handed over on time, not yet cleared.
+  const ret = await as(ACCOUNTS.gm[0],
     `SELECT received, submitted_on_time, submission_pct, open, avg_turnaround_days::float AS days
        FROM report_returns_branch_monthly WHERE branch_id = 'DMC' AND year = 2026 AND month = 8`);
-  check('Machang returns, August: 1 received, on time, cleared in 10 days',
+  const pr5 = (await db.query(
+    `SELECT (extract(month FROM bill_date) = 8 AND extract(year FROM bill_date) = 2026)::int AS n
+       FROM returns WHERE ref = 'PR0005'`)).rows[0].n;
+  check('Machang returns, August: PR0001 received, on time, cleared in 10 days (plus PR0005 when it falls in August)',
     [ret.rows[0].received, ret.rows[0].submitted_on_time, ret.rows[0].submission_pct, ret.rows[0].open, ret.rows[0].days],
-    [1, 1, 100, 0, 10]);
-  const open = await as(ACCOUNTS.hr[0],
+    [1 + pr5, 1 + pr5, 100, pr5, 10]);
+  const open = await as(ACCOUNTS.gm[0],
     `SELECT ref, status, supplier_name, last_stage FROM report_returns_open WHERE ref IN ('PR0005', 'PR0006') ORDER BY ref`);
   check('the open list carries the ageing state, the supplier and the last stage reached',
     open.rows.map((r) => [r.ref, r.status, r.supplier_name, r.last_stage]),
@@ -589,8 +595,8 @@ console.log('\n=== general manager and HR write operational data anywhere ===');
       `INSERT INTO users (id,name,short_name,initials,role,branch_id)
        VALUES ('KP9997','Test Three','Test Th.','TT','staff','DMC')`), 'blocked');
 
-  check('HR may NOT create a branch either',
-    await tryWrite(ACCOUNTS.hr[0],
+  check('GM may NOT create a branch either',
+    await tryWrite(ACCOUNTS.gm[0],
       `INSERT INTO branches (id,name,short_name) VALUES ('TMP','Tempatan','Tempatan')`), 'blocked');
 
   // The three writes the Cawangan screens make. An UPDATE that RLS refuses
@@ -722,25 +728,50 @@ console.log('\n=== returns are operational, so admin is out of them ===');
   check('admin still reads stor marks', m.rows[0].n > 0, true);
 }
 
-console.log('\n=== HR runs the returns side end to end ===');
+console.log('\n=== HR administers like admin (20261006010000) ===');
 {
+  // Accounts, roles and outlets: everything app_is_admin() gates.
+  check('HR may create an account',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO users (id,name,short_name,initials,role,branch_id)
+       VALUES ('KP9996','Test Hr','Test H.','TH','staff','DMC')`), 'allowed');
+  await as(ACCOUNTS.hr[0], `UPDATE users SET branch_id = 'DKB' WHERE id = 'KP9996'`);
+  check('HR may move an account to another outlet',
+    (await db.query(`SELECT branch_id FROM users WHERE id = 'KP9996'`)).rows[0].branch_id, 'DKB');
+  check('HR may log the role change it made',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO role_changes (user_id, from_role, to_role, changed_by)
+       VALUES ('KP9996','staff','supervisor','HR0001')`), 'allowed');
+  check('HR may open an outlet',
+    await tryWrite(ACCOUNTS.hr[0],
+      `INSERT INTO branches (id,name,short_name) VALUES ('ZHR','Kedai Ujian HR','Ujian HR')`), 'allowed');
+  check('HR may tag an SV/AS title, as admin may',
+    await tryWrite(ACCOUNTS.hr[0], `SELECT set_supervisor_title('WS0001', 'asisten')`), 'allowed');
+  await db.exec(`DELETE FROM role_changes WHERE user_id = 'KP9996'`);
+  await db.exec(`DELETE FROM users WHERE id = 'KP9996'`);
+  await db.exec(`DELETE FROM branches WHERE id = 'ZHR'`);
+  await db.exec(`UPDATE users SET supervisor_title = NULL WHERE id = 'WS0001'`);
+
+  // Returns are the stor team's and the General Manager's. Admin left them in
+  // 20260909030100; HR leaves them the same way.
   const r = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM returns`);
-  check('HR reads returns at every outlet', r.rows[0].n > 0, true);
-
+  check('HR no longer reads returns', r.rows[0].n, 0);
   const a = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_ageing`);
-  check('HR reads the ageing report', a.rows[0].n > 0, true);
-
-  const f = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_stage_gaps`);
-  check('HR reads the stage-gap flow view', f.rows[0].n > 0, true);
-
-  const marks = await as(ACCOUNTS.hr[0],
-    `SELECT count(DISTINCT user_id)::int n FROM marks`);
-  check('HR reads individual staff marks', marks.rows[0].n > 0, true);
-
-  check('HR may advance a return',
+  check('...nor the ageing report', a.rows[0].n, 0);
+  check('...and may NOT advance a return',
     await tryWrite(ACCOUNTS.hr[0],
       `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
-       VALUES ('PR9101','DKB','BR-9101',DATE '2026-09-09','expired')`), 'allowed');
+       VALUES ('PR9101','DKB','BR-9101',DATE '2026-09-09','expired')`), 'blocked');
+  check('the General Manager still may',
+    await tryWrite(ACCOUNTS.gm[0],
+      `INSERT INTO returns (ref,branch_id,bill_no,bill_date,reason)
+       VALUES ('PR9102','DKB','BR-9102',DATE '2026-09-09','expired')`), 'allowed');
+  const gmR = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM return_stage_gaps`);
+  check('...and reads the stage-gap flow view', gmR.rows[0].n > 0, true);
+
+  // Head-office reads that admin has, HR keeps.
+  const marks = await as(ACCOUNTS.hr[0], `SELECT count(DISTINCT user_id)::int n FROM marks`);
+  check('HR still reads staff marks, as admin does', marks.rows[0].n > 0, true);
 }
 
 console.log('\n=== the tugasan self-check stays with the Area Manager ===');
@@ -754,10 +785,10 @@ console.log('\n=== the tugasan self-check stays with the Area Manager ===');
       `INSERT INTO tugasan_checks (branch_id,period_year,period_month,week_no,item_key,done,note,inspected_on)
        VALUES ('DMC',2026,10,1,'peti_cash',true,'RM9,000',DATE '2026-10-02')`), 'blocked');
 
-  check('HR may NOT sign off a tugasan month either',
-    await tryWrite(ACCOUNTS.hr[0],
+  check('GM may NOT sign off a tugasan month either',
+    await tryWrite(ACCOUNTS.gm[0],
       `INSERT INTO tugasan_signoffs (branch_id,period_year,period_month,week_no,filled_by)
-       VALUES ('DKB',2026,10,1,'HR0001')`), 'blocked');
+       VALUES ('DKB',2026,10,1,'GM0001')`), 'blocked');
 
   check('the Area Manager still can',
     await tryWrite(ACCOUNTS.herdi[0],
@@ -820,7 +851,9 @@ console.log('=== photo evidence is bounded, and scoped like the bill it belongs 
   const adm = await as(ACCOUNTS.admin[0], `SELECT count(*)::int n FROM return_photos`);
   check('nor can admin', adm.rows[0].n, 0);
   const hr = await as(ACCOUNTS.hr[0], `SELECT count(*)::int n FROM return_photos`);
-  check('HR can, because HR runs the returns side', hr.rows[0].n, 2);
+  check('nor HR, which administers like admin', hr.rows[0].n, 0);
+  const gm = await as(ACCOUNTS.gm[0], `SELECT count(*)::int n FROM return_photos`);
+  check('the General Manager can', gm.rows[0].n, 2);
 
   // An Area Manager sees the outlets they cover and no others.
   const farah = await as(ACCOUNTS.farah[0], `SELECT count(*)::int n FROM return_photos`);
@@ -1559,7 +1592,7 @@ console.log('\n=== today is Malaysia\x27s date, and a list before its Friday is 
                      SELECT id, 'submitted_to_clerk', ${submitted} FROM returns WHERE ref = '${ref}'`);
     }
   };
-  const month = async (when) => (await as(ACCOUNTS.hr[0],
+  const month = async (when) => (await as(ACCOUNTS.gm[0],
     `SELECT received, submitted_on_time, not_submitted, awaiting_handover, submission_pct
        FROM report_returns_branch_monthly
       WHERE branch_id = 'ZZH' AND year = extract(year FROM ${when})::int AND month = extract(month FROM ${when})::int`)).rows[0];

@@ -362,8 +362,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   // ---------------------------------------------------- reports-only roles
   guna_aplikasi_laporan: { ms: 'Guna aplikasi laporan', en: 'Use the reporting app' },
   guna_aplikasi_laporan_body: {
-    ms: 'Akaun General Manager dan Human Resources melihat laporan di aplikasi laporan web, bukan di sini. Untuk kemas kini pekerja, gunakan akaun admin.',
-    en: 'General Manager and Human Resources accounts see reports in the reporting web app, not here. To update staff, use an admin account.',
+    ms: 'Akaun General Manager melihat laporan di aplikasi laporan web, bukan di sini. Untuk kemas kini pekerja, gunakan akaun Admin atau HR.',
+    en: 'General Manager accounts see reports in the reporting web app, not here. To update staff, use an Admin or HR account.',
   },
 
 
@@ -687,8 +687,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'Account {id} is not in the user list.',
   },
   peranan_sql_sahaja: {
-    ms: 'Peranan General Manager dan Human Resources ditetapkan melalui SQL sahaja — tiada naik atau turun dari sini.',
-    en: 'The General Manager and Human Resources roles are set through SQL only — no promotion or demotion from here.',
+    ms: 'Peranan General Manager ditetapkan melalui SQL sahaja — tiada naik atau turun dari sini.',
+    en: 'The General Manager role is set through SQL only — no promotion or demotion from here.',
   },
   kini_badge: { ms: 'KINI', en: 'NOW' },
   naik_ke: { ms: 'Naik ke {role}', en: 'Promote to {role}' },

@@ -42,7 +42,7 @@ const ROLE_BLURB_EN: Record<Role, string> = {
   area_manager: 'Signs off SV/AS scores, monitors assets and their own tugasan.',
   manager: 'As an Area Manager, over every outlet. No returns or store scores.',
   general_manager: 'Reports and downloads in the reporting web app, not this one.',
-  human_resources: 'Reports and downloads in the reporting web app; staff updates through an admin account.',
+  human_resources: 'Administration, the same as Admin — accounts, roles, branches. No reports or returns.',
   admin: 'Administration only — accounts, roles, branches. No returns access.',
 };
 

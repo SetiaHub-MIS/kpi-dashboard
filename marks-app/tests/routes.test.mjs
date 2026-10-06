@@ -45,10 +45,18 @@ test('shared screens stay open: RLS scopes what they show', () => {
   assert.equal(mayOpen('area_manager', '/pulangan-recon'), true);
 });
 
-test('GM and HR are turned away from the sections, back to sign-in', () => {
+test('the GM is turned away from the sections, back to sign-in', () => {
   assert.equal(mayOpen('general_manager', '/manager/tugasan'), false);
-  assert.equal(mayOpen('human_resources', '/admin'), false);
+  assert.equal(mayOpen('general_manager', '/admin'), false);
   assert.equal(HOME_ROUTE.general_manager, '/');
+});
+
+test('HR works the admin console and nothing else', () => {
+  assert.equal(HOME_ROUTE.human_resources, '/admin');
+  assert.equal(mayOpen('human_resources', '/admin/cawangan'), true);
+  for (const path of ['/manager', '/supervisor', '/staff', '/pulangan']) {
+    assert.equal(mayOpen('human_resources', path), false, path);
+  }
 });
 
 test('every role may open its own home, so the redirect can never loop', () => {

@@ -72,10 +72,11 @@ test('the cross-branch manager is the one role shut out of the stor side', () =>
   }
 });
 
-test('returns are closed to the cross-branch manager and to admin alike', () => {
+test('returns are closed to the cross-branch manager, admin and HR alike', () => {
   assert.equal(seesReturns('manager'), false);
   assert.equal(seesReturns('admin'), false);
-  assert.equal(seesReturns('human_resources'), true);
+  assert.equal(seesReturns('human_resources'), false);
+  assert.equal(seesReturns('general_manager'), true);
 });
 
 test('pekerja stor and kerani stor are the HQ central-store team', () => {

@@ -13,10 +13,11 @@ export const HOME_ROUTE: Record<Role, string> = {
   area_manager: '/manager',
   // The Manager works the Area Manager's screens over every outlet.
   manager: '/manager',
-  // GM and HR use the reporting web app; a sign-in here is turned away
-  // (see SignInForm) and a restored session is signed out (see app/index).
+  // The GM uses the reporting web app; a sign-in here is turned away (see
+  // SignInForm) and a restored session is signed out (see app/index).
   general_manager: '/',
-  human_resources: '/',
+  // HR administers beside Admin: the same console, nothing else.
+  human_resources: '/admin',
   admin: '/admin',
 };
 

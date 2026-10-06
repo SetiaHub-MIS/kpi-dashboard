@@ -27,13 +27,14 @@ export const ROLE_LADDER: Role[] = [
 ];
 
 /**
- * Roles the app never hands out or takes away. General Manager and Human
- * Resources read the company through the reporting web app; who holds those
- * roles is a head-office decision made in SQL, not a promotion an admin can
- * tap. They stay in ROLE_LADDER so lists, filters and history still show
- * them — they are only left out of the moves and the "Akaun baharu" picker.
+ * Roles the app never hands out or takes away. The General Manager reads the
+ * company through the reporting web app; who holds that role is a head-office
+ * decision made in SQL, not a promotion an admin can tap. It stays in
+ * ROLE_LADDER so lists, filters and history still show it — it is only left
+ * out of the moves and the "Akaun baharu" picker. Human Resources left this
+ * list on 6 Oct 2026, when it became an administrator (isAdministrator).
  */
-export const SQL_ONLY_ROLES: Role[] = ['general_manager', 'human_resources'];
+export const SQL_ONLY_ROLES: Role[] = ['general_manager'];
 
 export const isSqlOnlyRole = (role: Role) => SQL_ONLY_ROLES.includes(role);
 
@@ -48,7 +49,9 @@ export const ROLE_LEVEL: Record<Role, number> = {
   area_manager: 2,
   manager: 3,
   general_manager: 4,
-  human_resources: 4,
+  // Admin's rung: the two administer together, so moving between them is a
+  // sideways transfer, and nobody is promoted into either from Manager.
+  human_resources: 5,
   admin: 5,
 };
 
@@ -79,8 +82,15 @@ export const seesStoreOps = (role: Role) => role !== 'manager';
  */
 export const isCentralStore = (role: Role) => role === 'store' || role === 'clerk';
 
-/** Returns are closed to the cross-branch manager and to admin alike. */
-export const seesReturns = (role: Role) => role !== 'manager' && role !== 'admin';
+/**
+ * The administration console: Admin, and Human Resources with exactly the
+ * same remit — accounts, roles, outlets. Mirrors app_is_admin() in RLS
+ * (20261006010000), which answers true for both.
+ */
+export const isAdministrator = (role: Role) => role === 'admin' || role === 'human_resources';
+
+/** Returns are closed to the cross-branch manager and to the administrators alike. */
+export const seesReturns = (role: Role) => role !== 'manager' && !isAdministrator(role);
 
 /**
  * SV and Asisten Penyelia — a label management wants on top of the
@@ -114,7 +124,7 @@ export const ROLE_BLURB: Record<Role, string> = {
   area_manager: 'Sahkan markah SV/AS, pantau aset dan tugasan sendiri.',
   manager: 'Seperti Area Manager, di semua cawangan. Tiada pulangan atau markah stor.',
   general_manager: 'Laporan dan muat turun di aplikasi laporan web, bukan aplikasi ini.',
-  human_resources: 'Laporan dan muat turun di aplikasi laporan web; kemas kini pekerja melalui akaun admin.',
+  human_resources: 'Pentadbiran, sama seperti Admin — akaun, peranan, cawangan. Tiada laporan atau pulangan.',
   admin: 'Pentadbiran sahaja — akaun, peranan, cawangan. Tiada akses pulangan.',
 };
 
@@ -147,11 +157,11 @@ export const MARKS_ROLES: Partial<Record<Role, Role[]>> = {
 
 /**
  * Roles that read the company through the reporting web app rather than
- * this one. They keep their place in the directory and in RLS — admin still
- * creates and assigns them — but a sign-in here is turned away.
+ * this one. They keep their place in the directory and in RLS, but a
+ * sign-in here is turned away. HR was one until 6 Oct 2026; it now works the
+ * admin console.
  */
-export const isReportsOnly = (role: Role) =>
-  role === 'general_manager' || role === 'human_resources';
+export const isReportsOnly = (role: Role) => role === 'general_manager';
 
 /** The roles this account is responsible for marking. Empty for most. */
 export const marksRoles = (role: Role | undefined): Role[] =>
@@ -255,7 +265,7 @@ export function canSeeBranch(user: User | undefined, branchId: string | null): b
  */
 export function canSetSupervisorTitle(viewer: User | undefined, person: User): boolean {
   if (person.role !== 'supervisor' || !viewer) return false;
-  if (viewer.role === 'admin') return true;
+  if (isAdministrator(viewer.role)) return true;
   return viewer.role === 'area_manager' && canSeeBranch(viewer, person.branchId);
 }
 
@@ -394,7 +404,7 @@ export type HiringScope =
 
 export function hiringScope(user: User | undefined): HiringScope {
   if (!user) return { kind: 'none' };
-  if (user.role === 'admin') return { kind: 'any' };
+  if (isAdministrator(user.role)) return { kind: 'any' };
   const roles: Role[] =
     user.role === 'supervisor' ? ['staff'] : user.role === 'area_manager' ? ['staff', 'supervisor'] : [];
   if (roles.length === 0) return { kind: 'none' };

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { isMarked } from '@/data/users';
+import { isCrossBranch, isMarked } from '@/data/users';
 import { roleLabel } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
@@ -16,7 +16,9 @@ export default function Cawangan() {
   const t = useT();
   const locale = useLocale((s) => s.locale);
 
-  const unassigned = users.filter((u) => u.active && u.branchId == null && u.role !== 'admin');
+  // Head-office roles hold no outlet by design; only an outlet role without
+  // one is lost to every SV/AS and Area Manager.
+  const unassigned = users.filter((u) => u.active && u.branchId == null && !isCrossBranch(u.role));
 
   return (
     <Screen>

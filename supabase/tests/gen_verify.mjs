@@ -95,6 +95,7 @@ const MIGRATIONS = [
   '20261003020000_handover_before_friday.sql',
   '20261003030000_marked_before_added.sql',
   '20261003040000_asset_issues.sql',
+  '20261006010000_hr_administers.sql',
 ];
 for (const m of MIGRATIONS) {
   await db.exec(readFileSync(`${ROOT}supabase/migrations/${m}`, 'utf8'));

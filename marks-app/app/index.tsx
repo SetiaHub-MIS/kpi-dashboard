@@ -39,11 +39,12 @@ const STORE_ROLES: { role: Role; href: Href }[] = [
 /**
  * Head office. These hold no branch, so they are listed apart from the outlet
  * roles. The Manager works the Area Manager's screens across every outlet;
- * admin gets the administration console. The General Manager and HR are not
+ * admin and HR get the administration console. The General Manager is not
  * offered: they read the company through the reporting web app.
  */
 const HQ_ROLES: { role: Role; href: Href }[] = [
   { role: 'manager', href: '/manager' },
+  { role: 'human_resources', href: '/admin' },
   { role: 'admin', href: '/admin' },
 ];
 
@@ -67,7 +68,7 @@ export default function RolePicker() {
   useEffect(() => {
     if (!signedInStaff) return;
     if (isReportsOnly(signedInStaff.role)) {
-      // A GM/HR session left over from before the split: end it here rather
+      // A GM session left over from before the split: end it here rather
       // than park them on a sign-in form while signed in.
       void useSession.getState().signOut();
       notify(t('guna_aplikasi_laporan'), t('guna_aplikasi_laporan_body'));

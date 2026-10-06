@@ -52,36 +52,43 @@ test('a transfer is sideways: same rung, never yourself', () => {
   assert.deepEqual(transfersFor('staff'), ['store', 'clerk']);
 });
 
-// --- the app moves people up to Manager and no further; GM and HR are SQL's
+// --- the app moves people up to Manager and no further; the GM is SQL's.
+// HR sits on Admin's rung (6 Oct 2026): the two administer together.
 
 test('promotion stops at Manager: nothing above it is offered', () => {
   assert.deepEqual(promotionsFor('area_manager'), ['manager']);
   assert.deepEqual(promotionsFor('manager'), []);
 });
 
-test('General Manager and Human Resources are never a destination', () => {
+test('the General Manager is never a destination', () => {
   for (const from of ['manager', 'admin', 'general_manager', 'human_resources']) {
     for (const to of [...promotionsFor(from), ...demotionsFor(from), ...transfersFor(from)]) {
       assert.ok(!isSqlOnlyRole(to), `${from} -> ${to}`);
     }
   }
-  assert.deepEqual(transfersFor('general_manager'), [], 'not even sideways to HR');
-  assert.deepEqual(demotionsFor('admin'), [], 'admin has nothing to be demoted to in-app');
-  for (const held of ['general_manager', 'human_resources']) {
-    assert.deepEqual([...promotionsFor(held), ...demotionsFor(held), ...transfersFor(held)], [],
-      `${held} is not moved out of their role from the app either`);
+  assert.deepEqual(transfersFor('general_manager'), [], 'not even sideways');
+  assert.deepEqual([...promotionsFor('general_manager'), ...demotionsFor('general_manager')], [],
+    'the GM is not moved out of their role from the app either');
+  assert.deepEqual(promotionsFor('manager'), [], 'Manager is not promoted into the admin console');
+});
+
+test('Admin and HR move sideways into each other, and nowhere else', () => {
+  assert.deepEqual(transfersFor('admin'), ['human_resources']);
+  assert.deepEqual(transfersFor('human_resources'), ['admin']);
+  for (const held of ['admin', 'human_resources']) {
+    assert.deepEqual([...promotionsFor(held), ...demotionsFor(held)], [], held);
   }
 });
 
-test('the "Akaun baharu" picker offers every role but those two', () => {
+test('the "Akaun baharu" picker offers every role but the General Manager', () => {
   assert.deepEqual(APP_ROLES, ROLE_LADDER.filter((r) => !isSqlOnlyRole(r)));
-  assert.ok(!APP_ROLES.includes('general_manager') && !APP_ROLES.includes('human_resources'));
-  assert.ok(APP_ROLES.includes('admin'), 'admin is still created in-app');
+  assert.ok(!APP_ROLES.includes('general_manager'));
+  assert.ok(APP_ROLES.includes('admin') && APP_ROLES.includes('human_resources'),
+    'admin and HR are created in-app');
 });
 
 test('a role alone on its rung has nowhere to transfer to', () => {
   assert.deepEqual(transfersFor('manager'), []);
-  assert.deepEqual(transfersFor('admin'), []);
 });
 
 test('demoting the only Area Manager at a branch is refused', () => {
@@ -193,11 +200,19 @@ test('the SV/AS may not tag themselves, and nobody may tag a non-supervisor', ()
   assert.equal(canSetSupervisorTitle(admin, mkUser({ id: 'KP0093', role: 'staff', branchId: 'DMC' })), false);
 });
 
-test('staff, the stor team and head office do not hire', () => {
-  for (const role of ['staff', 'store', 'clerk', 'manager', 'general_manager', 'human_resources']) {
+test('staff, the stor team, the Manager and the GM do not hire', () => {
+  for (const role of ['staff', 'store', 'clerk', 'manager', 'general_manager']) {
     assert.deepEqual(hiringScope(mkUser({ role, branchId: role === 'store' ? 'HQ' : 'DMC' })), { kind: 'none' }, role);
   }
   assert.deepEqual(hiringScope(undefined), { kind: 'none' });
+});
+
+test('HR hires anyone, anywhere, as admin does', () => {
+  for (const role of ['admin', 'human_resources']) {
+    assert.deepEqual(hiringScope(mkUser({ role, branchId: null })), { kind: 'any' }, role);
+  }
+  const hr = mkUser({ id: 'HR0001', role: 'human_resources', branchId: null });
+  assert.equal(canSetSupervisorTitle(hr, mkUser({ id: 'WS0001', role: 'supervisor', branchId: 'DMC' })), true);
 });
 
 // --- where a new account is posted, from what was picked on the form
