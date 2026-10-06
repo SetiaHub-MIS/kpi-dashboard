@@ -239,7 +239,11 @@ export const SEED_USERS: User[] = [
 ];
 
 /** Roles the kedai cannot be left without — blocks demoting the last holder. */
-const REQUIRED_ROLES: Role[] = ['area_manager', 'admin'];
+// Only Admin: the company must never lose the last account that can manage
+// accounts. An outlet without an Area Manager is allowed (7 Oct 2026) — the
+// Branches tab flags it — because forcing a replacement in first made moving
+// an Area Manager between outlets a two-person job for no gain.
+const REQUIRED_ROLES: Role[] = ['admin'];
 
 /** Every outlet a user reaches: their posting plus any extra Area Manager ones. */
 export function branchesOf(user: User): string[] {
@@ -302,32 +306,9 @@ export const demotionsFor = (role: Role): Role[] => movesFrom(role, ROLE_LEVEL[r
 export const transfersFor = (role: Role): Role[] =>
   movesFrom(role, ROLE_LEVEL[role]).filter((r) => r !== role);
 
-/**
- * Of these outlets, the ones no other active Area Manager covers — by home
- * posting or as an extra outlet. Counting the home posting alone used to
- * refuse moving an Area Manager's home between two outlets they keep
- * covering ("last Area Manager at DMC") even though DMC kept its Area
- * Manager.
- */
-function uncoveredWithout(users: User[], user: User, outlets: string[]): string[] {
-  const others = users.filter((u) => u.active && u.role === 'area_manager' && u.id !== user.id);
-  return outlets.filter((b) => !others.some((u) => branchesOf(u).includes(b)));
-}
-
-/**
- * Why taking these outlets away from this person would strand them, or null.
- * Area Managers are counted per outlet — losing the only one at a kedai
- * strands that kedai even when other outlets have one. Admin is counted
- * company-wide.
- */
-function guard(users: User[], user: User, action: string, losing: string[] = branchesOf(user)): string | null {
+/** Why this change would leave the company without an Admin, or null. */
+function guard(users: User[], user: User, action: string): string | null {
   if (!REQUIRED_ROLES.includes(user.role)) return null;
-  if (user.role === 'area_manager') {
-    const stranded = uncoveredWithout(users, user, losing);
-    return stranded.length === 0
-      ? null
-      : `${ROLE_LABEL[user.role]} ${stranded.join(', ')} terakhir — lantik pengganti dahulu sebelum ${action}.`;
-  }
   const others = users.filter((u) => u.active && u.role === user.role && u.id !== user.id);
   return others.length > 0 ? null : `${ROLE_LABEL[user.role]} terakhir — lantik pengganti dahulu sebelum ${action}.`;
 }
@@ -346,28 +327,14 @@ export function deactivateBlocker(users: User[], id: string): string | null {
 }
 
 /**
- * Why changing the outlets this person covers must be refused, or null. Only
- * the outlets they would stop covering matter: moving an Area Manager's home
- * between outlets they keep is never refused.
+ * A new home outlet for an Area Manager, as [home, ...extras]. Picking an
+ * outlet they already cover swaps it to the front; picking any other outlet
+ * replaces the old home with it, keeping the extras — one step either way.
  */
-export function coverageChangeBlocker(users: User[], id: string, next: string[]): string | null {
-  const user = users.find((u) => u.id === id);
-  if (!user) return null;
-  const losing = branchesOf(user).filter((b) => !next.includes(b));
-  if (losing.length === 0) return null;
-  return guard(users, user, 'tukar cawangan', losing);
-}
-
-/** Moving a one-outlet person to another outlet: the same guard. */
-export function branchChangeBlocker(users: User[], id: string, next: string | null): string | null {
-  const user = users.find((u) => u.id === id);
-  if (!user || user.branchId === next) return null;
-  return coverageChangeBlocker(users, id, next ? [next] : []);
-}
-
-/** The covered outlets reordered so `home` comes first — the home posting. */
 export const withHome = (covered: string[], home: string): string[] =>
-  covered.includes(home) ? [home, ...covered.filter((b) => b !== home)] : covered;
+  covered.includes(home)
+    ? [home, ...covered.filter((b) => b !== home)]
+    : [home, ...covered.slice(1)];
 
 /** Why a new account is invalid, or null when it can be created. */
 /** Why a name change is unusable, or null when it is fine. */

@@ -407,8 +407,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // -------------------------------------------------------------- admin/peranan
   peranan_intro: {
-    ms: 'Siapa memegang apa. Area Manager dan Admin tidak boleh dikosongkan.',
-    en: 'Who holds what. Area Manager and Admin can never be left empty.',
+    ms: 'Siapa memegang apa. Admin tidak boleh dikosongkan.',
+    en: 'Who holds what. Admin can never be left empty.',
   },
   tiada_pemegang_aktif: { ms: 'Tiada pemegang aktif.', en: 'No active holder.' },
   rekod_tukar_pangkat: { ms: 'Rekod tukar pangkat', en: 'Role change record' },
@@ -855,8 +855,8 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ---------------------------------------------------- user/[id], editing
   liputan_edit_hint: {
-    ms: 'Ketik untuk tambah atau tanggal cawangan. Pilih cawangan utama di bawah.',
-    en: 'Tap to add or remove an outlet. Choose the home outlet below.',
+    ms: 'Ketik untuk tambah atau tanggal cawangan. Tukar cawangan utama di bawah — terus, tanpa perlu tanggal dahulu.',
+    en: 'Tap to add or remove an outlet. Change the home outlet below — directly, nothing to remove first.',
   },
   cawangan_terakhir: {
     ms: 'Sekurang-kurangnya satu cawangan diperlukan.',

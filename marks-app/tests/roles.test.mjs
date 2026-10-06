@@ -11,8 +11,6 @@ import { test } from 'node:test';
 import {
   APP_ROLES,
   ROLE_LADDER,
-  branchChangeBlocker,
-  coverageChangeBlocker,
   withHome,
   canSetSupervisorTitle,
   deactivateBlocker,
@@ -93,26 +91,14 @@ test('a role alone on its rung has nowhere to transfer to', () => {
   assert.deepEqual(transfersFor('manager'), []);
 });
 
-test('demoting the only Area Manager at a branch is refused', () => {
+// --- only Admin is a required role (7 Oct 2026). An outlet may be left without
+// an Area Manager — the Branches tab flags it — so moving, demoting or
+// deactivating an Area Manager never needs a replacement in first.
+
+test('an Area Manager may be demoted, deactivated or moved even as the only one at an outlet', () => {
   const users = [mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC' })];
-  const blocked = roleChangeBlocker(users, 'AM0001', 'supervisor');
-  assert.match(blocked, /Area Manager DMC terakhir/);
-});
-
-test('...but is fine once a second Area Manager covers the same branch', () => {
-  const users = [
-    mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC' }),
-    mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DMC' }),
-  ];
   assert.equal(roleChangeBlocker(users, 'AM0001', 'supervisor'), null);
-});
-
-test('an Area Manager elsewhere does not cover for this branch losing its only one', () => {
-  const users = [
-    mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC' }),
-    mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DKB' }),
-  ];
-  assert.match(roleChangeBlocker(users, 'AM0001', 'supervisor'), /terakhir/);
+  assert.equal(deactivateBlocker(users, 'AM0001'), null);
 });
 
 test('admin is counted company-wide, not per branch', () => {
@@ -126,12 +112,12 @@ test('admin is counted company-wide, not per branch', () => {
   assert.equal(roleChangeBlocker(pair, 'AD0001', 'human_resources'), null);
 });
 
-test('an inactive holder of the same role does not count as coverage', () => {
+test('an inactive Admin does not count as the remaining one', () => {
   const users = [
-    mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC' }),
-    mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DMC', active: false }),
+    mkUser({ id: 'AD0001', role: 'admin', branchId: null }),
+    mkUser({ id: 'AD0002', role: 'admin', branchId: null, active: false }),
   ];
-  assert.match(roleChangeBlocker(users, 'AM0001', 'supervisor'), /terakhir/);
+  assert.match(deactivateBlocker(users, 'AD0001'), /Admin terakhir/);
 });
 
 test('changing to the role you already hold is a no-op, not a block', () => {
@@ -139,14 +125,11 @@ test('changing to the role you already hold is a no-op, not a block', () => {
   assert.equal(roleChangeBlocker(users, 'AM0001', 'area_manager'), null);
 });
 
-test('the same guard governs deactivating and transferring branches', () => {
-  const users = [mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC' })];
-  assert.match(deactivateBlocker(users, 'AM0001'), /terakhir/);
-  assert.match(branchChangeBlocker(users, 'AM0001', 'DKB'), /terakhir/);
-
+test('staff are not a required role', () => {
   const staff = [mkUser({ id: 'KP0001', role: 'staff' })];
-  assert.equal(deactivateBlocker(staff, 'KP0001'), null, 'staff are not a required role');
+  assert.equal(deactivateBlocker(staff, 'KP0001'), null);
 });
+
 
 test('a new account needs a name, a payroll number, and no clash — case-insensitive', () => {
   const existing = [mkUser({ id: 'KP0093' })];
@@ -254,39 +237,14 @@ test('an e-mail is optional, but has to look like one', () => {
   assert.match(emailBlocker('nama contoh@x.com'), /E-mel/);
 });
 
-// --- an Area Manager's home outlet moves freely among the outlets they cover
-// (6 Oct 2026). The guard used to count home postings only, so moving Herdi's
-// home from DMC to DKB — both still covered — was refused as "last Area
-// Manager DMC", and the old home had to be replaced first.
+// --- an Area Manager's home outlet is chosen directly (6–7 Oct 2026): a covered
+// outlet swaps to home, any other outlet replaces the old home in one step.
 
-const herdi = () => mkUser({ id: 'AM0001', role: 'area_manager', branchId: 'DMC', branchIds: ['DKB'] });
-
-test('moving the home outlet between covered outlets is never refused', () => {
-  const users = [herdi()];
-  assert.equal(coverageChangeBlocker(users, 'AM0001', ['DKB', 'DMC']), null);
+test('picking a covered outlet as home swaps it to the front, keeping every outlet', () => {
   assert.deepEqual(withHome(['DMC', 'DKB', 'DPM'], 'DPM'), ['DPM', 'DMC', 'DKB']);
-  assert.deepEqual(withHome(['DMC', 'DKB'], 'XXX'), ['DMC', 'DKB'], 'an outlet not covered is not made home');
 });
 
-test('dropping an outlet nobody else covers is refused, naming that outlet', () => {
-  const users = [herdi()];
-  assert.match(coverageChangeBlocker(users, 'AM0001', ['DMC']), /Area Manager DKB terakhir/);
-  assert.match(coverageChangeBlocker(users, 'AM0001', ['DKB']), /Area Manager DMC terakhir/);
-});
-
-test('dropping an outlet another Area Manager covers as an extra outlet is allowed', () => {
-  const users = [herdi(), mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DPM', branchIds: ['DKB'] })];
-  assert.equal(coverageChangeBlocker(users, 'AM0001', ['DMC']), null);
-});
-
-test('an Area Manager whose outlets are all covered by others may leave', () => {
-  const users = [
-    herdi(),
-    mkUser({ id: 'AM0002', role: 'area_manager', branchId: 'DKB', branchIds: ['DMC'] }),
-  ];
-  assert.equal(deactivateBlocker(users, 'AM0001'), null);
-  assert.equal(roleChangeBlocker(users, 'AM0001', 'supervisor'), null);
-  // ...but not once the other one is inactive.
-  users[1].active = false;
-  assert.match(deactivateBlocker(users, 'AM0001'), /Area Manager DMC, DKB terakhir/);
+test('picking an outlet not yet covered replaces the old home and keeps the extras', () => {
+  assert.deepEqual(withHome(['DMC', 'DKB'], 'DPM'), ['DPM', 'DKB']);
+  assert.deepEqual(withHome(['DMC'], 'DKB'), ['DKB'], 'a one-outlet Area Manager simply moves');
 });

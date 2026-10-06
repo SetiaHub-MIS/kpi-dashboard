@@ -11,7 +11,6 @@ import { WEEK_COLS } from '@/data/checklist';
 import { useActiveBranches, useBranchLabel } from '@/store/useBranches';
 import {
   branchesOf,
-  coverageChangeBlocker,
   APP_ROLES,
   ROLE_LEVEL,
   Role,
@@ -136,19 +135,12 @@ export default function UserDetail() {
     } else {
       picked = [...covered, next];
     }
-    // Only outlets this person stops covering can strand anyone; a home
-    // posting that moves to another outlet they keep is never refused.
-    const blocked = coverageChangeBlocker(users, user.id, picked);
-    if (blocked) {
-      notify(t('tak_boleh_tukar_cawangan'), blocked);
-      return;
-    }
     const [home, ...extras] = picked;
     void persist(() => setPosting(user.id, home, extras, me?.id ?? null));
   };
 
-  // An Area Manager's home posting, chosen directly among the outlets they
-  // cover — no need to remove the old home first.
+  // An Area Manager's home outlet, chosen directly: a covered outlet swaps to
+  // home, any other outlet replaces the old home. No need to remove anything first.
   const setHome = (home: string | null) => {
     if (!home || home === user.branchId) return;
     const [first, ...extras] = withHome(covered, home);
@@ -498,11 +490,13 @@ export default function UserDetail() {
                 {t('liputan_edit_hint')}
               </Text>
             )}
-            {multi && covered.length > 1 && user.branchId && (
+            {multi && user.branchId && (
               <View className="mt-3">
                 <OutletPicker
                   label={t('cawangan_utama')}
-                  outlets={covered}
+                  outlets={withHome(covered, user.branchId).concat(
+                    branches.map((b) => b.id).filter((b) => !covered.includes(b)),
+                  )}
                   value={user.branchId}
                   onChange={setHome}
                 />
