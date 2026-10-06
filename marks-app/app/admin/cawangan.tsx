@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { isCrossBranch, isMarked } from '@/data/users';
+import { branchesOf, isCrossBranch, isMarked } from '@/data/users';
 import { roleLabel } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
@@ -46,7 +46,11 @@ export default function Cawangan() {
           const assigned = users.filter((u) => u.active && u.branchId === b.id);
           const staff = assigned.filter((u) => isMarked(u.role));
           const supervisors = assigned.filter((u) => u.role === 'supervisor');
-          const managers = assigned.filter((u) => u.role === 'area_manager');
+          // An Area Manager covers an outlet as their home posting or as one of
+          // their extra outlets — both count, or a covered outlet reads as empty.
+          const managers = users.filter(
+            (u) => u.active && u.role === 'area_manager' && branchesOf(u).includes(b.id)
+          );
 
           return (
             <Pressable
