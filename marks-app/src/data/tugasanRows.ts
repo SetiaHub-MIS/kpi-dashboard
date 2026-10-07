@@ -33,6 +33,17 @@ export type TugasanSignoffRow = {
   signedOn: string | null; // ISO date
 };
 
+/**
+ * A write: the row's key and only the fields being changed. A field left out
+ * keeps what the table has, so a phone holding an older copy of the row
+ * cannot undo what was written from somewhere else.
+ */
+export type TugasanCheckWrite = Pick<TugasanCheckRow, 'branchId' | 'period' | 'weekNo' | 'itemKey'> &
+  Partial<Pick<TugasanCheckRow, 'done' | 'note' | 'inspectedOn'>>;
+
+export type TugasanSignoffWrite = Pick<TugasanSignoffRow, 'branchId' | 'period' | 'weekNo'> &
+  Partial<Pick<TugasanSignoffRow, 'filledBy' | 'checkedBy' | 'signedOn'>>;
+
 // ------------------------------------------------------------ scopes ----
 
 /** `${branchId}-${monthIdx}` back into its parts. Branch codes never contain '-'. */
