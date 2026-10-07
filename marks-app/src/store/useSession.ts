@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { User } from '@/data/users';
 import {
+  InactiveAccountError,
   SignedInStaff,
   fetchSignedInStaff,
   signInWithPayroll,
@@ -74,10 +75,15 @@ export const useSession = create<SessionState>((set) => ({
         status: 'idle',
         error: null,
       });
-    } catch {
+    } catch (e) {
       // A stored session that no longer resolves is not an error worth showing;
-      // it just means signing in again.
-      set({ currentUserId: null, staff: null, status: 'idle' });
+      // it just means signing in again. One deactivated since is told why.
+      set({
+        currentUserId: null,
+        staff: null,
+        status: 'idle',
+        error: e instanceof InactiveAccountError ? e.message : null,
+      });
     }
   },
 

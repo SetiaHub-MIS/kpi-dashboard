@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { branchesOf, isCrossBranch, isMarked } from '@/data/users';
+import { activeFirst, branchesOf, isCrossBranch, isMarked } from '@/data/users';
 import { roleLabel } from '@/i18n/labels';
 import { useBranches } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
@@ -42,7 +42,7 @@ export default function Cawangan() {
       </Text>
 
       <View className="gap-2.5 mt-[18px]">
-        {branches.map((b) => {
+        {activeFirst(branches).map((b) => {
           const assigned = users.filter((u) => u.active && u.branchId === b.id);
           const staff = assigned.filter((u) => isMarked(u.role));
           const supervisors = assigned.filter((u) => u.role === 'supervisor');

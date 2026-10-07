@@ -6,7 +6,7 @@ import { MonoLabel } from '@/components/Card';
 import { OutletPicker } from '@/components/OutletPicker';
 import { Screen } from '@/components/Screen';
 import { useBranches } from '@/store/useBranches';
-import { ROLE_LADDER, Role } from '@/data/users';
+import { ROLE_LADDER, Role, activeFirst } from '@/data/users';
 import { roleLabel, supervisorTitleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { useUsers } from '@/store/useUsers';
@@ -24,10 +24,12 @@ export default function AdminUsers() {
   const t = useT();
   const locale = useLocale((s) => s.locale);
 
-  const shown = users.filter(
-    (u) =>
-      (filter === 'all' || u.role === filter) &&
-      (branchFilter === null || u.branchId === branchFilter)
+  const shown = activeFirst(
+    users.filter(
+      (u) =>
+        (filter === 'all' || u.role === filter) &&
+        (branchFilter === null || u.branchId === branchFilter)
+    )
   );
   const inactive = users.filter((u) => !u.active).length;
 
@@ -58,7 +60,7 @@ export default function AdminUsers() {
       {/* Forty outlets do not fit side by side on a phone; a dropdown does. */}
       <View className="mt-4">
         <OutletPicker
-          outlets={branches.map((b) => b.id)}
+          outlets={activeFirst(branches).map((b) => b.id)}
           value={branchFilter}
           onChange={setBranchFilter}
           allLabel={t('semua_cawangan')}

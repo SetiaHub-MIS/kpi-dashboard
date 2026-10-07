@@ -320,6 +320,16 @@ export function roleChangeBlocker(users: User[], id: string, next: Role): string
   return guard(users, user, 'tukar peranan');
 }
 
+/**
+ * A list in its own order, with anything deactivated (a person, or a closed
+ * outlet) moved after everything active. Lists that show the deactivated at
+ * all show them last.
+ */
+export const activeFirst = <T extends { active: boolean }>(list: T[]): T[] => [
+  ...list.filter((x) => x.active),
+  ...list.filter((x) => !x.active),
+];
+
 export function deactivateBlocker(users: User[], id: string): string | null {
   const user = users.find((u) => u.id === id);
   if (!user || !user.active) return null;

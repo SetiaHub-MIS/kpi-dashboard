@@ -89,8 +89,11 @@ Deno.serve(async (req: Request) => {
       ['No. Pekerja', 'Nama', 'Cawangan', 'Peranan', 'Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Purata'],
     ];
 
-    (users ?? [])
-      .filter((u: any) => u.active && byPerson.has(u.id))
+    // Everyone marked this month, by payroll number; anyone deactivated since
+    // comes after everyone active, named as such, rather than their marks
+    // vanishing from the month.
+    const marked = (users ?? []).filter((u: any) => byPerson.has(u.id));
+    [...marked.filter((u: any) => u.active), ...marked.filter((u: any) => !u.active)]
       .forEach((u: any) => {
         const weeks = byPerson.get(u.id) ?? {};
         const values = [1, 2, 3, 4].map((w) => weeks[w]);
@@ -98,7 +101,7 @@ Deno.serve(async (req: Request) => {
         const avg = scored.length ? Math.round(scored.reduce((a, b) => a + b, 0) / scored.length) : '';
         rows.push([
           u.id,
-          u.name,
+          u.active ? u.name : `${u.name} (tidak aktif)`,
           branchName.get(u.branch_id) ?? u.branch_id ?? '',
           ROLE_LABEL[u.role] ?? u.role,
           // Blank cells for a week nobody marked — never a formula error, the

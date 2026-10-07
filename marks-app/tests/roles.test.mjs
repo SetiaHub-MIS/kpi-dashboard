@@ -12,6 +12,7 @@ import {
   APP_ROLES,
   ROLE_LADDER,
   withHome,
+  activeFirst,
   canSetSupervisorTitle,
   deactivateBlocker,
   demotionsFor,
@@ -247,4 +248,15 @@ test('picking a covered outlet as home swaps it to the front, keeping every outl
 test('picking an outlet not yet covered replaces the old home and keeps the extras', () => {
   assert.deepEqual(withHome(['DMC', 'DKB'], 'DPM'), ['DPM', 'DKB']);
   assert.deepEqual(withHome(['DMC'], 'DKB'), ['DKB'], 'a one-outlet Area Manager simply moves');
+});
+
+test('the deactivated are listed after everyone active, each keeping its own order', () => {
+  const list = [
+    mkUser({ id: 'KP0001', active: true }),
+    mkUser({ id: 'KP0002', active: false }),
+    mkUser({ id: 'KP0003', active: true }),
+    mkUser({ id: 'KP0004', active: false }),
+  ];
+  assert.deepEqual(activeFirst(list).map((u) => u.id), ['KP0001', 'KP0003', 'KP0002', 'KP0004']);
+  assert.deepEqual(list.map((u) => u.id), ['KP0001', 'KP0002', 'KP0003', 'KP0004'], 'the list given is left as it was');
 });

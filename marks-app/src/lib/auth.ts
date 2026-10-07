@@ -21,6 +21,20 @@ export const AUTH_EMAIL_DOMAIN =
 
 const WRONG_CREDENTIALS = 'Nombor pekerja atau kata laluan salah.';
 
+export const INACTIVE_ACCOUNT = 'Akaun ini telah dinyahaktifkan. Hubungi admin.';
+
+/**
+ * The password was right but the account is deactivated: signed back out.
+ * Its session could open nothing anyway — every policy reads it as nobody —
+ * so it is refused here with a reason rather than let into an empty app.
+ */
+export class InactiveAccountError extends Error {
+  constructor() {
+    super(INACTIVE_ACCOUNT);
+    this.name = 'InactiveAccountError';
+  }
+}
+
 export const emailForPayroll = (id: string) =>
   `${id.trim().toLowerCase()}@${AUTH_EMAIL_DOMAIN}`;
 
@@ -73,7 +87,13 @@ export async function signInWithPayroll(
   const failed = await establishSession(id, password);
   if (failed) return { ok: false, message: failed };
 
-  const staff = await fetchSignedInStaff();
+  let staff: SignedInStaff | null;
+  try {
+    staff = await fetchSignedInStaff();
+  } catch (e) {
+    if (e instanceof InactiveAccountError) return { ok: false, message: e.message };
+    throw e;
+  }
   if (!staff) {
     await supabase.auth.signOut();
     return {
@@ -142,7 +162,8 @@ export async function updatePassword(password: string): Promise<string | null> {
 
 /**
  * The directory row for whoever is signed in, or null. RLS lets any signed-in
- * account read its own row, so this needs no elevated access.
+ * account read its own row, so this needs no elevated access. A deactivated
+ * account is signed out and throws InactiveAccountError.
  */
 export async function fetchSignedInStaff(): Promise<SignedInStaff | null> {
   const { data: auth } = await supabase.auth.getUser();
@@ -150,12 +171,16 @@ export async function fetchSignedInStaff(): Promise<SignedInStaff | null> {
 
   const { data, error } = await supabase
     .from('users')
-    .select('id, name, short_name, initials, role, branch_id')
+    .select('id, name, short_name, initials, role, branch_id, active')
     .eq('auth_user_id', auth.user.id)
     .maybeSingle();
 
   if (error) throw error;
   if (!data) return null;
+  if (!data.active) {
+    await supabase.auth.signOut();
+    throw new InactiveAccountError();
+  }
 
   return {
     id: data.id,
