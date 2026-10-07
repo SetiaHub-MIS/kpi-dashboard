@@ -19,6 +19,7 @@ export function OutletPicker({
   allLabel,
   countOf,
   label,
+  placeholder,
 }: {
   outlets: string[];
   value: string | null;
@@ -27,13 +28,15 @@ export function OutletPicker({
   countOf?: (branchId: string | null) => number;
   /** The small caption above the choice; "Outlet" unless given. */
   label?: string;
+  /** Shown while nothing is chosen (value null, no allLabel). */
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const branchLabel = useBranchLabel();
   const t = useT();
 
   const entries: (string | null)[] = allLabel ? [null, ...outlets] : outlets;
-  const labelOf = (id: string | null) => (id === null ? (allLabel ?? '') : branchLabel(id));
+  const labelOf = (id: string | null) => (id === null ? (allLabel ?? placeholder ?? '') : branchLabel(id));
   const withCount = (id: string | null) =>
     countOf ? `${labelOf(id)} · ${countOf(id)}` : labelOf(id);
 

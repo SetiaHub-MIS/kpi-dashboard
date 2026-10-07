@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card } from '@/components/Card';
+import { MarksOutletPicker, PickOutletPrompt, useNeedsOutlet, useOutletScoped } from '@/components/MarksOutletPicker';
 import { Screen } from '@/components/Screen';
 import { sendReminder } from '@/lib/reminders';
 import { useT } from '@/store/useLocale';
@@ -14,7 +15,8 @@ export default function Gaps() {
   const submitted = useMarks((s) => s.submitted);
   const users = useUsers((s) => s.users);
   const me = currentUser(users, useSession((s) => s.currentUserId));
-  const crew = visibleStaff(users, me);
+  const crew = useOutletScoped(me, visibleStaff(users, me));
+  const needsOutlet = useNeedsOutlet(me);
   const stats = monthStats(crew, submitted);
   const [sending, setSending] = useState(false);
   const [sentCount, setSentCount] = useState<number | null>(null);
@@ -72,8 +74,11 @@ export default function Gaps() {
       <Text className="font-sans text-sm leading-[20px] text-ink-4 mt-2">
         {t('gaps_intro', { gaps: stats.gaps, total: stats.cellTotal })}
       </Text>
+      <MarksOutletPicker viewer={me} />
 
-      {rows.length === 0 ? (
+      {needsOutlet ? (
+        <PickOutletPrompt />
+      ) : rows.length === 0 ? (
         <Card className="p-5 mt-[18px] items-center">
           <Text className="font-sans-med text-sm text-ink-3">
             {t('semua_kotak_diisi')}

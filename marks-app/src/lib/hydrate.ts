@@ -1,4 +1,5 @@
 import { PERIODS, currentWeekIdx } from '@/data/checklist';
+import { defaultMarksOutlet, scopesMarksByOutlet } from '@/data/marksScope';
 import { todayShort, weekStarted } from '@/data/period';
 import { fetchAssets } from '@/lib/assets';
 import { fetchTugasan } from '@/lib/tugasan';
@@ -32,7 +33,7 @@ export async function hydrateDirectory(): Promise<boolean> {
 
   try {
     const marks = useMarks.getState();
-    const dir = await fetchDirectory(PERIODS[marks.monthIdx], marks.scaleMax);
+    const dir = await fetchDirectory(PERIODS[marks.monthIdx], marks.scaleMax, marksOutlet());
     useBranches.getState().hydrate(dir.branches);
     useUsers.getState().hydrate(dir.users);
     notePeriod(dir);
@@ -87,6 +88,31 @@ export async function hydrateDirectory(): Promise<boolean> {
   }
 }
 
+/**
+ * Whose marks to load: undefined = everything the account can see (most
+ * roles reach one outlet anyway); an outlet code for the Manager and Area
+ * Manager, who work one outlet at a time; null = the Manager has not picked
+ * one yet, so only the directory loads.
+ */
+function marksOutlet(): string | null | undefined {
+  const staff = useSession.getState().staff;
+  if (!staff || !scopesMarksByOutlet(staff.role)) return undefined;
+  const marks = useMarks.getState();
+  if (marks.outlet) return marks.outlet;
+  const first = defaultMarksOutlet(staff.role, staff.branchId);
+  marks.setOutlet(first);
+  return first;
+}
+
+/** Keeps each person's extra outlets (from user_branches) across a marks reload. */
+function hydrateKeepingCoverage(staff: Awaited<ReturnType<typeof fetchStaff>>) {
+  const extra = new Map(useUsers.getState().users.map((u) => [u.id, u.branchIds]));
+  useUsers.getState().hydrate(
+    staff.users.map((u) => (extra.get(u.id) ? { ...u, branchIds: extra.get(u.id) } : u))
+  );
+  notePeriod(staff);
+}
+
 /** What a month's marks add to the store beyond the four percentages on each person. */
 function notePeriod(dir: Awaited<ReturnType<typeof fetchStaff>>) {
   const marks = useMarks.getState();
@@ -122,18 +148,33 @@ export async function selectMonth(monthIdx: number): Promise<void> {
 
   marks.setPeriodLoading(true);
   try {
-    const staff = await fetchStaff(PERIODS[idx], marks.scaleMax);
     // Only the marks changed; the directory rows are the same people.
-    // Coverage (branchIds) came from user_branches and is kept from the
-    // loaded copy rather than fetched again.
-    const extra = new Map(useUsers.getState().users.map((u) => [u.id, u.branchIds]));
-    useUsers.getState().hydrate(
-      staff.users.map((u) => (extra.get(u.id) ? { ...u, branchIds: extra.get(u.id) } : u))
-    );
-    notePeriod(staff);
+    hydrateKeepingCoverage(await fetchStaff(PERIODS[idx], marks.scaleMax, marksOutlet()));
   } catch {
     // The month label has moved but its marks did not arrive: every week
     // reads as unmarked, which is at least visibly wrong rather than stale.
+  } finally {
+    useMarks.getState().setPeriodLoading(false);
+  }
+}
+
+/**
+ * The Manager or Area Manager picks an outlet: that outlet's marks for the
+ * month on screen replace whatever outlet was loaded before. Nothing else is
+ * fetched — that is the point.
+ */
+export async function selectOutlet(outlet: string | null): Promise<void> {
+  const marks = useMarks.getState();
+  if (outlet === marks.outlet) return;
+  marks.setOutlet(outlet);
+  marks.clearPeriod();
+  if (!isSupabaseConfigured || outlet === null) return;
+
+  marks.setPeriodLoading(true);
+  try {
+    hydrateKeepingCoverage(await fetchStaff(PERIODS[marks.monthIdx], marks.scaleMax, outlet));
+  } catch {
+    // Every week reads as unmarked, visibly, rather than another outlet's marks.
   } finally {
     useMarks.getState().setPeriodLoading(false);
   }

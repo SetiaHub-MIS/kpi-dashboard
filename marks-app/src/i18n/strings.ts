@@ -20,6 +20,11 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   isi: { ms: 'Isi', en: 'Fill in' },
   tiada_pemegang: { ms: 'Tiada pemegang', en: 'Nobody in this role' },
   memuatkan: { ms: 'Memuatkan…', en: 'Loading…' },
+  pilih_cawangan: { ms: 'Pilih cawangan', en: 'Choose an outlet' },
+  pilih_cawangan_markah: {
+    ms: 'Pilih cawangan di atas untuk melihat markahnya.',
+    en: 'Choose an outlet above to see its marks.',
+  },
 
   // ------------------------------------------------------- sign-out / auth
   log_keluar: { ms: 'Log keluar', en: 'Sign out' },

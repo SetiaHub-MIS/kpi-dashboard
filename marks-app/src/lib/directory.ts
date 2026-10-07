@@ -332,7 +332,13 @@ export async function updateBranchActive(id: string, active: boolean): Promise<W
  */
 export async function fetchStaff(
   period: { year: number; month: number },
-  scaleMax = 5
+  scaleMax = 5,
+  /**
+   * Whose marks to load. Omitted: every outlet the caller can see. An outlet
+   * code: that outlet only. null: none yet — the directory alone, for a
+   * Manager who has not picked an outlet.
+   */
+  outlet?: string | null
 ): Promise<{
   users: User[];
   markIds: Record<string, number>;
@@ -345,8 +351,10 @@ export async function fetchStaff(
 }> {
   const [{ data: users, error: userErr }, marks, perkara] = await Promise.all([
     supabase.from('users').select(USER_COLUMNS).order('id'),
-    fetchMarks(period),
-    fetchPerkaraAverages(period, scaleMax),
+    outlet === null ? Promise.resolve([] as MarkRow[]) : fetchMarks(period, outlet),
+    outlet === null
+      ? Promise.resolve({} as Record<string, number[]>)
+      : fetchPerkaraAverages(period, scaleMax, outlet),
   ]);
 
   if (userErr) throw userErr;
@@ -423,11 +431,12 @@ export async function fetchUserBranches(): Promise<Record<string, string[]>> {
 /** Everything the directory needs, in one round of queries. */
 export async function fetchDirectory(
   period: { year: number; month: number },
-  scaleMax = 5
+  scaleMax = 5,
+  outlet?: string | null
 ) {
   const [branches, staff, extraBranches] = await Promise.all([
     fetchBranches(),
-    fetchStaff(period, scaleMax),
+    fetchStaff(period, scaleMax, outlet),
     fetchUserBranches(),
   ]);
 

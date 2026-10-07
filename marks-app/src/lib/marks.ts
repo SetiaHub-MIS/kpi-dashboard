@@ -219,19 +219,42 @@ export type MarkRow = {
   adjustedTo: number | null;
 };
 
-/** Every mark in a period, with whether the manager has signed it off. */
-export async function fetchMarks(period: Period): Promise<MarkRow[]> {
-  const { data, error } = await supabase
-    .from('marks')
-    .select(
-      'id, user_id, branch_id, form_key, week_no, pct, note, max_score, mark_verifications(mark_id, adjusted_to)'
-    )
-    .eq('period_year', period.year)
-    .eq('period_month', period.month);
+/**
+ * Every row a query returns, a page at a time. The API hands back at most
+ * 1,000 rows per request; one outlet's month of mark_lines is already about
+ * that (12 people × 4 weeks × 22 perkara), so a single request was cutting
+ * the per-perkara averages short without saying so.
+ */
+const PAGE = 1000;
+async function allPages<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>): Promise<T[]> {
+  const out: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await page(from, from + PAGE - 1);
+    if (error) throw error;
+    out.push(...(data ?? []));
+    if (!data || data.length < PAGE) return out;
+  }
+}
 
-  if (error) throw error;
+/**
+ * Every mark in a period, with whether the manager has signed it off — at one
+ * outlet when `branchId` is given. Head office covers every outlet, and
+ * loading all of them at once is what made the Manager's phone lag.
+ */
+export async function fetchMarks(period: Period, branchId?: string): Promise<MarkRow[]> {
+  const data = await allPages<any>((from, to) => {
+    let q = supabase
+      .from('marks')
+      .select(
+        'id, user_id, branch_id, form_key, week_no, pct, note, max_score, mark_verifications(mark_id, adjusted_to)'
+      )
+      .eq('period_year', period.year)
+      .eq('period_month', period.month);
+    if (branchId) q = q.eq('branch_id', branchId);
+    return q.order('id').range(from, to);
+  });
 
-  return (data ?? []).map((m: any) => {
+  return data.map((m: any) => {
     const ver = Array.isArray(m.mark_verifications) ? m.mark_verifications[0] : m.mark_verifications;
     return {
       id: m.id,
@@ -257,17 +280,20 @@ export async function fetchMarks(period: Period): Promise<MarkRow[]> {
  */
 export async function fetchPerkaraAverages(
   period: Period,
-  scaleMax: number
+  scaleMax: number,
+  branchId?: string
 ): Promise<Record<string, number[]>> {
-  const { data, error } = await supabase
-    .from('mark_lines')
-    .select(
-      'score, marks!inner(user_id, period_year, period_month), checklist_lines!inner(checklist_categories!inner(position))'
-    )
-    .eq('marks.period_year', period.year)
-    .eq('marks.period_month', period.month);
-
-  if (error) throw error;
+  const data = await allPages<any>((from, to) => {
+    let q = supabase
+      .from('mark_lines')
+      .select(
+        'mark_id, line_id, score, marks!inner(user_id, branch_id, period_year, period_month), checklist_lines!inner(checklist_categories!inner(position))'
+      )
+      .eq('marks.period_year', period.year)
+      .eq('marks.period_month', period.month);
+    if (branchId) q = q.eq('marks.branch_id', branchId);
+    return q.order('mark_id').order('line_id').range(from, to);
+  });
 
   // user -> kategori position -> running total
   const acc = new Map<string, Map<number, { sum: number; n: number }>>();

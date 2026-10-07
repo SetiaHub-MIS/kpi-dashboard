@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Card, MonoLabel } from '@/components/Card';
+import { MarksOutletPicker, PickOutletPrompt, useNeedsOutlet, useOutletScoped } from '@/components/MarksOutletPicker';
 import { PeriodPicker } from '@/components/PeriodPicker';
 import { PerkaraBars } from '@/components/PerkaraBars';
 import { Screen } from '@/components/Screen';
@@ -59,7 +60,10 @@ export default function ManagerHome() {
   const users = useUsers((s) => s.users);
   const manager = currentUser(users, useSession((s) => s.currentUserId));
   const branchId = manager?.branchId ?? null;
-  const crew = visibleStaff(users, manager);
+  // One outlet at a time for the Manager and Area Manager: only its marks are loaded.
+  const crew = useOutletScoped(manager, visibleStaff(users, manager));
+  const needsOutlet = useNeedsOutlet(manager);
+  const outlet = useMarks((s) => s.outlet);
   const branchLabel = useBranchLabel();
   // An Area Manager can cover more than one outlet, so the header names them
   // all rather than only the home posting. The Manager covers every outlet.
@@ -93,7 +97,7 @@ export default function ManagerHome() {
 
   // The Area Manager's own marking round: the supervisors at the outlets they
   // cover. The workbook has them doing this, and nobody else could.
-  const myQueue = markingQueue(users, manager);
+  const myQueue = useOutletScoped(manager, markingQueue(users, manager));
   const svPending = myQueue.filter((p) => weekMark(p, weekIdx, submitted) == null);
 
   const tugasanEntriesByMonth = useTugasan((s) => s.entriesByMonth);
@@ -119,7 +123,12 @@ export default function ManagerHome() {
       <View className="mt-2">
         <PeriodPicker />
       </View>
+      <MarksOutletPicker viewer={manager} />
 
+      {needsOutlet ? (
+        <PickOutletPrompt />
+      ) : (
+      <>
       <View className="flex-row gap-2.5 mt-4">
         <Card className="flex-1 p-[15px]">
           <MonoLabel>{t('purata_sv')}</MonoLabel>
@@ -272,6 +281,9 @@ export default function ManagerHome() {
           </Card>
         );
       })}
+
+      </>
+      )}
 
       {myQueue.length > 0 && (
         <Pressable

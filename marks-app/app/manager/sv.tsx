@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { Card, MonoLabel } from '@/components/Card';
+import { MarksOutletPicker, PickOutletPrompt, useNeedsOutlet, useOutletScoped } from '@/components/MarksOutletPicker';
 import { PeriodPicker } from '@/components/PeriodPicker';
 import { QueueBanner } from '@/components/QueueBanner';
 import { Screen } from '@/components/Screen';
@@ -37,7 +38,8 @@ export default function ManagerSvQueue() {
   const t = useT();
   const locale = useLocale((s) => s.locale);
 
-  const crew = markingQueue(users, manager);
+  const crew = useOutletScoped(manager, markingQueue(users, manager));
+  const needsOutlet = useNeedsOutlet(manager);
   const pending = crew.filter((p) => weekMark(p, weekIdx, submitted) == null);
 
   return (
@@ -48,6 +50,7 @@ export default function ManagerSvQueue() {
       <View className="mt-2">
         <PeriodPicker weeks />
       </View>
+      <MarksOutletPicker viewer={manager} />
       <Text className="font-sans text-[13.5px] leading-5 text-ink-4 mt-3">
         {t('checklist_sv_status', {
           week: weekIdx + 1,
@@ -59,7 +62,9 @@ export default function ManagerSvQueue() {
 
       <QueueBanner />
 
-      {crew.length === 0 ? (
+      {needsOutlet ? (
+        <PickOutletPrompt />
+      ) : crew.length === 0 ? (
         <Card className="p-4 mt-4 items-center">
           <Text className="font-sans-med text-[12.5px] text-ink-4">
             {t('tiada_sv_cawangan')}
