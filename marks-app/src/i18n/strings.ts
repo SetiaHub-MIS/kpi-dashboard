@@ -49,6 +49,17 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   },
   versi_baharu_mula: { ms: 'Mula semula', en: 'Restart' },
   versi_baharu_nanti: { ms: 'Nanti', en: 'Later' },
+  // The account screen's version line: which code this phone is running.
+  versi_web: { ms: 'Versi {version} · web', en: 'Version {version} · web' },
+  versi_dev: { ms: 'Versi {version} · pembangunan', en: 'Version {version} · development' },
+  versi_asal: {
+    ms: 'Versi {version} · kod asal APK, belum ada kemas kini',
+    en: 'Version {version} · the APK’s own code, no update yet',
+  },
+  versi_kemas_kini: {
+    ms: 'Versi {version} · kemas kini {when} · {id}',
+    en: 'Version {version} · update {when} · {id}',
+  },
   tukar_peranan: { ms: 'Tukar peranan', en: 'Switch role' },
   marks_pending_warning: {
     ms: '{count} markah masih menunggu sambungan. Ia kekal dalam telefon ini dan akan dihantar sendiri, walaupun selepas log keluar.',

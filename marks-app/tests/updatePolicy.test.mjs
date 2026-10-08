@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { RECHECK_AFTER_MS, shouldRecheck, updateStep } from '../src/data/updatePolicy.ts';
+import { RECHECK_AFTER_MS, publishedLabel, runningCode, shouldRecheck, updateStep } from '../src/data/updatePolicy.ts';
 
 const MIN = 60 * 1000;
 const T0 = Date.UTC(2026, 9, 4, 1, 0);
@@ -34,4 +34,24 @@ test('coming back to the front checks again after ten minutes, not before', () =
 
 test('a clock set back does not stop the checks', () => {
   assert.equal(shouldRecheck(T0, T0 - 5 * MIN), true);
+});
+
+test('the account screen names the code running: web, development, built-in or an update', () => {
+  const base = { web: false, enabled: true, embedded: false, updateId: null, createdAt: null };
+  assert.deepEqual(runningCode({ ...base, web: true, updateId: 'x' }), { kind: 'web' });
+  assert.deepEqual(runningCode({ ...base, enabled: false }), { kind: 'dev' });
+  assert.deepEqual(runningCode({ ...base, embedded: true, updateId: '01a11932-b6dd' }), { kind: 'builtin' });
+  assert.deepEqual(runningCode(base), { kind: 'builtin' });
+
+  const at = new Date(2026, 9, 8, 9, 48);
+  assert.deepEqual(runningCode({ ...base, updateId: '01a11932-b6dd-7f39-a797-73cd5d100429', createdAt: at }), {
+    kind: 'update',
+    id: '01a11932',
+    publishedAt: at,
+  });
+});
+
+test('the update time reads day/month/year and a 24-hour clock', () => {
+  assert.equal(publishedLabel(new Date(2026, 9, 8, 9, 48)), '8/10/2026 09:48');
+  assert.equal(publishedLabel(new Date(2026, 0, 31, 17, 5)), '31/1/2026 17:05');
 });

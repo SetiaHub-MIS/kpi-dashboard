@@ -1,10 +1,13 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { Avatar } from '@/components/Avatar';
 import { BackLink } from '@/components/BackLink';
 import { MyEmailCard } from '@/components/MyEmailCard';
 import { Screen } from '@/components/Screen';
+import { publishedLabel } from '@/data/updatePolicy';
 import { roleLabel } from '@/i18n/labels';
+import { runningCodeNow } from '@/lib/appUpdates';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useBranchLabel } from '@/store/useBranches';
 import { useLocale, useT } from '@/store/useLocale';
@@ -52,6 +55,31 @@ export default function Akaun() {
           <Text className="font-sans-semi text-sm text-ink-2">{t('tukar_kata_laluan')}</Text>
         </Pressable>
       )}
+
+      <Text className="font-mono text-[11px] text-ink-6 text-center mt-8">{versionLine(t)}</Text>
     </Screen>
   );
+}
+
+/**
+ * Which version this phone is running, to check it against `eas update:list`:
+ * a downloaded update shows when it was published and the start of its ID.
+ */
+function versionLine(t: ReturnType<typeof useT>): string {
+  const version = Constants.expoConfig?.version ?? '';
+  const code = runningCodeNow();
+  switch (code.kind) {
+    case 'web':
+      return t('versi_web', { version });
+    case 'dev':
+      return t('versi_dev', { version });
+    case 'builtin':
+      return t('versi_asal', { version });
+    case 'update':
+      return t('versi_kemas_kini', {
+        version,
+        when: code.publishedAt ? publishedLabel(code.publishedAt) : '?',
+        id: code.id,
+      });
+  }
 }

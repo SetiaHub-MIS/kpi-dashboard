@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
-import { shouldRecheck, updateStep } from '@/data/updatePolicy';
+import { RunningCode, runningCode, shouldRecheck, updateStep } from '@/data/updatePolicy';
 import { useSession } from '@/store/useSession';
 
 /**
@@ -17,6 +17,17 @@ import { useSession } from '@/store/useSession';
  * latest deploy anyway, and expo-updates' web stub claims to be enabled.
  */
 export const updatesActive = Platform.OS !== 'web' && Updates.isEnabled;
+
+/** The code this launch is running, for the account screen's version line. */
+export function runningCodeNow(): RunningCode {
+  return runningCode({
+    web: Platform.OS === 'web',
+    enabled: Updates.isEnabled,
+    embedded: Updates.isEmbeddedLaunch,
+    updateId: Updates.updateId,
+    createdAt: Updates.createdAt,
+  });
+}
 
 /** The sign-in screen's notice, kept across a restart into an update. */
 const NOTICE_KEY = 'checklist.signin-notice.v1';
