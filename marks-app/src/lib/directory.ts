@@ -1,8 +1,19 @@
+import { errorDetail } from '@/data/activity';
 import { Branch } from '@/data/branches';
 import { FORMS } from '@/data/checklist';
 import { Role, SupervisorTitle, User } from '@/data/users';
 import { MarkRow, fetchMarks, fetchPerkaraAverages } from '@/lib/marks';
 import { supabase } from '@/lib/supabase';
+
+/**
+ * Names the query a failure came from, so "could not load" can say which of
+ * the directory's reads it was (components/FirstLoad.tsx shows it).
+ */
+function labelled<T>(label: string, work: PromiseLike<T>): Promise<T> {
+  return Promise.resolve(work).catch((err: unknown) => {
+    throw new Error(`${label}: ${errorDetail(err)}`);
+  });
+}
 
 /**
  * Reads the staff directory out of Postgres in the shape the app's stores
@@ -351,13 +362,13 @@ export async function fetchStaff(
 }> {
   const [{ data: users, error: userErr }, marks, perkara] = await Promise.all([
     supabase.from('users').select(USER_COLUMNS).order('id'),
-    outlet === null ? Promise.resolve([] as MarkRow[]) : fetchMarks(period, outlet),
+    outlet === null ? Promise.resolve([] as MarkRow[]) : labelled('marks', fetchMarks(period, outlet)),
     outlet === null
       ? Promise.resolve({} as Record<string, number[]>)
-      : fetchPerkaraAverages(period, scaleMax, outlet),
+      : labelled('mark_lines', fetchPerkaraAverages(period, scaleMax, outlet)),
   ]);
 
-  if (userErr) throw userErr;
+  if (userErr) throw new Error(`users: ${errorDetail(userErr)}`);
 
   const byUser = new Map<string, MarkRow[]>();
   marks.forEach((m) => {
@@ -435,9 +446,9 @@ export async function fetchDirectory(
   outlet?: string | null
 ) {
   const [branches, staff, extraBranches] = await Promise.all([
-    fetchBranches(),
+    labelled('branches', fetchBranches()),
     fetchStaff(period, scaleMax, outlet),
-    fetchUserBranches(),
+    labelled('user_branches', fetchUserBranches()),
   ]);
 
   return {

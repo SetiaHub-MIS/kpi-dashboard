@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { MIN_VISIBLE_MS, SHOW_AFTER_MS, activityKind, requestKind } from '../src/data/activity.ts';
+import { MIN_VISIBLE_MS, SHOW_AFTER_MS, activityKind, errorDetail, requestKind } from '../src/data/activity.ts';
 import { useActivity } from '../src/store/useActivity.ts';
 
 const API = 'https://aorkigafuepkexymexjt.supabase.co';
@@ -61,3 +61,12 @@ function pick() {
   const { loads, saves } = useActivity.getState();
   return { loads, saves };
 }
+
+test('a failure reads as the database code and its words, or the error message, cut short', () => {
+  assert.equal(errorDetail({ code: '57014', message: 'canceling statement due to statement timeout' }),
+    '57014 canceling statement due to statement timeout');
+  assert.equal(errorDetail(new TypeError('Failed to fetch')), 'Failed to fetch');
+  assert.equal(errorDetail(new Error('marks: 42501 permission denied')), 'marks: 42501 permission denied');
+  assert.equal(errorDetail('plain'), 'plain');
+  assert.equal(errorDetail('x'.repeat(300)).length, 180);
+});

@@ -1,3 +1,4 @@
+import { errorDetail } from '@/data/activity';
 import { PERIODS, currentWeekIdx } from '@/data/checklist';
 import { defaultMarksOutlet, scopesMarksByOutlet } from '@/data/marksScope';
 import { todayShort, weekStarted } from '@/data/period';
@@ -93,8 +94,10 @@ export async function hydrateDirectory(): Promise<boolean> {
 
     useActivity.getState().setFirstLoad('done');
     return true;
-  } catch {
-    useActivity.getState().setFirstLoad('failed');
+  } catch (err) {
+    // The banner shows why, so a screenshot of it says which query failed.
+    console.warn('hydrateDirectory failed', err);
+    useActivity.getState().setFirstLoad('failed', errorDetail(err));
     return false;
   } finally {
     end();

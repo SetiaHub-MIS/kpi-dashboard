@@ -14,15 +14,18 @@ type ActivityState = {
   /** Requests writing to it right now. */
   saves: number;
   firstLoad: FirstLoad;
+  /** Why the first load failed, for the banner (data/activity.ts errorDetail). */
+  firstLoadError: string | null;
   /** Counts one request or step in; the function it returns counts it out, once. */
   begin: (kind: RequestKind) => () => void;
-  setFirstLoad: (firstLoad: FirstLoad) => void;
+  setFirstLoad: (firstLoad: FirstLoad, error?: string | null) => void;
 };
 
 export const useActivity = create<ActivityState>((set) => ({
   loads: 0,
   saves: 0,
   firstLoad: 'idle',
+  firstLoadError: null,
 
   begin: (kind) => {
     const bump = (by: number) =>
@@ -40,5 +43,5 @@ export const useActivity = create<ActivityState>((set) => ({
     };
   },
 
-  setFirstLoad: (firstLoad) => set({ firstLoad }),
+  setFirstLoad: (firstLoad, error = null) => set({ firstLoad, firstLoadError: error }),
 }));

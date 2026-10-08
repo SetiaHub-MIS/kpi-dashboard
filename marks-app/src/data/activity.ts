@@ -34,6 +34,23 @@ export function activityKind(loads: number, saves: number): RequestKind | null {
   return null;
 }
 
+/**
+ * Why something failed, short enough for a banner and specific enough to act
+ * on: the database's own code and words (PostgREST errors carry both), or a
+ * network or script error's message. Long ones are cut.
+ */
+export function errorDetail(err: unknown, max = 180): string {
+  let text = '';
+  if (err && typeof err === 'object') {
+    const e = err as { code?: unknown; message?: unknown };
+    const code = typeof e.code === 'string' && e.code ? `${e.code} ` : '';
+    const message = typeof e.message === 'string' ? e.message : '';
+    text = `${code}${message}`.trim();
+  }
+  if (!text) text = String(err ?? '');
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
 /** A request quicker than this never shows the indicator: no flicker on every tap. */
 export const SHOW_AFTER_MS = 300;
 

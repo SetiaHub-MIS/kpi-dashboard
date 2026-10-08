@@ -15,6 +15,7 @@ import { C } from '@/theme/scoring';
  */
 export function FirstLoadGate({ children }: { children: ReactNode }) {
   const firstLoad = useActivity((s) => s.firstLoad);
+  const detail = useActivity((s) => s.firstLoadError);
   const t = useT();
 
   if (firstLoad === 'loading') {
@@ -34,9 +35,17 @@ export function FirstLoadGate({ children }: { children: ReactNode }) {
           className="rounded-xl px-3.5 py-3 mt-1 mb-3 border flex-row items-center gap-3"
           style={{ backgroundColor: C.failBg, borderColor: C.fail }}
         >
-          <Text className="flex-1 font-sans-med text-[12.5px] leading-[18px]" style={{ color: C.fail }}>
-            {t('gagal_muat_data')}
-          </Text>
+          <View className="flex-1">
+            <Text className="font-sans-med text-[12.5px] leading-[18px]" style={{ color: C.fail }}>
+              {t('gagal_muat_data')}
+            </Text>
+            {/* The reason, word for word: a screenshot of it is how a failure gets fixed. */}
+            {detail && (
+              <Text selectable className="font-mono text-[10.5px] leading-[15px] mt-1" style={{ color: C.fail }}>
+                {detail}
+              </Text>
+            )}
+          </View>
           <Pressable
             onPress={() => void hydrateDirectory()}
             accessibilityRole="button"
