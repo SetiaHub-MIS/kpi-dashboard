@@ -17,6 +17,13 @@ test('staff and SV/AS cannot open the manager pages, Tugasan included', () => {
   }
 });
 
+test('SV/AS have their own Aset kedai tab; staff do not', () => {
+  assert.equal(mayOpen('supervisor', '/supervisor/aset'), true);
+  for (const role of ['staff', 'store', 'clerk']) {
+    assert.equal(mayOpen(role, '/supervisor/aset'), false, role);
+  }
+});
+
 test('the Area Manager and the Manager can, and admin can open anything', () => {
   for (const role of ['area_manager', 'manager', 'admin']) {
     assert.equal(mayOpen(role, '/manager/tugasan'), true, role);
