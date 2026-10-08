@@ -36,11 +36,12 @@ export function shouldRecheck(lastCheckAt: number, now: number): boolean {
 
 /**
  * Which code the app is running, as the account screen shows it, so a phone
- * can be checked against `eas update:list` without guessing: the web build,
- * a development run, the APK's own built-in code, or a downloaded update.
+ * can be checked without guessing: the web build (with the Vercel deploy's
+ * time and commit, against the Vercel dashboard), a development run, the
+ * APK's own built-in code, or a downloaded update (against `eas update:list`).
  */
 export type RunningCode =
-  | { kind: 'web' }
+  | { kind: 'web'; commit: string | null; builtAt: Date | null }
   | { kind: 'dev' }
   | { kind: 'builtin' }
   | { kind: 'update'; id: string; publishedAt: Date | null };
@@ -53,14 +54,24 @@ export function runningCode(s: {
   embedded: boolean;
   updateId: string | null;
   createdAt: Date | null;
+  /** Stamped into the web build by vercel.json; absent in a local build. */
+  webCommit?: string | null;
+  webBuiltAt?: string | null;
 }): RunningCode {
-  if (s.web) return { kind: 'web' };
+  if (s.web) {
+    const builtAt = s.webBuiltAt ? new Date(s.webBuiltAt) : null;
+    return {
+      kind: 'web',
+      commit: s.webCommit ? s.webCommit.slice(0, 7) : null,
+      builtAt: builtAt && !Number.isNaN(builtAt.getTime()) ? builtAt : null,
+    };
+  }
   if (!s.enabled) return { kind: 'dev' };
   if (s.embedded || !s.updateId) return { kind: 'builtin' };
   return { kind: 'update', id: s.updateId.slice(0, 8), publishedAt: s.createdAt };
 }
 
-/** "8/10/2026 09:48" in the phone's own time — when the update was published. */
+/** "8/10/2026 09:48" in the phone's own time — when the update was published or the site deployed. */
 export function publishedLabel(d: Date): string {
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }

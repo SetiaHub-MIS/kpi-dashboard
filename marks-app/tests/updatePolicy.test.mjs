@@ -38,7 +38,7 @@ test('a clock set back does not stop the checks', () => {
 
 test('the account screen names the code running: web, development, built-in or an update', () => {
   const base = { web: false, enabled: true, embedded: false, updateId: null, createdAt: null };
-  assert.deepEqual(runningCode({ ...base, web: true, updateId: 'x' }), { kind: 'web' });
+  assert.deepEqual(runningCode({ ...base, web: true, updateId: 'x' }), { kind: 'web', commit: null, builtAt: null });
   assert.deepEqual(runningCode({ ...base, enabled: false }), { kind: 'dev' });
   assert.deepEqual(runningCode({ ...base, embedded: true, updateId: '01a11932-b6dd' }), { kind: 'builtin' });
   assert.deepEqual(runningCode(base), { kind: 'builtin' });
@@ -48,6 +48,21 @@ test('the account screen names the code running: web, development, built-in or a
     kind: 'update',
     id: '01a11932',
     publishedAt: at,
+  });
+});
+
+test('a web build names its Vercel deploy: short commit and build time, or nothing when unstamped', () => {
+  const base = { web: true, enabled: false, embedded: false, updateId: null, createdAt: null };
+  assert.deepEqual(
+    runningCode({ ...base, webCommit: '5261de4a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e', webBuiltAt: '2026-10-08T02:37:49Z' }),
+    { kind: 'web', commit: '5261de4', builtAt: new Date('2026-10-08T02:37:49Z') },
+  );
+  // A local `expo export` has no stamp; a mangled time is dropped, not shown as "Invalid Date".
+  assert.deepEqual(runningCode({ ...base, webCommit: '', webBuiltAt: '' }), { kind: 'web', commit: null, builtAt: null });
+  assert.deepEqual(runningCode({ ...base, webCommit: 'abc1234', webBuiltAt: 'not a date' }), {
+    kind: 'web',
+    commit: 'abc1234',
+    builtAt: null,
   });
 });
 

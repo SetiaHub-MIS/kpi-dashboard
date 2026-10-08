@@ -62,15 +62,18 @@ export default function Akaun() {
 }
 
 /**
- * Which version this phone is running, to check it against `eas update:list`:
- * a downloaded update shows when it was published and the start of its ID.
+ * Which version this phone is running: a web install shows when Vercel
+ * deployed it and from which commit; a downloaded update shows when it was
+ * published and the start of its ID, to check against `eas update:list`.
  */
 function versionLine(t: ReturnType<typeof useT>): string {
   const version = Constants.expoConfig?.version ?? '';
   const code = runningCodeNow();
   switch (code.kind) {
     case 'web':
-      return t('versi_web', { version });
+      return code.builtAt && code.commit
+        ? t('versi_web_deploy', { version, when: publishedLabel(code.builtAt), commit: code.commit })
+        : t('versi_web', { version });
     case 'dev':
       return t('versi_dev', { version });
     case 'builtin':

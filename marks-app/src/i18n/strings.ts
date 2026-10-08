@@ -51,6 +51,10 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   versi_baharu_nanti: { ms: 'Nanti', en: 'Later' },
   // The account screen's version line: which code this phone is running.
   versi_web: { ms: 'Versi {version} · web', en: 'Version {version} · web' },
+  versi_web_deploy: {
+    ms: 'Versi {version} · web {when} · {commit}',
+    en: 'Version {version} · web {when} · {commit}',
+  },
   versi_dev: { ms: 'Versi {version} · pembangunan', en: 'Version {version} · development' },
   versi_asal: {
     ms: 'Versi {version} · kod asal APK, belum ada kemas kini',

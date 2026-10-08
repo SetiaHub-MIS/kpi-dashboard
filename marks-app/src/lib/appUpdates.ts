@@ -26,6 +26,9 @@ export function runningCodeNow(): RunningCode {
     embedded: Updates.isEmbeddedLaunch,
     updateId: Updates.updateId,
     createdAt: Updates.createdAt,
+    // Written out in full: Expo inlines EXPO_PUBLIC_* only where spelled this way.
+    webCommit: process.env.EXPO_PUBLIC_BUILD_COMMIT ?? null,
+    webBuiltAt: process.env.EXPO_PUBLIC_BUILD_TIME ?? null,
   });
 }
 

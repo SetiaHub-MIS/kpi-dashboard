@@ -1,5 +1,5 @@
 {
-  "buildCommand": "expo export -p web",
+  "buildCommand": "EXPO_PUBLIC_BUILD_COMMIT=$VERCEL_GIT_COMMIT_SHA EXPO_PUBLIC_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ) expo export -p web --clear",
   "outputDirectory": "dist",
   "devCommand": "expo",
   "cleanUrls": true,
