@@ -1,7 +1,7 @@
 # Graph Report - Performance marking app dashboard  (2026-10-08)
 
 ## Corpus Check
-- 210 files · ~329,601 words
+- 210 files · ~329,850 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: (none) 3, .example 1, .css 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `968c1c3d`
+- Built from commit: `5261de4f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -384,7 +384,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `App Icon (1024px master)` and `Splash Screen Icon`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `store()` connect `Checklist Mingguan — database reference` to `tugasanAutosave.test.mjs`?**
-  _High betweenness centrality (0.260) - this node is a cross-community bridge._
+  _High betweenness centrality (0.272) - this node is a cross-community bridge._
 - **What connects `expo`, `name`, `slug` to the rest of the system?**
   _320 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `useT` be split into smaller, more focused modules?**
