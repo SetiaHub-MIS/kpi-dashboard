@@ -44,7 +44,9 @@ export function SignInForm() {
       // Loaded here rather than at boot: before sign-in there is no session, and
       // every policy is written for `authenticated`, so the queries would come
       // back empty and look like an empty company. A failure is not fatal —
-      // better to continue on the seed than bounce someone who authenticated.
+      // better to carry on, with empty lists and a "could not load" banner
+      // offering to try again (components/FirstLoad.tsx), than bounce someone
+      // who authenticated.
       const { hydrateDirectory } = await import('@/lib/hydrate');
       await hydrateDirectory();
 

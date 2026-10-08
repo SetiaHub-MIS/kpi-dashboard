@@ -23,7 +23,7 @@ import { UpdateBanner } from '@/components/UpdateBanner';
 import { HOME_ROUTE, mayOpen } from '@/data/routes';
 import { SessionEnd } from '@/data/sessionLimits';
 import { takeCarriedNotice, useAppUpdates } from '@/lib/appUpdates';
-import { hydrateDirectory, signOutAndClear } from '@/lib/hydrate';
+import { clearLoadedData, hydrateDirectory, signOutAndClear } from '@/lib/hydrate';
 // Imported for its listener: Chrome fires the install offer once, early, and
 // it has to be caught before any screen has mounted.
 import '@/lib/install';
@@ -43,6 +43,11 @@ import { findUser, useUsers } from '@/store/useUsers';
 import { useSession } from '@/store/useSession';
 
 SplashScreen.preventAutoHideAsync();
+
+// The stores are born holding the demo's sample people and outlets. Against
+// the real database they start empty instead, before anything renders, so a
+// slow or failed load never shows made-up names as if they were staff.
+if (isSupabaseConfigured) clearLoadedData();
 
 /** Reachable with nobody signed in: the way in, and the way back in. */
 const PUBLIC_ROUTES = new Set(['/', '/reset-password']);

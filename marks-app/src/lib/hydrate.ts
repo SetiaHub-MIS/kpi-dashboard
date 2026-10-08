@@ -24,7 +24,8 @@ import { useUsers } from '@/store/useUsers';
  * Called from two places, and it has to be both: after signing in, and after a
  * stored session is restored on boot. Doing it only on sign-in meant reopening
  * the app fell back to seed data without saying so — the marks a supervisor had
- * just written would simply not be there.
+ * just written would simply not be there. (Live mode no longer holds seed data
+ * at all: see clearLoadedData.)
  *
  * Returns false when there is nothing to load or the load failed, in which case
  * the stores keep whatever they had. Either way the screens are told
@@ -223,6 +224,20 @@ export async function signOutAndClear(scope: 'global' | 'local' = 'global'): Pro
 
   if (!isSupabaseConfigured) return;
 
+  clearLoadedData();
+  useActivity.getState().setFirstLoad('idle');
+}
+
+/**
+ * Empties every store the directory load fills. The stores are born holding
+ * the demo's sample people, outlets, returns and Tugasan, and a real account
+ * must never be shown those as if they were the company's — not while its own
+ * data is loading, not after that load failed (the screen then shows empty
+ * lists under its "could not load" banner), and not for the parts its role is
+ * refused. So live mode empties them at boot (app/_layout.tsx) and again on
+ * every sign-out.
+ */
+export function clearLoadedData(): void {
   useUsers.getState().hydrate([]);
   useBranches.getState().hydrate([]);
   useReturns.getState().hydrate([], {});
@@ -231,5 +246,4 @@ export async function signOutAndClear(scope: 'global' | 'local' = 'global'): Pro
   useReminders.getState().hydrate([]);
   useMarks.getState().reset();
   useMyWeeks.getState().reset();
-  useActivity.getState().setFirstLoad('idle');
 }
