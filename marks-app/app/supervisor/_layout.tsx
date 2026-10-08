@@ -15,12 +15,12 @@ export default function SupervisorLayout() {
         options={{ title: t('tab_rekod'), tabBarIcon: tabIcon('time') }}
       />
       <Tabs.Screen
-        name="pekerja"
-        options={{ title: t('tab_pekerja'), tabBarIcon: tabIcon('people') }}
-      />
-      <Tabs.Screen
         name="aset"
         options={{ title: t('tab_aset_kedai'), tabBarIcon: tabIcon('cube') }}
+      />
+      <Tabs.Screen
+        name="pekerja"
+        options={{ title: t('tab_pekerja'), tabBarIcon: tabIcon('people') }}
       />
       <Tabs.Screen
         name="peringatan"

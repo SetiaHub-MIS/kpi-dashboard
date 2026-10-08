@@ -115,7 +115,7 @@ export const SV_FORM: Kategori[] = [
   { no: 1, name: 'KEDATANGAN', lines: ['KEDATANGAN'] },
   { no: 2, name: 'DISIPLIN', lines: ['DISIPLIN'] },
   { no: 3, name: 'KEBERSIHAN KEDAI', lines: ['KEBERSIHAN KEDAI'] },
-  { no: 4, name: 'KEKEMASAN KEDAI', lines: ['KEKEMASAN KEDAI'] },
+  { no: 4, name: 'KEKEMASAN STOR', lines: ['KEKEMASAN STOR'] },
   { no: 5, name: 'KEROSAKAN ASET KEDAI', lines: ['KEROSAKAN ASET KEDAI'] },
   { no: 6, name: 'KEBOCORAN AIR', lines: ['KEBOCORAN AIR'] },
   { no: 7, name: 'KEADAAN KEDAI', lines: ['KEADAAN KEDAI'] },
