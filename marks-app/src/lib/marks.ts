@@ -271,47 +271,64 @@ export async function fetchMarks(period: Period, branchId?: string): Promise<Mar
   });
 }
 
+/** Marks per mark_lines request: 200 ids keep the URL short, ~4,400 lines at most. */
+const MARKS_PER_REQUEST = 200;
+
 /**
- * Average score per kategori for each person, as a percentage of the scale.
+ * Average score per kategori for each person, as a percentage of the scale,
+ * over the marks given — the month and outlet fetchMarks just read.
  *
- * This is what the directory could not fill in before: it needs mark_lines
- * joined back through categories, which is two hops past the marks table.
+ * The lines are read by mark id, through mark_lines' primary key, the way
+ * fetchMyWeeks reads them. They used to be read with the period and outlet
+ * filtered through an embedded `marks!inner(...)`, which Postgres answers by
+ * walking every mark_lines row ever written in id order, checking RLS on
+ * each, until it has a page of matches: for an outlet with no marks yet that
+ * month there are none to find, so it walked the whole table and hit the 8 s
+ * statement timeout (an Area Manager's app could not load at all, 8 Oct 2026).
+ * No marks now means no request.
+ *
  * Returned keyed by user, each an array indexed by kategori position.
  */
 export async function fetchPerkaraAverages(
-  period: Period,
-  scaleMax: number,
-  branchId?: string
+  marks: MarkRow[],
+  scaleMax: number
 ): Promise<Record<string, number[]>> {
-  const data = await allPages<any>((from, to) => {
-    let q = supabase
-      .from('mark_lines')
-      .select(
-        'mark_id, line_id, score, marks!inner(user_id, branch_id, period_year, period_month), checklist_lines!inner(checklist_categories!inner(position))'
-      )
-      .eq('marks.period_year', period.year)
-      .eq('marks.period_month', period.month);
-    if (branchId) q = q.eq('marks.branch_id', branchId);
-    return q.order('mark_id').order('line_id').range(from, to);
-  });
+  const userOfMark = new Map(marks.map((m) => [m.id, m.userId]));
+  const ids = [...userOfMark.keys()];
+
+  const data: any[] = [];
+  for (let i = 0; i < ids.length; i += MARKS_PER_REQUEST) {
+    const chunk = ids.slice(i, i + MARKS_PER_REQUEST);
+    data.push(
+      ...(await allPages<any>((from, to) =>
+        supabase
+          .from('mark_lines')
+          .select('mark_id, line_id, score, checklist_lines!inner(checklist_categories!inner(position))')
+          .in('mark_id', chunk)
+          .order('mark_id')
+          .order('line_id')
+          .range(from, to),
+      )),
+    );
+  }
 
   // user -> kategori position -> running total
   const acc = new Map<string, Map<number, { sum: number; n: number }>>();
 
-  (data ?? []).forEach((row: any) => {
-    const mark = Array.isArray(row.marks) ? row.marks[0] : row.marks;
+  data.forEach((row: any) => {
+    const userId = userOfMark.get(row.mark_id);
     const line = Array.isArray(row.checklist_lines) ? row.checklist_lines[0] : row.checklist_lines;
     const cat = Array.isArray(line?.checklist_categories)
       ? line.checklist_categories[0]
       : line?.checklist_categories;
-    if (!mark || !cat) return;
+    if (!userId || !cat) return;
 
-    const byKat = acc.get(mark.user_id) ?? new Map();
+    const byKat = acc.get(userId) ?? new Map();
     const cur = byKat.get(cat.position) ?? { sum: 0, n: 0 };
     cur.sum += row.score;
     cur.n += 1;
     byKat.set(cat.position, cur);
-    acc.set(mark.user_id, byKat);
+    acc.set(userId, byKat);
   });
 
   const out: Record<string, number[]> = {};

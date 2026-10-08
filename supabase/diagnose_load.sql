@@ -14,6 +14,10 @@
 --
 -- Marks are read for the person's own outlet and this month, as the app does
 -- on opening (an Area Manager's home outlet; head office: none).
+--
+-- These are plain SQL, shaped like the app's reads; the API can still plan a
+-- read differently. All "ok" here while the app reports a timeout means the
+-- app's read is shaped worse than this one — the banner names which.
 
 CREATE TEMP TABLE diag (ord int, step text, rows_back bigint, ms int, error text) ON COMMIT DROP;
 GRANT ALL ON diag TO authenticated;
@@ -41,11 +45,13 @@ DECLARE
     'user_branches',   'SELECT count(*) FROM user_branches',
     'marks',           'SELECT count(*) FROM marks mk LEFT JOIN mark_verifications v ON v.mark_id = mk.id
                          WHERE mk.period_year = %1$s AND mk.period_month = %2$s AND mk.branch_id = %3$L',
+    -- By mark id, as the app reads them (lib/marks.ts fetchPerkaraAverages).
     'mark_lines',      'SELECT count(*) FROM mark_lines ml
-                          JOIN marks mk ON mk.id = ml.mark_id
                           JOIN checklist_lines cl ON cl.id = ml.line_id
                           JOIN checklist_categories cc ON cc.id = cl.category_id
-                         WHERE mk.period_year = %1$s AND mk.period_month = %2$s AND mk.branch_id = %3$L',
+                         WHERE ml.mark_id = ANY (ARRAY(SELECT id FROM marks
+                                                        WHERE period_year = %1$s AND period_month = %2$s
+                                                          AND branch_id = %3$L))',
     'returns',         'SELECT count(*) FROM returns',
     'assets',          'SELECT count(*) FROM assets a LEFT JOIN asset_issues i ON i.asset_id = a.id AND i.resolved_on IS NULL',
     'tugasan_checks',  'SELECT count(*) FROM tugasan_checks WHERE period_year >= %1$s',

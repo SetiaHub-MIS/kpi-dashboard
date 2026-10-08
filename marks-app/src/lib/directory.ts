@@ -360,15 +360,15 @@ export async function fetchStaff(
   /** `${userId}-${weekIdx}` -> that mark's max_score, for validating a new override. */
   markMax: Record<string, number>;
 }> {
-  const [{ data: users, error: userErr }, marks, perkara] = await Promise.all([
+  const [{ data: users, error: userErr }, marks] = await Promise.all([
     supabase.from('users').select(USER_COLUMNS).order('id'),
     outlet === null ? Promise.resolve([] as MarkRow[]) : labelled('marks', fetchMarks(period, outlet)),
-    outlet === null
-      ? Promise.resolve({} as Record<string, number[]>)
-      : labelled('mark_lines', fetchPerkaraAverages(period, scaleMax, outlet)),
   ]);
 
   if (userErr) throw new Error(`users: ${errorDetail(userErr)}`);
+
+  // Read by the marks just fetched, so it needs them first (lib/marks.ts).
+  const perkara = await labelled('mark_lines', fetchPerkaraAverages(marks, scaleMax));
 
   const byUser = new Map<string, MarkRow[]>();
   marks.forEach((m) => {
