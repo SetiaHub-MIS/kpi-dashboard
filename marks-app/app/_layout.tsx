@@ -18,6 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AppState, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ActivityBar } from '@/components/ActivityBar';
 import { UpdateBanner } from '@/components/UpdateBanner';
 import { HOME_ROUTE, mayOpen } from '@/data/routes';
 import { SessionEnd } from '@/data/sessionLimits';
@@ -35,6 +36,7 @@ import {
   startSession,
 } from '@/lib/sessionGuard';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { useActivity } from '@/store/useActivity';
 import { useLocale } from '@/store/useLocale';
 import { useQueue } from '@/store/useQueue';
 import { findUser, useUsers } from '@/store/useUsers';
@@ -112,8 +114,15 @@ export default function RootLayout() {
       }
       // Drain before loading: a mark that syncs now should be in the directory
       // that follows it, rather than appearing only after the next restart.
-      await useQueue.getState().drain(nameOf);
-      if (live) void hydrateDirectory();
+      // The screen the person lands on holds its content back from here, so it
+      // does not say "Tiada…" while their data is still on the way.
+      if (isSupabaseConfigured) useActivity.getState().setFirstLoad('loading');
+      try {
+        await useQueue.getState().drain(nameOf);
+      } finally {
+        if (live) void hydrateDirectory();
+        else useActivity.getState().setFirstLoad('idle');
+      }
     });
     return () => {
       live = false;
@@ -196,6 +205,7 @@ export default function RootLayout() {
           }}
         />
         {updates.offer && <UpdateBanner onRestart={updates.restart} onLater={updates.dismiss} />}
+        <ActivityBar />
       </View>
     </SafeAreaProvider>
   );

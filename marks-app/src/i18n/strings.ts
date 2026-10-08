@@ -20,6 +20,14 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
   isi: { ms: 'Isi', en: 'Fill in' },
   tiada_pemegang: { ms: 'Tiada pemegang', en: 'Nobody in this role' },
   memuatkan: { ms: 'Memuatkan…', en: 'Loading…' },
+  menyimpan: { ms: 'Menyimpan…', en: 'Saving…' },
+  memuatkan_data: { ms: 'Memuatkan data anda…', en: 'Loading your data…' },
+  gagal_muat_data: {
+    ms: 'Data tidak dapat dimuatkan. Semak sambungan internet dan cuba lagi.',
+    en: 'Your data could not be loaded. Check the internet connection and try again.',
+  },
+  cuba_lagi: { ms: 'Cuba lagi', en: 'Try again' },
+  gagal_muat_cuba_lagi: { ms: 'Gagal dimuatkan · Cuba lagi', en: 'Failed to load · Try again' },
   pilih_cawangan: { ms: 'Pilih cawangan', en: 'Choose an outlet' },
   pilih_cawangan_markah: {
     ms: 'Pilih cawangan di atas untuk melihat markahnya.',

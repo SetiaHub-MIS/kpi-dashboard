@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { MONTHS, PERIODS, WEEK_COLS } from '@/data/checklist';
 import { weekRangeLabel, weekStarted } from '@/data/period';
-import { selectMonth } from '@/lib/hydrate';
+import { reloadPeriod, selectMonth } from '@/lib/hydrate';
 import { useT } from '@/store/useLocale';
 import { useMarks } from '@/store/useMarks';
 import { C } from '@/theme/scoring';
@@ -19,6 +19,7 @@ export function PeriodPicker({ weeks = false }: { weeks?: boolean }) {
   const monthIdx = useMarks((s) => s.monthIdx);
   const weekIdx = useMarks((s) => s.weekIdx);
   const loading = useMarks((s) => s.periodLoading);
+  const failed = useMarks((s) => s.periodFailed);
   const setWeek = useMarks((s) => s.setWeek);
   const t = useT();
   const period = PERIODS[monthIdx];
@@ -28,9 +29,6 @@ export function PeriodPicker({ weeks = false }: { weeks?: boolean }) {
       <View className="flex-row items-center justify-between">
         <Text className="font-sans-semi text-2xl text-ink">{MONTHS[monthIdx]}</Text>
         <View className="flex-row items-center gap-1.5">
-          {loading && (
-            <Text className="font-sans text-[11px] text-ink-5 mr-1">{t('memuatkan')}</Text>
-          )}
           <StepButton
             label="‹"
             a11y={t('bulan_sebelum')}
@@ -45,6 +43,21 @@ export function PeriodPicker({ weeks = false }: { weeks?: boolean }) {
           />
         </View>
       </View>
+
+      {/* On its own line, so it never crowds the month name or the arrows off a narrow screen. */}
+      {loading ? (
+        <Text className="font-sans text-[11.5px] text-ink-5 mt-1">{t('memuatkan')}</Text>
+      ) : failed ? (
+        <Pressable
+          onPress={() => void reloadPeriod()}
+          accessibilityRole="button"
+          className="self-start mt-1 py-0.5 active:opacity-70"
+        >
+          <Text className="font-sans-semi text-[11.5px]" style={{ color: C.fail }}>
+            {t('gagal_muat_cuba_lagi')}
+          </Text>
+        </Pressable>
+      ) : null}
 
       {weeks && (
         <View className="flex-row gap-1.5 mt-3">

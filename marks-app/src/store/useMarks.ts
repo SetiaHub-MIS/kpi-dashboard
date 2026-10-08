@@ -74,6 +74,8 @@ type MarksState = {
   weekIdx: number;
   /** A month's marks are on their way from Postgres. */
   periodLoading: boolean;
+  /** The last load of a month's marks failed; the pickers offer to try again. */
+  periodFailed: boolean;
   /**
    * The outlet whose marks are loaded, for the Manager and Area Manager
    * (see data/marksScope.ts). null = none picked yet; unused by other roles.
@@ -98,6 +100,7 @@ type MarksState = {
   setMonth: (monthIdx: number) => void;
   setWeek: (weekIdx: number) => void;
   setPeriodLoading: (loading: boolean) => void;
+  setPeriodFailed: (failed: boolean) => void;
   setOutlet: (outlet: string | null) => void;
   /** Drops everything that belongs to the loaded month, ahead of loading another. */
   clearPeriod: () => void;
@@ -137,6 +140,7 @@ export const useMarks = create<MarksState>((set, get) => ({
   monthIdx: MONTHS.length - 1,
   weekIdx: currentWeekIdx(),
   periodLoading: false,
+  periodFailed: false,
   outlet: null,
   ...emptyPeriod,
   saveError: null,
@@ -148,6 +152,8 @@ export const useMarks = create<MarksState>((set, get) => ({
   setWeek: (weekIdx) => set({ weekIdx: Math.max(0, Math.min(3, weekIdx)) }),
 
   setPeriodLoading: (periodLoading) => set({ periodLoading }),
+
+  setPeriodFailed: (periodFailed) => set({ periodFailed }),
 
   setOutlet: (outlet) => set({ outlet }),
 
@@ -320,6 +326,7 @@ export const useMarks = create<MarksState>((set, get) => ({
       monthIdx: MONTHS.length - 1,
       weekIdx: currentWeekIdx(),
       periodLoading: false,
+      periodFailed: false,
       outlet: null,
       ...emptyPeriod,
       saveError: null,

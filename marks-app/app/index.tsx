@@ -100,8 +100,9 @@ export default function RolePicker() {
   // not flash in front of someone who is already signed in.
   if (status === 'restoring') {
     return (
-      <View className="flex-1 bg-canvas items-center justify-center">
+      <View className="flex-1 bg-canvas items-center justify-center gap-3">
         <ActivityIndicator color={C.ink5} />
+        <Text className="font-sans-med text-sm text-ink-4">{t('memuatkan')}</Text>
       </View>
     );
   }

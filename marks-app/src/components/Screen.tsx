@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FirstLoadGate } from '@/components/FirstLoad';
 
 type Props = {
   children: ReactNode;
@@ -20,7 +21,7 @@ export function Screen({ children, bottomInset = 0 }: Props) {
         }}
         showsVerticalScrollIndicator={false}
       >
-        {children}
+        <FirstLoadGate>{children}</FirstLoadGate>
       </ScrollView>
     </View>
   );

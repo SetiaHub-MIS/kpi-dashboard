@@ -3,6 +3,7 @@ import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
+import { trackedFetch } from '@/lib/activity';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -31,4 +32,7 @@ export const supabase = createClient(url ?? 'http://localhost', anonKey ?? 'anon
     // fragment; on the phone there is no URL bar to read a callback out of.
     detectSessionInUrl: Platform.OS === 'web',
   },
+  // Every request is counted while it is out, so the screen can say so
+  // (components/ActivityBar.tsx).
+  global: { fetch: trackedFetch },
 });

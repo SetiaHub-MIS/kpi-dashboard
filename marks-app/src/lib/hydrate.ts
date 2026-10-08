@@ -7,6 +7,7 @@ import { fetchDirectory, fetchRoleChanges, fetchStaff } from '@/lib/directory';
 import { fetchMyReminders } from '@/lib/reminders';
 import { fetchReturns } from '@/lib/returns';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { useActivity } from '@/store/useActivity';
 import { useAssets } from '@/store/useAssets';
 import { useTugasan } from '@/store/useTugasan';
 import { useBranches } from '@/store/useBranches';
@@ -26,11 +27,18 @@ import { useUsers } from '@/store/useUsers';
  * just written would simply not be there.
  *
  * Returns false when there is nothing to load or the load failed, in which case
- * the stores keep whatever they had.
+ * the stores keep whatever they had. Either way the screens are told
+ * (useActivity.firstLoad): they hold their content back while it runs, and
+ * offer to try again if it failed.
  */
 export async function hydrateDirectory(): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
 
+  const activity = useActivity.getState();
+  activity.setFirstLoad('loading');
+  // One token for the whole sequence, so the indicator does not blink off
+  // between its requests.
+  const end = activity.begin('load');
   try {
     const marks = useMarks.getState();
     const dir = await fetchDirectory(PERIODS[marks.monthIdx], marks.scaleMax, marksOutlet());
@@ -82,9 +90,13 @@ export async function hydrateDirectory(): Promise<boolean> {
       // Nobody has ever sent this account one, or the read was refused.
     }
 
+    useActivity.getState().setFirstLoad('done');
     return true;
   } catch {
+    useActivity.getState().setFirstLoad('failed');
     return false;
+  } finally {
+    end();
   }
 }
 
@@ -146,16 +158,8 @@ export async function selectMonth(monthIdx: number): Promise<void> {
   marks.clearPeriod();
   if (!isSupabaseConfigured) return;
 
-  marks.setPeriodLoading(true);
-  try {
-    // Only the marks changed; the directory rows are the same people.
-    hydrateKeepingCoverage(await fetchStaff(PERIODS[idx], marks.scaleMax, marksOutlet()));
-  } catch {
-    // The month label has moved but its marks did not arrive: every week
-    // reads as unmarked, which is at least visibly wrong rather than stale.
-  } finally {
-    useMarks.getState().setPeriodLoading(false);
-  }
+  // Only the marks changed; the directory rows are the same people.
+  await loadPeriod();
 }
 
 /**
@@ -170,13 +174,34 @@ export async function selectOutlet(outlet: string | null): Promise<void> {
   marks.clearPeriod();
   if (!isSupabaseConfigured || outlet === null) return;
 
+  await loadPeriod();
+}
+
+/** Tries the month on screen again, after its load failed (PeriodPicker's "Cuba lagi"). */
+export async function reloadPeriod(): Promise<void> {
+  if (!isSupabaseConfigured) return;
+  useMarks.getState().clearPeriod();
+  await loadPeriod();
+}
+
+/**
+ * Loads the month on screen, for the outlet in force, in place of whatever
+ * was loaded. The pickers say "Memuatkan…" while it runs; if it fails every
+ * week would read as unmarked, so they say it failed and offer to try again
+ * rather than leave that standing as if it were true.
+ */
+async function loadPeriod(): Promise<void> {
+  const marks = useMarks.getState();
   marks.setPeriodLoading(true);
+  marks.setPeriodFailed(false);
+  const end = useActivity.getState().begin('load');
   try {
-    hydrateKeepingCoverage(await fetchStaff(PERIODS[marks.monthIdx], marks.scaleMax, outlet));
+    hydrateKeepingCoverage(await fetchStaff(PERIODS[marks.monthIdx], marks.scaleMax, marksOutlet()));
   } catch {
-    // Every week reads as unmarked, visibly, rather than another outlet's marks.
+    useMarks.getState().setPeriodFailed(true);
   } finally {
     useMarks.getState().setPeriodLoading(false);
+    end();
   }
 }
 
@@ -206,4 +231,5 @@ export async function signOutAndClear(scope: 'global' | 'local' = 'global'): Pro
   useReminders.getState().hydrate([]);
   useMarks.getState().reset();
   useMyWeeks.getState().reset();
+  useActivity.getState().setFirstLoad('idle');
 }
