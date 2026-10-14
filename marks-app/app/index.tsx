@@ -11,19 +11,17 @@ import { HOME_ROUTE } from '@/data/routes';
 import { notify } from '@/lib/dialog';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useActiveBranches } from '@/store/useBranches';
-import { ME_ID } from '@/data/crew';
-import { Role, isReportsOnly } from '@/data/users';
+import { Role, isReportsOnly, isStaff } from '@/data/users';
 import { roleBlurb, roleLabel } from '@/i18n/labels';
 import { useLocale, useT } from '@/store/useLocale';
 import { useSession } from '@/store/useSession';
-import { byRole, findUser, inBranch, useUsers } from '@/store/useUsers';
+import { byRole, inBranch, useUsers } from '@/store/useUsers';
 import { C } from '@/theme/scoring';
 
 /** Posted to one kedai, so the outlet picker above decides who is offered. */
 const BRANCH_ROLES: { role: Role; href: Href }[] = [
   { role: 'area_manager', href: '/manager' },
   { role: 'supervisor', href: '/supervisor' },
-  { role: 'staff', href: '/staff' },
 ];
 
 /**
@@ -67,6 +65,11 @@ export default function RolePicker() {
   // form asking them to prove what the device already knows.
   useEffect(() => {
     if (!signedInStaff) return;
+    if (isStaff(signedInStaff.role)) {
+      void useSession.getState().signOut();
+      notify(t('guna_aplikasi_lain'), t('guna_aplikasi_lain_body'));
+      return;
+    }
     if (isReportsOnly(signedInStaff.role)) {
       // A GM session left over from before the split: end it here rather
       // than park them on a sign-in form while signed in.
@@ -167,11 +170,7 @@ export default function RolePicker() {
 
           <View className="gap-2.5 mt-4">
             {BRANCH_ROLES.map(({ role, href }) => {
-              const me = findUser(users, ME_ID);
-              // The Pekerja self-view still reads a Machang-only fixture, so it is
-              // offered only where that fixture actually belongs.
-              const fixtureOnly = role === 'staff' && me?.branchId !== branchId;
-              const holder = fixtureOnly ? undefined : inBranch(byRole(users, role), branchId)[0];
+              const holder = inBranch(byRole(users, role), branchId)[0];
               const disabled = !holder;
               return (
                 <Pressable
@@ -186,12 +185,10 @@ export default function RolePicker() {
                   <Text className="font-sans-semi text-[16px] text-ink mt-2">
                     {holder
                       ? `${holder.name} · ${holder.id}`
-                      : fixtureOnly
-                        ? t('paparan_sendiri_machang')
-                        : t('tiada_pemegang_cawangan')}
+                      : t('tiada_pemegang_cawangan')}
                   </Text>
                   <Text className="font-sans text-[13px] leading-5 text-ink-4 mt-1.5">
-                    {fixtureOnly ? t('rekod_contoh_machang') : roleBlurb(role, locale)}
+                    {roleBlurb(role, locale)}
                   </Text>
                 </Pressable>
               );

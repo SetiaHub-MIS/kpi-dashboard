@@ -159,8 +159,9 @@ export const MARKS_ROLES: Partial<Record<Role, Role[]>> = {
  * Roles that read the company through the reporting web app rather than
  * this one. They keep their place in the directory and in RLS, but a
  * sign-in here is turned away. HR was one until 6 Oct 2026; it now works the
- * admin console.
+ * admin console. Staff no longer use this app at all.
  */
+export const isStaff = (role: Role) => role === 'staff';
 export const isReportsOnly = (role: Role) => role === 'general_manager';
 
 /** The roles this account is responsible for marking. Empty for most. */

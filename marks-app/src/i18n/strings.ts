@@ -387,10 +387,15 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
     en: 'The issue could not be marked resolved. Try again. ({detail})',
   },
 
-  // ---------------------------------------------------- reports-only roles
+  // ---------------------------------------------------- staff / reports-only roles
+  guna_aplikasi_lain: { ms: 'Pekerja tidak menggunakan aplikasi ini', en: 'Staff do not use this app' },
+  guna_aplikasi_lain_body: {
+    ms: 'Akaun pekerja tidak dibenarkan untuk akses aplikasi ini.',
+    en: 'Staff are not allowed to access this app.',
+  },
   guna_aplikasi_laporan: { ms: 'Guna aplikasi laporan', en: 'Use the reporting app' },
   guna_aplikasi_laporan_body: {
-    ms: 'Akaun General Manager melihat laporan di aplikasi laporan web, bukan di sini. Untuk kemas kini pekerja, gunakan akaun Admin atau HR.',
+    ms: 'Akaun General Manager melihat laporan di aplikasi laporan web. Untuk kemas kini pekerja, gunakan akaun Admin atau HR.',
     en: 'General Manager accounts see reports in the reporting web app, not here. To update staff, use an Admin or HR account.',
   },
 
@@ -883,7 +888,7 @@ export const STRINGS: Record<string, Record<Locale, string>> = {
 
   // ---------------------------------------------------- user/[id], editing
   liputan_edit_hint: {
-    ms: 'Ketik untuk tambah atau tanggal cawangan. Tukar cawangan utama di bawah — terus, tanpa perlu tanggal dahulu.',
+    ms: 'Klik untuk tambah atau tanggal cawangan. Tukar cawangan utama di bawah — terus, tanpa perlu tanggal dahulu.',
     en: 'Tap to add or remove an outlet. Change the home outlet below — directly, nothing to remove first.',
   },
   cawangan_terakhir: {

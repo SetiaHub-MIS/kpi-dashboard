@@ -1,0 +1,15 @@
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\db\ERD.md
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\docs\database.md
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\docs\phone-app-updates.md
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\docs\reports-web-brief.md
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\docs\database.pdf
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\android-icon-background.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\android-icon-foreground.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\android-icon-monochrome.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\favicon.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\icon.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\assets\splash-icon.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\public\icon-192.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\public\icon-512.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\marks-app\public\icon-maskable-512.png
+C:\Users\USER\Desktop\CLAUDE WORKSPACE'\Performance marking app dashboard\public\loading_icon.png

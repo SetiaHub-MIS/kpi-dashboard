@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { MonoLabel } from '@/components/Card';
 import { HOME_ROUTE } from '@/data/routes';
-import { isReportsOnly } from '@/data/users';
+import { isReportsOnly, isStaff } from '@/data/users';
 import { AUTH_EMAIL_DOMAIN } from '@/lib/auth';
 import { notify } from '@/lib/dialog';
 import { useT } from '@/store/useLocale';
@@ -35,6 +35,11 @@ export function SignInForm() {
     try {
       const staff = await signInWithPassword(payrollId, password);
       if (!staff) return;
+      if (isStaff(staff.role)) {
+        await useSession.getState().signOut();
+        notify(t('guna_aplikasi_lain'), t('guna_aplikasi_lain_body'));
+        return;
+      }
       if (isReportsOnly(staff.role)) {
         await useSession.getState().signOut();
         notify(t('guna_aplikasi_laporan'), t('guna_aplikasi_laporan_body'));
