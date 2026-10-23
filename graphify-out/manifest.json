@@ -84,9 +84,9 @@
     "semantic_hash": "d3bdb634e1322986575ae12445bffe77"
   },
   "marks-app/app/index.tsx": {
-    "mtime": 1791428845.485181,
-    "seen": 1791429205.6784565,
-    "ast_hash": "d57f6f6ffd0b5f802615dfe78f357019",
+    "mtime": 1791967814.0489924,
+    "seen": 1792486908.5132515,
+    "ast_hash": "0c8d3c62784841c684fca4614c8d3150",
     "semantic_hash": ""
   },
   "marks-app/app/manager/_layout.tsx": {
@@ -372,9 +372,9 @@
     "semantic_hash": ""
   },
   "marks-app/src/components/SignInForm.tsx": {
-    "mtime": 1791429315.742893,
-    "seen": 1791429460.6634102,
-    "ast_hash": "2fe4f99918db4393965809861f0d9780",
+    "mtime": 1791967826.1717355,
+    "seen": 1792486908.5132515,
+    "ast_hash": "464791a542cbe1d6c96d3f8feee99492",
     "semantic_hash": ""
   },
   "marks-app/src/components/SignOutButton.tsx": {
@@ -474,9 +474,9 @@
     "semantic_hash": ""
   },
   "marks-app/src/data/users.ts": {
-    "mtime": 1791355657.253081,
-    "seen": 1791418535.6457016,
-    "ast_hash": "70da7fc872ba8b59b7fb77b95c831ef4",
+    "mtime": 1791968752.4067583,
+    "seen": 1792486908.5132515,
+    "ast_hash": "e4ed1a27572b7c1c45b867a691ef6720",
     "semantic_hash": ""
   },
   "marks-app/src/i18n/labels.ts": {
@@ -486,9 +486,9 @@
     "semantic_hash": ""
   },
   "marks-app/src/i18n/strings.ts": {
-    "mtime": 1791428830.931091,
-    "seen": 1791429205.6784565,
-    "ast_hash": "39d49f697707ede263b37bb76d50170b",
+    "mtime": 1791968601.5734243,
+    "seen": 1792486908.5132515,
+    "ast_hash": "6b400f1746fbfee27eba9cd94d6bd854",
     "semantic_hash": ""
   },
   "marks-app/src/lib/assets.ts": {
@@ -1038,9 +1038,9 @@
     "semantic_hash": ""
   },
   "supabase/tests/rls.test.mjs": {
-    "mtime": 1791259882.3646111,
-    "seen": 1791259930.8343396,
-    "ast_hash": "0ddee0a0baed114c23d9b1884afea763",
+    "mtime": 1792486296.6079977,
+    "seen": 1792486908.5132515,
+    "ast_hash": "bbd4f689b2c1035dfc53e29dbe1f6c8d",
     "semantic_hash": ""
   },
   "supabase/tests/verify_policies.sql": {
@@ -1074,9 +1074,9 @@
     "semantic_hash": "85cad5e40ec49e309b53ebeb552ef46e"
   },
   "docs/reports-web-brief.md": {
-    "mtime": 1791037681.2194135,
-    "seen": 1791037690.5750122,
-    "ast_hash": "750012e42e1e2cbaba8e061d15242f5a",
+    "mtime": 1792486295.6934135,
+    "seen": 1792486908.5132515,
+    "ast_hash": "5e3b97bb84e11acc75bb7de5bb197704",
     "semantic_hash": ""
   },
   "graphify-out/converted/Cawangan_ef5ef2a8.md": {
@@ -1371,6 +1371,18 @@
     "mtime": 1791433217.2706249,
     "seen": 1791433330.6245072,
     "ast_hash": "7f4bba93252877b5f971669a163a2607",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261020010000_report_staff_monthly_notes.sql": {
+    "mtime": 1792486239.2754562,
+    "seen": 1792486908.5132515,
+    "ast_hash": "1c83a00b1a4a3d26e643f0dff1a8e039",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1791967506.173358,
+    "seen": 1792486908.5132515,
+    "ast_hash": "df9a48566fb95ee4f643c3f238fd880d",
     "semantic_hash": ""
   }
 }

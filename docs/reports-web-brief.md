@@ -273,12 +273,14 @@ report_staff_monthly
   · w1_pct · w2_pct · w3_pct · w4_pct (NULL = unmarked) · avg_pct
   · marked_weeks · passed_weeks · verified_weeks · pass_threshold · marked_at
   · rank_in_branch · supervisor_title · due_from_week
+  · w1_notes · w2_notes · w3_notes · w4_notes
   -- one row per person × month × form (20261002020000): form_key is the
   -- checklist the marks were on, so someone promoted mid-month has a row
   -- per form; outlet and role are the person's current ones; marked_at is
   -- where the marks were scored; equal averages share a rank;
   -- due_from_week = the checklist week they are due from — the week of
-  -- joined_on in the month they were added, 1 otherwise (20261002040000)
+  -- joined_on in the month they were added, 1 otherwise (20261002040000);
+  -- weekly notes are the catatan recorded with each mark (20261020010000)
 
 report_returns_branch_monthly
   branch_id · branch_name · branch_short · year · month

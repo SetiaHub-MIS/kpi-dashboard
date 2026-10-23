@@ -1,0 +1,1376 @@
+{
+  ".claude/launch.json": {
+    "mtime": 1791433313.4517841,
+    "seen": 1791433330.6245072,
+    "ast_hash": "605b60f7e9b3f10e13ce3ecffd8b8eaf",
+    "semantic_hash": "605b60f7e9b3f10e13ce3ecffd8b8eaf"
+  },
+  ".claude/settings.json": {
+    "mtime": 1791035800.0958717,
+    "seen": 1791036606.8738334,
+    "ast_hash": "796da3964a0d6aa6eaddef2845b3ee07",
+    "semantic_hash": "796da3964a0d6aa6eaddef2845b3ee07"
+  },
+  "marks-app/.claude/settings.json": {
+    "mtime": 1788842699.4268334,
+    "seen": 1791036606.8738334,
+    "ast_hash": "dc580fca35a0e98ed20777ede5e545a1",
+    "semantic_hash": "dc580fca35a0e98ed20777ede5e545a1"
+  },
+  "marks-app/app.json": {
+    "mtime": 1791050252.964439,
+    "seen": 1791244180.2263963,
+    "ast_hash": "89eb10929ac4f717a6c01dc6601ccda9",
+    "semantic_hash": ""
+  },
+  "marks-app/app/_layout.tsx": {
+    "mtime": 1791429315.742893,
+    "seen": 1791429460.6634102,
+    "ast_hash": "9b9afb78d07ec5b34121aff8a9f31064",
+    "semantic_hash": ""
+  },
+  "marks-app/app/admin/_layout.tsx": {
+    "mtime": 1789479925.4585316,
+    "seen": 1791036606.8738334,
+    "ast_hash": "fdfd51711f12e1f86f48d5500858ecb5",
+    "semantic_hash": "fdfd51711f12e1f86f48d5500858ecb5"
+  },
+  "marks-app/app/admin/cawangan.tsx": {
+    "mtime": 1791355650.4683535,
+    "seen": 1791418535.6457016,
+    "ast_hash": "a4a81f7d99e32f0bfa535c8325ee814b",
+    "semantic_hash": ""
+  },
+  "marks-app/app/admin/index.tsx": {
+    "mtime": 1791355663.3413901,
+    "seen": 1791418535.6457016,
+    "ast_hash": "42b5ae6983078d76cd540c01be7c71f6",
+    "semantic_hash": ""
+  },
+  "marks-app/app/admin/peranan.tsx": {
+    "mtime": 1789040135.0878842,
+    "seen": 1791036606.8738334,
+    "ast_hash": "813d89f2cb7697bc2165589c135efe37",
+    "semantic_hash": "813d89f2cb7697bc2165589c135efe37"
+  },
+  "marks-app/app/akaun.tsx": {
+    "mtime": 1791427950.608269,
+    "seen": 1791428079.7131972,
+    "ast_hash": "d2321f7f310752821f1d680a2310277b",
+    "semantic_hash": ""
+  },
+  "marks-app/app/bil/[id].tsx": {
+    "mtime": 1789725817.2005994,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d9862a4f33a486ed0799d88ffb8d4b87",
+    "semantic_hash": "d9862a4f33a486ed0799d88ffb8d4b87"
+  },
+  "marks-app/app/branch-new.tsx": {
+    "mtime": 1790286371.9478855,
+    "seen": 1791036606.8738334,
+    "ast_hash": "9461e0380b40a60577fba97409a67f37",
+    "semantic_hash": "9461e0380b40a60577fba97409a67f37"
+  },
+  "marks-app/app/branch/[id].tsx": {
+    "mtime": 1790286363.992177,
+    "seen": 1791036606.8738334,
+    "ast_hash": "cc79c2aac9de64962262b53b27a9ac7b",
+    "semantic_hash": "cc79c2aac9de64962262b53b27a9ac7b"
+  },
+  "marks-app/app/done.tsx": {
+    "mtime": 1789808549.2718072,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d3bdb634e1322986575ae12445bffe77",
+    "semantic_hash": "d3bdb634e1322986575ae12445bffe77"
+  },
+  "marks-app/app/index.tsx": {
+    "mtime": 1791428845.485181,
+    "seen": 1791429205.6784565,
+    "ast_hash": "d57f6f6ffd0b5f802615dfe78f357019",
+    "semantic_hash": ""
+  },
+  "marks-app/app/manager/_layout.tsx": {
+    "mtime": 1789479900.313645,
+    "seen": 1791036606.8738334,
+    "ast_hash": "96c9199dadffa390867a8cd477f3beff",
+    "semantic_hash": "96c9199dadffa390867a8cd477f3beff"
+  },
+  "marks-app/app/manager/assets.tsx": {
+    "mtime": 1791418372.68176,
+    "seen": 1791418535.6457016,
+    "ast_hash": "be027011f3abc859a5573cf0190825b8",
+    "semantic_hash": ""
+  },
+  "marks-app/app/manager/gaps.tsx": {
+    "mtime": 1791330238.2770054,
+    "seen": 1791330366.0040822,
+    "ast_hash": "32d5264ade9f3ac11c96dc8166716a25",
+    "semantic_hash": ""
+  },
+  "marks-app/app/manager/index.tsx": {
+    "mtime": 1791330207.3922877,
+    "seen": 1791330366.0040822,
+    "ast_hash": "9cba4de4c9e9b5e9d4448b1899ee1406",
+    "semantic_hash": ""
+  },
+  "marks-app/app/manager/sv.tsx": {
+    "mtime": 1791330207.390942,
+    "seen": 1791330366.0040822,
+    "ast_hash": "0d3fa0f435ce8ad037adeb1756cb6e7f",
+    "semantic_hash": ""
+  },
+  "marks-app/app/manager/tugasan.tsx": {
+    "mtime": 1791270230.0332272,
+    "seen": 1791270445.5199327,
+    "ast_hash": "f28558723c305302a3ca9d08745d6194",
+    "semantic_hash": ""
+  },
+  "marks-app/app/mark/[id].tsx": {
+    "mtime": 1789808616.1716394,
+    "seen": 1791036606.8738334,
+    "ast_hash": "dd087f697d8a5a61e67531f443808cc1",
+    "semantic_hash": "dd087f697d8a5a61e67531f443808cc1"
+  },
+  "marks-app/app/person/[id].tsx": {
+    "mtime": 1790207870.513415,
+    "seen": 1791036606.8738334,
+    "ast_hash": "cc11a970c22c466609c4fd80997c519c",
+    "semantic_hash": "cc11a970c22c466609c4fd80997c519c"
+  },
+  "marks-app/app/pulangan-csv.tsx": {
+    "mtime": 1789040431.1805692,
+    "seen": 1791036606.8738334,
+    "ast_hash": "3a4e4d25da38f4b5d6907484870a7ca1",
+    "semantic_hash": "3a4e4d25da38f4b5d6907484870a7ca1"
+  },
+  "marks-app/app/pulangan-new.tsx": {
+    "mtime": 1789040355.3714385,
+    "seen": 1791036606.8738334,
+    "ast_hash": "77a76207f7df25a94a6cd3b8fd7ca251",
+    "semantic_hash": "77a76207f7df25a94a6cd3b8fd7ca251"
+  },
+  "marks-app/app/pulangan-recon.tsx": {
+    "mtime": 1790863332.4486132,
+    "seen": 1791036606.8738334,
+    "ast_hash": "43d78826d4a715360df82b012807d8eb",
+    "semantic_hash": "43d78826d4a715360df82b012807d8eb"
+  },
+  "marks-app/app/pulangan/_layout.tsx": {
+    "mtime": 1789479931.014761,
+    "seen": 1791036606.8738334,
+    "ast_hash": "3644b2bd8a1fcaa87499b05d4c6c8de4",
+    "semantic_hash": "3644b2bd8a1fcaa87499b05d4c6c8de4"
+  },
+  "marks-app/app/pulangan/index.tsx": {
+    "mtime": 1789040193.4537525,
+    "seen": 1791036606.8738334,
+    "ast_hash": "66879f13d2717bd0624e5fbc5975d16e",
+    "semantic_hash": "66879f13d2717bd0624e5fbc5975d16e"
+  },
+  "marks-app/app/pulangan/saya.tsx": {
+    "mtime": 1789040268.1404843,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b0363be373eb0562de55d456267fbdca",
+    "semantic_hash": "b0363be373eb0562de55d456267fbdca"
+  },
+  "marks-app/app/pulangan/selesai.tsx": {
+    "mtime": 1789040290.8979633,
+    "seen": 1791036606.8738334,
+    "ast_hash": "41e65d66f26805579953fdcb3408cdf7",
+    "semantic_hash": "41e65d66f26805579953fdcb3408cdf7"
+  },
+  "marks-app/app/reset-password.tsx": {
+    "mtime": 1790882615.5257213,
+    "seen": 1791036606.8738334,
+    "ast_hash": "f33ca8953b544a0e6bc67c220fd4b100",
+    "semantic_hash": "f33ca8953b544a0e6bc67c220fd4b100"
+  },
+  "marks-app/app/staff/_layout.tsx": {
+    "mtime": 1789479912.2914808,
+    "seen": 1791036606.8738334,
+    "ast_hash": "720efbe56d7ab8811a9b43aa842d7426",
+    "semantic_hash": "720efbe56d7ab8811a9b43aa842d7426"
+  },
+  "marks-app/app/staff/index.tsx": {
+    "mtime": 1789039436.760726,
+    "seen": 1791036606.8738334,
+    "ast_hash": "e6256cc0c7b4c1063d9371ca1790084a",
+    "semantic_hash": "e6256cc0c7b4c1063d9371ca1790084a"
+  },
+  "marks-app/app/staff/profil.tsx": {
+    "mtime": 1790863332.252813,
+    "seen": 1791036606.8738334,
+    "ast_hash": "cb1e6ef02c2676ba6e5aeea1d4b4b8b4",
+    "semantic_hash": "cb1e6ef02c2676ba6e5aeea1d4b4b8b4"
+  },
+  "marks-app/app/staff/rekod.tsx": {
+    "mtime": 1789039470.212956,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b55bf014ba1cb484da9bf159f9955bd7",
+    "semantic_hash": "b55bf014ba1cb484da9bf159f9955bd7"
+  },
+  "marks-app/app/supervisor/_layout.tsx": {
+    "mtime": 1791422316.1892445,
+    "seen": 1791426795.069046,
+    "ast_hash": "9dcede87532d559c53cfaf0d1680a2c2",
+    "semantic_hash": ""
+  },
+  "marks-app/app/supervisor/index.tsx": {
+    "mtime": 1789808512.6500328,
+    "seen": 1791036606.8738334,
+    "ast_hash": "316c1ccf9445723f93a062dd7f27985d",
+    "semantic_hash": "316c1ccf9445723f93a062dd7f27985d"
+  },
+  "marks-app/app/supervisor/pekerja.tsx": {
+    "mtime": 1790863332.3189394,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8199013e0b843b4fc4beef5dfde98790",
+    "semantic_hash": "8199013e0b843b4fc4beef5dfde98790"
+  },
+  "marks-app/app/supervisor/peringatan.tsx": {
+    "mtime": 1789808673.7028184,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7fb59580121f9df7430fe5fd092e3ca8",
+    "semantic_hash": "7fb59580121f9df7430fe5fd092e3ca8"
+  },
+  "marks-app/app/supervisor/rekod.tsx": {
+    "mtime": 1789808631.0171492,
+    "seen": 1791036606.8738334,
+    "ast_hash": "3af24f47cf008bc35f86e7208c1af525",
+    "semantic_hash": "3af24f47cf008bc35f86e7208c1af525"
+  },
+  "marks-app/app/user-new.tsx": {
+    "mtime": 1791264980.3288462,
+    "seen": 1791265101.705724,
+    "ast_hash": "9f45f580bb8ab1473af2480759fd9c93",
+    "semantic_hash": ""
+  },
+  "marks-app/app/user/[id].tsx": {
+    "mtime": 1791274557.3974168,
+    "seen": 1791274686.0636,
+    "ast_hash": "a94b92af719bf0a9d4b7fbaa954a35ab",
+    "semantic_hash": ""
+  },
+  "marks-app/app/week/[index].tsx": {
+    "mtime": 1789808695.1285462,
+    "seen": 1791036606.8738334,
+    "ast_hash": "c5a42fa520968b3213b1cca79aba954a",
+    "semantic_hash": "c5a42fa520968b3213b1cca79aba954a"
+  },
+  "marks-app/babel.config.js": {
+    "mtime": 1788842798.803761,
+    "seen": 1791036606.8738334,
+    "ast_hash": "25bca21059e8f8a7735fe0cef0e45ef9",
+    "semantic_hash": "25bca21059e8f8a7735fe0cef0e45ef9"
+  },
+  "marks-app/eas.json": {
+    "mtime": 1791049558.5139687,
+    "seen": 1791049854.4428957,
+    "ast_hash": "3450d14c5a45aa989b63740ce37d75d6",
+    "semantic_hash": ""
+  },
+  "marks-app/metro.config.js": {
+    "mtime": 1788842800.1971917,
+    "seen": 1791036606.8738334,
+    "ast_hash": "dcb5d6305afce631e9df229a6693f679",
+    "semantic_hash": "dcb5d6305afce631e9df229a6693f679"
+  },
+  "marks-app/nativewind-env.d.ts": {
+    "mtime": 1788843291.3960054,
+    "seen": 1791036606.8738334,
+    "ast_hash": "41c29d427e53ac200fe5dbf4141e2fae",
+    "semantic_hash": "41c29d427e53ac200fe5dbf4141e2fae"
+  },
+  "marks-app/package.json": {
+    "mtime": 1791049521.5211334,
+    "seen": 1791049854.4428957,
+    "ast_hash": "1e80cc5b709c159df0d994b634ac4dfd",
+    "semantic_hash": ""
+  },
+  "marks-app/public/manifest.json": {
+    "mtime": 1791050252.923136,
+    "seen": 1791244180.2263963,
+    "ast_hash": "f37e5b957a4048f08f7ecb0c10e14e33",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/Avatar.tsx": {
+    "mtime": 1788842938.5065966,
+    "seen": 1791036606.8738334,
+    "ast_hash": "3e00f144a7ddfcb1036492d59d700f5c",
+    "semantic_hash": "3e00f144a7ddfcb1036492d59d700f5c"
+  },
+  "marks-app/src/components/BackLink.tsx": {
+    "mtime": 1788842947.2538297,
+    "seen": 1791036606.8738334,
+    "ast_hash": "075446b17ed016d00a8bf0881f74beed",
+    "semantic_hash": "075446b17ed016d00a8bf0881f74beed"
+  },
+  "marks-app/src/components/Card.tsx": {
+    "mtime": 1788842936.1390512,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a9ab1ae3d3b4d06aaccad1cfd610d6ed",
+    "semantic_hash": "a9ab1ae3d3b4d06aaccad1cfd610d6ed"
+  },
+  "marks-app/src/components/InstallCard.tsx": {
+    "mtime": 1789808727.0854964,
+    "seen": 1791036606.8738334,
+    "ast_hash": "9b1040fa0c4b223713a04fc89edc3b27",
+    "semantic_hash": "9b1040fa0c4b223713a04fc89edc3b27"
+  },
+  "marks-app/src/components/LanguageToggle.tsx": {
+    "mtime": 1789568084.182401,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a61a70b03b532c11c8c41d7d141976c3",
+    "semantic_hash": "a61a70b03b532c11c8c41d7d141976c3"
+  },
+  "marks-app/src/components/MyEmailCard.tsx": {
+    "mtime": 1789725817.2093222,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d206b28eeb72d638d46434d67471f4d4",
+    "semantic_hash": "d206b28eeb72d638d46434d67471f4d4"
+  },
+  "marks-app/src/components/OutletPicker.tsx": {
+    "mtime": 1791330207.3899424,
+    "seen": 1791330366.0040822,
+    "ast_hash": "eb91b24cdc5cdb69b167dfd3f6390bec",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/PeriodPicker.tsx": {
+    "mtime": 1791429132.4442513,
+    "seen": 1791429205.6784565,
+    "ast_hash": "4ad4de4925e216d8609df0af2b1583cd",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/PerkaraBars.tsx": {
+    "mtime": 1788872600.0268135,
+    "seen": 1791036606.8738334,
+    "ast_hash": "244f6e199249820cf25cd1dd5b91360f",
+    "semantic_hash": "244f6e199249820cf25cd1dd5b91360f"
+  },
+  "marks-app/src/components/QueueBanner.tsx": {
+    "mtime": 1789039237.5054321,
+    "seen": 1791036606.8738334,
+    "ast_hash": "06c53b641c05af225d7e1403b0a1ac1b",
+    "semantic_hash": "06c53b641c05af225d7e1403b0a1ac1b"
+  },
+  "marks-app/src/components/ReturnPhotos.tsx": {
+    "mtime": 1790233455.3763428,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7bf210bb2c6fb8730de405e64aa8835d",
+    "semantic_hash": "7bf210bb2c6fb8730de405e64aa8835d"
+  },
+  "marks-app/src/components/ReturnRow.tsx": {
+    "mtime": 1789039038.7236104,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d18b462f40a5af5bac641c44b7c05d79",
+    "semantic_hash": "d18b462f40a5af5bac641c44b7c05d79"
+  },
+  "marks-app/src/components/Screen.tsx": {
+    "mtime": 1791428805.4264276,
+    "seen": 1791429205.6784565,
+    "ast_hash": "e9216aa0d4be21231aae1e35097b7bf3",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/SignInForm.tsx": {
+    "mtime": 1791429315.742893,
+    "seen": 1791429460.6634102,
+    "ast_hash": "2fe4f99918db4393965809861f0d9780",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/SignOutButton.tsx": {
+    "mtime": 1789650536.079224,
+    "seen": 1791036606.8738334,
+    "ast_hash": "09d88fc9552e6b79ff8f65cc60ad2444",
+    "semantic_hash": "09d88fc9552e6b79ff8f65cc60ad2444"
+  },
+  "marks-app/src/components/tabOptions.tsx": {
+    "mtime": 1789480307.2629046,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a3f887e2fdc1fa55e02264a459ae99bc",
+    "semantic_hash": "a3f887e2fdc1fa55e02264a459ae99bc"
+  },
+  "marks-app/src/data/assets.ts": {
+    "mtime": 1790051947.8176658,
+    "seen": 1791036606.8738334,
+    "ast_hash": "f17617c88566783d6b09ac2e4adfca09",
+    "semantic_hash": "f17617c88566783d6b09ac2e4adfca09"
+  },
+  "marks-app/src/data/branches.ts": {
+    "mtime": 1788948498.585939,
+    "seen": 1791036606.8738334,
+    "ast_hash": "9bbab90c01b96d5f7eb8e66d7d304492",
+    "semantic_hash": "9bbab90c01b96d5f7eb8e66d7d304492"
+  },
+  "marks-app/src/data/checklist.ts": {
+    "mtime": 1791422595.2566462,
+    "seen": 1791426795.069046,
+    "ast_hash": "85dc6e64bbbeab9b528f662122d0bb2f",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/crew.ts": {
+    "mtime": 1788970076.6720521,
+    "seen": 1791036606.8738334,
+    "ast_hash": "89d5e7e5b23cec0f0876edd12d54e89b",
+    "semantic_hash": "89d5e7e5b23cec0f0876edd12d54e89b"
+  },
+  "marks-app/src/data/period.ts": {
+    "mtime": 1790863350.5613961,
+    "seen": 1791036606.8738334,
+    "ast_hash": "286da0b8e5af465954b2b0e884ee68eb",
+    "semantic_hash": "286da0b8e5af465954b2b0e884ee68eb"
+  },
+  "marks-app/src/data/queue.ts": {
+    "mtime": 1788969433.9684405,
+    "seen": 1791036606.8738334,
+    "ast_hash": "52c0e0a470ab8f41ca346cae851f53f9",
+    "semantic_hash": "52c0e0a470ab8f41ca346cae851f53f9"
+  },
+  "marks-app/src/data/reconcile.ts": {
+    "mtime": 1788948696.3151886,
+    "seen": 1791036606.8738334,
+    "ast_hash": "6ae3b1a7fca6b0d2cd2bf85617c0a45b",
+    "semantic_hash": "6ae3b1a7fca6b0d2cd2bf85617c0a45b"
+  },
+  "marks-app/src/data/returns.ts": {
+    "mtime": 1790863350.4085255,
+    "seen": 1791036606.8738334,
+    "ast_hash": "9b58d63ae79f89a0353aef90f3cdc4c2",
+    "semantic_hash": "9b58d63ae79f89a0353aef90f3cdc4c2"
+  },
+  "marks-app/src/data/routes.ts": {
+    "mtime": 1791243949.0154972,
+    "seen": 1791244180.2273846,
+    "ast_hash": "dbd07524a94dbf740d6d812b8e2f7489",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/scoring.ts": {
+    "mtime": 1789808330.0138798,
+    "seen": 1791036606.8738334,
+    "ast_hash": "faf179f57e151818507ebb32a35af3b2",
+    "semantic_hash": "faf179f57e151818507ebb32a35af3b2"
+  },
+  "marks-app/src/data/sessionLimits.ts": {
+    "mtime": 1790959132.6952076,
+    "seen": 1791036606.8738334,
+    "ast_hash": "013debf9ff6f0990c1b32e5250c489ba",
+    "semantic_hash": "013debf9ff6f0990c1b32e5250c489ba"
+  },
+  "marks-app/src/data/stageKpi.ts": {
+    "mtime": 1789003936.8836904,
+    "seen": 1791036606.8738334,
+    "ast_hash": "24562104ba6291472cf4e8b4b2eab4ff",
+    "semantic_hash": "24562104ba6291472cf4e8b4b2eab4ff"
+  },
+  "marks-app/src/data/tugasan.ts": {
+    "mtime": 1789738965.1251023,
+    "seen": 1791036606.8738334,
+    "ast_hash": "3569d2ba5dff348722a526d5f7dd54b9",
+    "semantic_hash": "3569d2ba5dff348722a526d5f7dd54b9"
+  },
+  "marks-app/src/data/tugasanRows.ts": {
+    "mtime": 1791361543.5948868,
+    "seen": 1791418535.6457016,
+    "ast_hash": "cf535505967f1530334192fb8ff8f672",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/users.ts": {
+    "mtime": 1791355657.253081,
+    "seen": 1791418535.6457016,
+    "ast_hash": "70da7fc872ba8b59b7fb77b95c831ef4",
+    "semantic_hash": ""
+  },
+  "marks-app/src/i18n/labels.ts": {
+    "mtime": 1791243949.0154972,
+    "seen": 1791244180.2273846,
+    "ast_hash": "7ac8b20cf5e1c1666e3e6b6f289ac0a9",
+    "semantic_hash": ""
+  },
+  "marks-app/src/i18n/strings.ts": {
+    "mtime": 1791428830.931091,
+    "seen": 1791429205.6784565,
+    "ast_hash": "39d49f697707ede263b37bb76d50170b",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/assets.ts": {
+    "mtime": 1791037652.8325818,
+    "seen": 1791037690.5750122,
+    "ast_hash": "ab5ccb1d6d4412aef21985412e06f892",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/auth.ts": {
+    "mtime": 1791355754.7337599,
+    "seen": 1791418535.6457016,
+    "ast_hash": "39e7d13bb8f8a12c7177b62560289ff6",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/dialog.ts": {
+    "mtime": 1789715889.7497542,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8e2542debbe58647177cc081e96fa4a6",
+    "semantic_hash": "8e2542debbe58647177cc081e96fa4a6"
+  },
+  "marks-app/src/lib/directory.ts": {
+    "mtime": 1791433184.0483432,
+    "seen": 1791433330.6245072,
+    "ast_hash": "eb8556c5c58c8bd82c3c4c0b1c542dc9",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/export.ts": {
+    "mtime": 1789026208.6822648,
+    "seen": 1791036606.8738334,
+    "ast_hash": "1d689e9cdd9048120807583b3b288209",
+    "semantic_hash": "1d689e9cdd9048120807583b3b288209"
+  },
+  "marks-app/src/lib/hydrate.ts": {
+    "mtime": 1791430699.630746,
+    "seen": 1791430929.0856664,
+    "ast_hash": "d8f8d67d2643e2f967db8471dfa6aa3f",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/install.ts": {
+    "mtime": 1789808714.8355494,
+    "seen": 1791036606.8738334,
+    "ast_hash": "bb79714b593ab0adf3f9f3c2890e6f59",
+    "semantic_hash": "bb79714b593ab0adf3f9f3c2890e6f59"
+  },
+  "marks-app/src/lib/marks.ts": {
+    "mtime": 1791433184.0483432,
+    "seen": 1791433330.6245072,
+    "ast_hash": "356e18ad7f443cd2360b841e39ccc28c",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/photos.ts": {
+    "mtime": 1790233452.4786842,
+    "seen": 1791036606.8738334,
+    "ast_hash": "1ad117db55ba882cfa0f45dea19b95d1",
+    "semantic_hash": "1ad117db55ba882cfa0f45dea19b95d1"
+  },
+  "marks-app/src/lib/reminders.ts": {
+    "mtime": 1789017895.5101607,
+    "seen": 1791036606.8738334,
+    "ast_hash": "c7f14e5a896f189ccaacdf854dd60be9",
+    "semantic_hash": "c7f14e5a896f189ccaacdf854dd60be9"
+  },
+  "marks-app/src/lib/returns.ts": {
+    "mtime": 1790863373.6719894,
+    "seen": 1791036606.8738334,
+    "ast_hash": "239457e83857a8c180f7bf27fa1f23d5",
+    "semantic_hash": "239457e83857a8c180f7bf27fa1f23d5"
+  },
+  "marks-app/src/lib/sessionGuard.ts": {
+    "mtime": 1790959062.0595882,
+    "seen": 1791036606.8738334,
+    "ast_hash": "c294e20ed66520d41fa2d91868df7cb3",
+    "semantic_hash": "c294e20ed66520d41fa2d91868df7cb3"
+  },
+  "marks-app/src/lib/supabase.ts": {
+    "mtime": 1791428783.2270606,
+    "seen": 1791429205.6784565,
+    "ast_hash": "4c6cb5597a18bfc7cc96da44266e8ecb",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/tugasan.ts": {
+    "mtime": 1791361558.2856593,
+    "seen": 1791418535.6457016,
+    "ast_hash": "36441c478442a10979b20b82f9563b9e",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useAssets.ts": {
+    "mtime": 1791037652.8715346,
+    "seen": 1791037690.5750122,
+    "ast_hash": "0cd76a4001781edff45f71f60d423ddb",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useBranches.ts": {
+    "mtime": 1790286350.0736203,
+    "seen": 1791036606.8738334,
+    "ast_hash": "37dd5645c8a5d98bdc4d57e09557ba53",
+    "semantic_hash": "37dd5645c8a5d98bdc4d57e09557ba53"
+  },
+  "marks-app/src/store/useLocale.ts": {
+    "mtime": 1789038896.0699542,
+    "seen": 1791036606.8738334,
+    "ast_hash": "e6593108ecb46bf1e5bed648a056ec15",
+    "semantic_hash": "e6593108ecb46bf1e5bed648a056ec15"
+  },
+  "marks-app/src/store/useMarks.ts": {
+    "mtime": 1791428830.931091,
+    "seen": 1791429205.6784565,
+    "ast_hash": "0aa1b1dd11d11e186e784ed52f269885",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useMyWeeks.ts": {
+    "mtime": 1789008057.8183427,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d38365b9cc2f06e4962b4cddd42a2946",
+    "semantic_hash": "d38365b9cc2f06e4962b4cddd42a2946"
+  },
+  "marks-app/src/store/useQueue.ts": {
+    "mtime": 1788969480.187691,
+    "seen": 1791036606.8738334,
+    "ast_hash": "65654333878eadee9819f66810fda3f9",
+    "semantic_hash": "65654333878eadee9819f66810fda3f9"
+  },
+  "marks-app/src/store/useReminders.ts": {
+    "mtime": 1789017899.566344,
+    "seen": 1791036606.8738334,
+    "ast_hash": "0a198e60e492c975ed1ab18c01c16e3b",
+    "semantic_hash": "0a198e60e492c975ed1ab18c01c16e3b"
+  },
+  "marks-app/src/store/useReturns.ts": {
+    "mtime": 1790863421.8986938,
+    "seen": 1791036606.8738334,
+    "ast_hash": "db363001215396cd80ac093ecde7c6aa",
+    "semantic_hash": "db363001215396cd80ac093ecde7c6aa"
+  },
+  "marks-app/src/store/useSession.ts": {
+    "mtime": 1791355632.4176111,
+    "seen": 1791418535.6457016,
+    "ast_hash": "a05411ea71c0857711f09ed21bf6a16b",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useTugasan.ts": {
+    "mtime": 1791361746.4567318,
+    "seen": 1791418535.6457016,
+    "ast_hash": "79d86150937e9ed083f49e53b5b62f01",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useUsers.ts": {
+    "mtime": 1790207748.6465113,
+    "seen": 1791036606.8738334,
+    "ast_hash": "98f32ddb5db98c767dd966c14e0dd20b",
+    "semantic_hash": "98f32ddb5db98c767dd966c14e0dd20b"
+  },
+  "marks-app/src/theme/scoring.ts": {
+    "mtime": 1788842870.7192361,
+    "seen": 1791036606.8738334,
+    "ast_hash": "c7f45a730ca50a2a3fc2a601ca4e94cd",
+    "semantic_hash": "c7f45a730ca50a2a3fc2a601ca4e94cd"
+  },
+  "marks-app/tailwind.config.js": {
+    "mtime": 1788843876.9947264,
+    "seen": 1791036606.8738334,
+    "ast_hash": "cb06b51d991a5dbaf78ca54ad49f4446",
+    "semantic_hash": "cb06b51d991a5dbaf78ca54ad49f4446"
+  },
+  "marks-app/tests/period.test.mjs": {
+    "mtime": 1790863394.7011728,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b494476fb4957295127eb85dca8d8a2e",
+    "semantic_hash": "b494476fb4957295127eb85dca8d8a2e"
+  },
+  "marks-app/tests/queue.test.mjs": {
+    "mtime": 1788969454.369718,
+    "seen": 1791036606.8738334,
+    "ast_hash": "c33590de26eadb69b040b70ec0f230c2",
+    "semantic_hash": "c33590de26eadb69b040b70ec0f230c2"
+  },
+  "marks-app/tests/reconcile.test.mjs": {
+    "mtime": 1788929428.40689,
+    "seen": 1791036606.8738334,
+    "ast_hash": "71ad46795d9ebed586527c86afae59cd",
+    "semantic_hash": "71ad46795d9ebed586527c86afae59cd"
+  },
+  "marks-app/tests/register-alias.mjs": {
+    "mtime": 1789038746.7726083,
+    "seen": 1791036606.8738334,
+    "ast_hash": "851b3e06acafa274d33cc4b137bc377e",
+    "semantic_hash": "851b3e06acafa274d33cc4b137bc377e"
+  },
+  "marks-app/tests/resolve-alias.mjs": {
+    "mtime": 1789038744.2253933,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a04b0385d4f9f1572a5b1db5b5c165a7",
+    "semantic_hash": "a04b0385d4f9f1572a5b1db5b5c165a7"
+  },
+  "marks-app/tests/returns.test.mjs": {
+    "mtime": 1790863394.7928047,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d990482ea1887aa4f7d6336bdf281cdf",
+    "semantic_hash": "d990482ea1887aa4f7d6336bdf281cdf"
+  },
+  "marks-app/tests/roles.test.mjs": {
+    "mtime": 1791355699.755339,
+    "seen": 1791418535.6457016,
+    "ast_hash": "1511aa34e3b478bcec73ccb9e4efd933",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/routes.test.mjs": {
+    "mtime": 1791418372.9646473,
+    "seen": 1791418535.6457016,
+    "ast_hash": "18ddff277c1f478c694245c324a0bc1e",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/scoping.test.mjs": {
+    "mtime": 1791244002.3152814,
+    "seen": 1791244180.2273846,
+    "ast_hash": "1df6cdeb5163790c6228473d61a25f77",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/scoring.test.mjs": {
+    "mtime": 1789808833.1631143,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8d3f2a12f9c371112c78bf4e782b242d",
+    "semantic_hash": "8d3f2a12f9c371112c78bf4e782b242d"
+  },
+  "marks-app/tests/sessionLimits.test.mjs": {
+    "mtime": 1790959110.6491656,
+    "seen": 1791036606.8738334,
+    "ast_hash": "bd438e6b1a6d54df28066f3bae14777e",
+    "semantic_hash": "bd438e6b1a6d54df28066f3bae14777e"
+  },
+  "marks-app/tests/stageKpi.test.mjs": {
+    "mtime": 1789003936.9726977,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b9ade1ca7424c3c71b5f5f12dab15ee1",
+    "semantic_hash": "b9ade1ca7424c3c71b5f5f12dab15ee1"
+  },
+  "marks-app/tests/tugasan.test.mjs": {
+    "mtime": 1789739130.130325,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7b862cf5dc38db9f828bc1da88329616",
+    "semantic_hash": "7b862cf5dc38db9f828bc1da88329616"
+  },
+  "marks-app/tsconfig.json": {
+    "mtime": 1788842820.160575,
+    "seen": 1791036606.8738334,
+    "ast_hash": "ae454dc9ca2035eb91cd104b2aa7e1c5",
+    "semantic_hash": "ae454dc9ca2035eb91cd104b2aa7e1c5"
+  },
+  "marks-app/vercel.json": {
+    "mtime": 1791428014.1169803,
+    "seen": 1791428079.7131972,
+    "ast_hash": "025523c2dfc989856a78eb430a033e5d",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1790863479.3570492,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b12cc8a56ed84e991ed48022b8dc3ff6",
+    "semantic_hash": "b12cc8a56ed84e991ed48022b8dc3ff6"
+  },
+  "supabase/functions/payroll-auth/index.ts": {
+    "mtime": 1789802053.5362723,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d63e3fed5c4d2dcb8b1fe30011c57c32",
+    "semantic_hash": "d63e3fed5c4d2dcb8b1fe30011c57c32"
+  },
+  "supabase/functions/purge-return-photos/index.ts": {
+    "mtime": 1790233479.8358083,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a0d3f11fa256b7dde9e4b242ab2f400a",
+    "semantic_hash": "a0d3f11fa256b7dde9e4b242ab2f400a"
+  },
+  "supabase/functions/xlsx-export/index.ts": {
+    "mtime": 1791355595.8653097,
+    "seen": 1791418535.6457016,
+    "ast_hash": "0cf21615f11502054e2b82120d109c34",
+    "semantic_hash": ""
+  },
+  "supabase/import_marks.sql": {
+    "mtime": 1790931914.4823308,
+    "seen": 1791036606.8738334,
+    "ast_hash": "e5059b0ce7bb5e7d95d907bea8d7000d",
+    "semantic_hash": "e5059b0ce7bb5e7d95d907bea8d7000d"
+  },
+  "supabase/migrations/20260909010000_init.sql": {
+    "mtime": 1788936076.9810634,
+    "seen": 1791036606.8738334,
+    "ast_hash": "ff426e9581e1ccc22a33e805e9e18b1d",
+    "semantic_hash": "ff426e9581e1ccc22a33e805e9e18b1d"
+  },
+  "supabase/migrations/20260909010100_auth_bridge.sql": {
+    "mtime": 1788936123.360489,
+    "seen": 1791036606.8738334,
+    "ast_hash": "1bd46c8601a0a76550e54757037e2d7d",
+    "semantic_hash": "1bd46c8601a0a76550e54757037e2d7d"
+  },
+  "supabase/migrations/20260909010200_rls.sql": {
+    "mtime": 1788936224.7574604,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8447d90c7184efb557d868d4fb739b17",
+    "semantic_hash": "8447d90c7184efb557d868d4fb739b17"
+  },
+  "supabase/migrations/20260909020000_return_submission_stage.sql": {
+    "mtime": 1788928213.1163182,
+    "seen": 1791036606.8738334,
+    "ast_hash": "016c58fc38d07fee40321b0822a17d62",
+    "semantic_hash": "016c58fc38d07fee40321b0822a17d62"
+  },
+  "supabase/migrations/20260909020100_return_kpi.sql": {
+    "mtime": 1788928261.8299222,
+    "seen": 1791036606.8738334,
+    "ast_hash": "39cbde7c2b863350758582f50c044ac2",
+    "semantic_hash": "39cbde7c2b863350758582f50c044ac2"
+  },
+  "supabase/migrations/20260909030000_tugasan_stays_with_area_manager.sql": {
+    "mtime": 1788956306.1940558,
+    "seen": 1791036606.8738334,
+    "ast_hash": "fbe3c48619b0d6c469ac747c401e5cb8",
+    "semantic_hash": "fbe3c48619b0d6c469ac747c401e5cb8"
+  },
+  "supabase/migrations/20260909030100_returns_leave_admin.sql": {
+    "mtime": 1788956306.1940558,
+    "seen": 1791036606.8738334,
+    "ast_hash": "1baeb75c363caa57e6bde7cc35224831",
+    "semantic_hash": "1baeb75c363caa57e6bde7cc35224831"
+  },
+  "supabase/migrations/20260909030200_central_store_at_hq.sql": {
+    "mtime": 1788956306.195133,
+    "seen": 1791036606.8738334,
+    "ast_hash": "41f89a8447abb628266db6c4f05ecd3b",
+    "semantic_hash": "41f89a8447abb628266db6c4f05ecd3b"
+  },
+  "supabase/migrations/20260909030300_grants.sql": {
+    "mtime": 1788965495.9537833,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b68e8fa461362a94f4958ac8cec754ca",
+    "semantic_hash": "b68e8fa461362a94f4958ac8cec754ca"
+  },
+  "supabase/migrations/20260909030400_real_branches.sql": {
+    "mtime": 1788966012.7077868,
+    "seen": 1791036606.8738334,
+    "ast_hash": "791bfc108fde7961f7d8604c5c317158",
+    "semantic_hash": "791bfc108fde7961f7d8604c5c317158"
+  },
+  "supabase/migrations/20260910010000_sv_checklist.sql": {
+    "mtime": 1789003775.07976,
+    "seen": 1791036606.8738334,
+    "ast_hash": "4f36ec9e2df512515ba66ff6d4dc7bea",
+    "semantic_hash": "4f36ec9e2df512515ba66ff6d4dc7bea"
+  },
+  "supabase/migrations/20260910010100_who_may_score.sql": {
+    "mtime": 1789004489.2142167,
+    "seen": 1791036606.8738334,
+    "ast_hash": "edfc324b2c8e416f1fab0fedf357ae1f",
+    "semantic_hash": "edfc324b2c8e416f1fab0fedf357ae1f"
+  },
+  "supabase/migrations/20260910020000_return_photos.sql": {
+    "mtime": 1789005504.235533,
+    "seen": 1791036606.8738334,
+    "ast_hash": "262b9500e7e2ba0c62994fbe1703ab85",
+    "semantic_hash": "262b9500e7e2ba0c62994fbe1703ab85"
+  },
+  "supabase/migrations/20260910030000_mark_queries.sql": {
+    "mtime": 1789017622.0380607,
+    "seen": 1791036606.8738334,
+    "ast_hash": "62406c57c35f9de4a93c7650ceaba544",
+    "semantic_hash": "62406c57c35f9de4a93c7650ceaba544"
+  },
+  "supabase/migrations/20260910030100_reminders.sql": {
+    "mtime": 1789017572.833495,
+    "seen": 1791036606.8738334,
+    "ast_hash": "cb7f4538de71b06e084f1fc410ddaf44",
+    "semantic_hash": "cb7f4538de71b06e084f1fc410ddaf44"
+  },
+  "supabase/migrations/20260916010000_branch_staff_management.sql": {
+    "mtime": 1789564837.5084362,
+    "seen": 1791036606.8738334,
+    "ast_hash": "dec13ee4868bc809f6816d2130bea52f",
+    "semantic_hash": "dec13ee4868bc809f6816d2130bea52f"
+  },
+  "supabase/migrations/20260916020000_tighten_grants.sql": {
+    "mtime": 1789567749.1891062,
+    "seen": 1791036606.8738334,
+    "ast_hash": "abab88475e5e89d0cc6f70de7a67f4b7",
+    "semantic_hash": "abab88475e5e89d0cc6f70de7a67f4b7"
+  },
+  "supabase/migrations/20260917010000_user_email.sql": {
+    "mtime": 1789647472.7569354,
+    "seen": 1791036606.8738334,
+    "ast_hash": "344c9b423b36c887cc57e67e8f5874a0",
+    "semantic_hash": "344c9b423b36c887cc57e67e8f5874a0"
+  },
+  "supabase/migrations/20260917020000_set_my_email.sql": {
+    "mtime": 1789650426.921059,
+    "seen": 1791036606.8738334,
+    "ast_hash": "fae35716f0f0ce39c327302dbddabf31",
+    "semantic_hash": "fae35716f0f0ce39c327302dbddabf31"
+  },
+  "supabase/migrations/20260917030000_service_role_reads_users.sql": {
+    "mtime": 1789658356.6444457,
+    "seen": 1791036606.8738334,
+    "ast_hash": "17e7b55f0e5addb54529228940594809",
+    "semantic_hash": "17e7b55f0e5addb54529228940594809"
+  },
+  "supabase/migrations/20260918010000_auto_provision_logins.sql": {
+    "mtime": 1789661107.6203902,
+    "seen": 1791036606.8738334,
+    "ast_hash": "4642c94aacb94205a1133f6ce3c25f6a",
+    "semantic_hash": "4642c94aacb94205a1133f6ce3c25f6a"
+  },
+  "supabase/migrations/20260918020000_payroll_number_changes.sql": {
+    "mtime": 1789715748.154949,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8da461b3be1aacd07b78d56257c31be1",
+    "semantic_hash": "8da461b3be1aacd07b78d56257c31be1"
+  },
+  "supabase/migrations/20260918030000_manager_manages_outlets.sql": {
+    "mtime": 1789738209.6022367,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7b2ef7b575a4a7828489046e851bd83e",
+    "semantic_hash": "7b2ef7b575a4a7828489046e851bd83e"
+  },
+  "supabase/migrations/20260918040000_report_views.sql": {
+    "mtime": 1789743544.0363996,
+    "seen": 1791036606.8738334,
+    "ast_hash": "6d5af16d8eba3e58d0545c60762588ec",
+    "semantic_hash": "6d5af16d8eba3e58d0545c60762588ec"
+  },
+  "supabase/migrations/20260919010000_payroll_number_shape.sql": {
+    "mtime": 1789802007.459203,
+    "seen": 1791036606.8738334,
+    "ast_hash": "fd0237bcc9a3acf0b4925073441faf86",
+    "semantic_hash": "fd0237bcc9a3acf0b4925073441faf86"
+  },
+  "supabase/migrations/20260919020000_marks_open_until_verified.sql": {
+    "mtime": 1789808206.7130878,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7f94ad5b46dde37951688f3058cc9e20",
+    "semantic_hash": "7f94ad5b46dde37951688f3058cc9e20"
+  },
+  "supabase/migrations/20260919030000_drop_mark_queries.sql": {
+    "mtime": 1789808211.7792456,
+    "seen": 1791036606.8738334,
+    "ast_hash": "165749b92412a008b664c634faa1e332",
+    "semantic_hash": "165749b92412a008b664c634faa1e332"
+  },
+  "supabase/migrations/20260919040000_assets_for_every_outlet.sql": {
+    "mtime": 1789813681.767906,
+    "seen": 1791036606.8738334,
+    "ast_hash": "5eedd7664fe6e405a70136bedcb7f232",
+    "semantic_hash": "5eedd7664fe6e405a70136bedcb7f232"
+  },
+  "supabase/migrations/20260919050000_area_manager_hires_supervisors.sql": {
+    "mtime": 1789816466.8781054,
+    "seen": 1791036606.8738334,
+    "ast_hash": "9b9dc37ae2a8a1a78a817dae7eeb4b20",
+    "semantic_hash": "9b9dc37ae2a8a1a78a817dae7eeb4b20"
+  },
+  "supabase/migrations/20260919060000_label_spelling.sql": {
+    "mtime": 1789818831.4650362,
+    "seen": 1791036606.8738334,
+    "ast_hash": "f298df8375286e8d06c202bb723bb04f",
+    "semantic_hash": "f298df8375286e8d06c202bb723bb04f"
+  },
+  "supabase/migrations/20260919070000_supervisor_title.sql": {
+    "mtime": 1790207502.130291,
+    "seen": 1791036606.8738334,
+    "ast_hash": "49d7437297f68236af7696426685da65",
+    "semantic_hash": "49d7437297f68236af7696426685da65"
+  },
+  "supabase/migrations/20260919080000_photo_files_leave_through_storage.sql": {
+    "mtime": 1790233346.8111792,
+    "seen": 1791036606.8738334,
+    "ast_hash": "10912ebe061c8a12e2a520cc5061b0b6",
+    "semantic_hash": "10912ebe061c8a12e2a520cc5061b0b6"
+  },
+  "supabase/migrations/20261002010000_tugasan_read_by_managers.sql": {
+    "mtime": 1790880816.722048,
+    "seen": 1791036606.8738334,
+    "ast_hash": "4f660ddd44ba5b10fb13d0e3be66d5c0",
+    "semantic_hash": "4f660ddd44ba5b10fb13d0e3be66d5c0"
+  },
+  "supabase/migrations/20261002020000_report_form_from_marks.sql": {
+    "mtime": 1790944807.9116182,
+    "seen": 1791036606.8738334,
+    "ast_hash": "f7aa955488da93fc95f76036232fcf22",
+    "semantic_hash": "f7aa955488da93fc95f76036232fcf22"
+  },
+  "supabase/migrations/20261002030000_rls_once_per_query.sql": {
+    "mtime": 1790945737.3005216,
+    "seen": 1791036606.8738334,
+    "ast_hash": "a6d2cc4c0fc708b53340daa309814432",
+    "semantic_hash": "a6d2cc4c0fc708b53340daa309814432"
+  },
+  "supabase/migrations/20261002040000_due_from_join_week.sql": {
+    "mtime": 1790952770.237771,
+    "seen": 1791036606.8738334,
+    "ast_hash": "b84ee27c9f2ac13b23a0c7d1106d26cf",
+    "semantic_hash": "b84ee27c9f2ac13b23a0c7d1106d26cf"
+  },
+  "supabase/migrations/20261003010000_malaysia_date.sql": {
+    "mtime": 1790957139.7774284,
+    "seen": 1791036606.8738334,
+    "ast_hash": "96ddcefe33bc4cfc1bfa8190ac92dc75",
+    "semantic_hash": "96ddcefe33bc4cfc1bfa8190ac92dc75"
+  },
+  "supabase/migrations/20261003020000_handover_before_friday.sql": {
+    "mtime": 1790957139.8314898,
+    "seen": 1791036606.8738334,
+    "ast_hash": "5844393eb255f414e9805972914ea81a",
+    "semantic_hash": "5844393eb255f414e9805972914ea81a"
+  },
+  "supabase/migrations/20261003030000_marked_before_added.sql": {
+    "mtime": 1791016993.8266659,
+    "seen": 1791036606.8738334,
+    "ast_hash": "13c2a642cd4aa0fb00d924ee1f9022aa",
+    "semantic_hash": "13c2a642cd4aa0fb00d924ee1f9022aa"
+  },
+  "supabase/provision_logins.sql": {
+    "mtime": 1789661292.3881886,
+    "seen": 1791036606.8738334,
+    "ast_hash": "7643a3b0854ee1598c7a182d2848c765",
+    "semantic_hash": "7643a3b0854ee1598c7a182d2848c765"
+  },
+  "supabase/reset_password.sql": {
+    "mtime": 1789656578.7260277,
+    "seen": 1791036606.8738334,
+    "ast_hash": "d1f19b4503254f3d5665601328fa8211",
+    "semantic_hash": "d1f19b4503254f3d5665601328fa8211"
+  },
+  "supabase/schedule_photo_purge.sql": {
+    "mtime": 1790233489.8023388,
+    "seen": 1791036606.8738334,
+    "ast_hash": "da0b6a024924482f98314c76146655af",
+    "semantic_hash": "da0b6a024924482f98314c76146655af"
+  },
+  "supabase/seed.sql": {
+    "mtime": 1791037406.7507553,
+    "seen": 1791037690.5750122,
+    "ast_hash": "225eba18513e3a76834fe0143accaab8",
+    "semantic_hash": ""
+  },
+  "supabase/tests/gen_verify.mjs": {
+    "mtime": 1791423767.2455344,
+    "seen": 1791426795.069046,
+    "ast_hash": "4fa5fa3ef196a7b1d85ba22d9b83cbaf",
+    "semantic_hash": ""
+  },
+  "supabase/tests/rls.test.mjs": {
+    "mtime": 1791259882.3646111,
+    "seen": 1791259930.8343396,
+    "ast_hash": "0ddee0a0baed114c23d9b1884afea763",
+    "semantic_hash": ""
+  },
+  "supabase/tests/verify_policies.sql": {
+    "mtime": 1791259893.6815145,
+    "seen": 1791259930.8343396,
+    "ast_hash": "6c70b800ac30a82ccc4f858208a77724",
+    "semantic_hash": ""
+  },
+  "supabase/xlsx_to_import_marks.py": {
+    "mtime": 1790931853.874967,
+    "seen": 1791036606.8738334,
+    "ast_hash": "adba09d151ee11c43cc2b37d538715a1",
+    "semantic_hash": "adba09d151ee11c43cc2b37d538715a1"
+  },
+  "CLAUDE.md": {
+    "mtime": 1791035800.0903544,
+    "seen": 1791036606.8738334,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": "8a6643a420fdad6bfb583523bc6cef16"
+  },
+  "db/ERD.md": {
+    "mtime": 1791253042.7998388,
+    "seen": 1791253051.3147862,
+    "ast_hash": "961e1179de6424c9c6aed9b11d04d6c0",
+    "semantic_hash": ""
+  },
+  "docs/marks-import-2026.md": {
+    "mtime": 1790944934.0071855,
+    "seen": 1791036606.8738334,
+    "ast_hash": "85cad5e40ec49e309b53ebeb552ef46e",
+    "semantic_hash": "85cad5e40ec49e309b53ebeb552ef46e"
+  },
+  "docs/reports-web-brief.md": {
+    "mtime": 1791037681.2194135,
+    "seen": 1791037690.5750122,
+    "ast_hash": "750012e42e1e2cbaba8e061d15242f5a",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/Cawangan_ef5ef2a8.md": {
+    "mtime": 1791036253.2878914,
+    "seen": 1791036606.8738334,
+    "ast_hash": "4b0dffa6a1d10e9200491965bab35f62",
+    "semantic_hash": "4b0dffa6a1d10e9200491965bab35f62"
+  },
+  "graphify-out/converted/KP-STAFF-2026_89c12a68.md": {
+    "mtime": 1791036253.694723,
+    "seen": 1791036606.8738334,
+    "ast_hash": "ec9ff7e9487afd51aa40ad6d2249b60d",
+    "semantic_hash": "ec9ff7e9487afd51aa40ad6d2249b60d"
+  },
+  "graphify-out/converted/WS-SUPV-2026_1e28b2d4.md": {
+    "mtime": 1791036253.9306557,
+    "seen": 1791036606.8738334,
+    "ast_hash": "f73bc0fc1eb55c905910b36b2aa808d9",
+    "semantic_hash": "f73bc0fc1eb55c905910b36b2aa808d9"
+  },
+  "marks-app/AGENTS.md": {
+    "mtime": 1788842699.4254694,
+    "seen": 1791036606.8738334,
+    "ast_hash": "963888ec05f17b13375386f058dd621e",
+    "semantic_hash": "963888ec05f17b13375386f058dd621e"
+  },
+  "marks-app/CLAUDE.md": {
+    "mtime": 1788842699.4265227,
+    "seen": 1791036606.8738334,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": "5c27369b226fcf2be8a6cfe52224e767"
+  },
+  "marks-app/public/index.html": {
+    "mtime": 1789646791.231587,
+    "seen": 1791036606.8738334,
+    "ast_hash": "24e0d1729c48947f31cb305b6938ba37",
+    "semantic_hash": "24e0d1729c48947f31cb305b6938ba37"
+  },
+  "marks-app/assets/android-icon-background.png": {
+    "mtime": 1791050252.7472305,
+    "seen": 1791244180.2273846,
+    "ast_hash": "7ad29cd64e0f8984a83c2ec120663420",
+    "semantic_hash": ""
+  },
+  "marks-app/assets/android-icon-foreground.png": {
+    "mtime": 1791050252.7432168,
+    "seen": 1791244180.2273846,
+    "ast_hash": "5fbbe9cfc82ef1f61f12663a894e0070",
+    "semantic_hash": ""
+  },
+  "marks-app/assets/android-icon-monochrome.png": {
+    "mtime": 1791050273.1821742,
+    "seen": 1791244180.2273846,
+    "ast_hash": "b2336974b92c77127531d2ed204d6689",
+    "semantic_hash": ""
+  },
+  "marks-app/assets/favicon.png": {
+    "mtime": 1791050252.720228,
+    "seen": 1791244180.2273846,
+    "ast_hash": "19f19298ead23ad0c4f622ac0d9a82a0",
+    "semantic_hash": ""
+  },
+  "marks-app/assets/icon.png": {
+    "mtime": 1791050252.6571362,
+    "seen": 1791244180.2273846,
+    "ast_hash": "3ee6301d0048785b374348e35533c5d0",
+    "semantic_hash": ""
+  },
+  "marks-app/assets/splash-icon.png": {
+    "mtime": 1791050252.7089467,
+    "seen": 1791244180.2273846,
+    "ast_hash": "a5102a02be2367da5413f1cdd597ed27",
+    "semantic_hash": ""
+  },
+  "marks-app/public/icon-192.png": {
+    "mtime": 1791050252.7842982,
+    "seen": 1791244180.2273846,
+    "ast_hash": "bb532e116341da401461a56682991b62",
+    "semantic_hash": ""
+  },
+  "marks-app/public/icon-512.png": {
+    "mtime": 1791050252.8159902,
+    "seen": 1791244180.2273846,
+    "ast_hash": "bc76bab0017da6f4cc45ebe7ff93712b",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261003040000_asset_issues.sql": {
+    "mtime": 1791037476.0710099,
+    "seen": 1791037690.5750122,
+    "ast_hash": "52634cc3094ee68947e593b2bdcdb0b6",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/UpdateBanner.tsx": {
+    "mtime": 1791049627.5600624,
+    "seen": 1791049854.4428957,
+    "ast_hash": "8ffe503be7b8bf42e7ebffe2a14ac0a2",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/updatePolicy.ts": {
+    "mtime": 1791427950.608269,
+    "seen": 1791428079.7131972,
+    "ast_hash": "cec0e7fb119908bf37ed211f27618b5b",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/appUpdates.ts": {
+    "mtime": 1791427950.608269,
+    "seen": 1791428079.7131972,
+    "ast_hash": "5afa7de8110bef8aafc2f0cf7cc849a0",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/updatePolicy.test.mjs": {
+    "mtime": 1791427950.6132202,
+    "seen": 1791428079.7131972,
+    "ast_hash": "a645dd59ff60c0c838b7e5a456d0363b",
+    "semantic_hash": ""
+  },
+  "docs/phone-app-updates.md": {
+    "mtime": 1791049841.2718256,
+    "seen": 1791049854.4439135,
+    "ast_hash": "d61e7e9bafcd596e64f4e0dea22cf1f2",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261006010000_hr_administers.sql": {
+    "mtime": 1791243731.698498,
+    "seen": 1791244180.2273846,
+    "ast_hash": "7ddd3b2e036aa1a171f507072ccabaa3",
+    "semantic_hash": ""
+  },
+  "marks-app/public/icon-maskable-512.png": {
+    "mtime": 1791050252.8463092,
+    "seen": 1791244180.2273846,
+    "ast_hash": "16f0f3112bd158eccf31e8af3563d1b6",
+    "semantic_hash": ""
+  },
+  "public/loading_icon.png": {
+    "mtime": 1786940094.6290536,
+    "seen": 1791244180.2273846,
+    "ast_hash": "1a25109d30c916de0bd49867a74e6314",
+    "semantic_hash": ""
+  },
+  "docs/database.md": {
+    "mtime": 1791259921.298674,
+    "seen": 1791259930.8343396,
+    "ast_hash": "f0da448358597dca17133d3dabc2f342",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261006020000_staff_see_own_marks.sql": {
+    "mtime": 1791259800.520887,
+    "seen": 1791259930.8343396,
+    "ast_hash": "74e1062ea76148b013ca77824d1bbeb6",
+    "semantic_hash": ""
+  },
+  "docs/database.pdf": {
+    "mtime": 1791253669.4862819,
+    "seen": 1791259930.8343396,
+    "ast_hash": "dd82464bda40f5e96837a466b4d7085f",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/tugasanAutosave.ts": {
+    "mtime": 1791270194.7855844,
+    "seen": 1791270445.5199327,
+    "ast_hash": "75cd7b7acd783ba91bb9713e578b60e6",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-lib-tugasan.ts": {
+    "mtime": 1791361629.4350286,
+    "seen": 1791418535.6457016,
+    "ast_hash": "11a79cf190197ea4a9eaaf8c77001330",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-resolve.mjs": {
+    "mtime": 1791270333.473059,
+    "seen": 1791270445.5205436,
+    "ast_hash": "ad40913be17e4d16729da9e3322e6b23",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-supabase.ts": {
+    "mtime": 1791270333.5092545,
+    "seen": 1791270445.5205436,
+    "ast_hash": "c59355824b156d364e78000886d07218",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/tugasanAutosave.test.mjs": {
+    "mtime": 1791361730.6374052,
+    "seen": 1791418535.6457016,
+    "ast_hash": "6931b97268e5770cd218e9af6d374bb5",
+    "semantic_hash": ""
+  },
+  "app.json": {
+    "mtime": 1791424003.228814,
+    "seen": 1791426795.069046,
+    "ast_hash": "7a88de82f36e101f0e8134d8bad2b8e3",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/MarksOutletPicker.tsx": {
+    "mtime": 1791330277.5697324,
+    "seen": 1791330366.0040822,
+    "ast_hash": "d91ddbf83f6345b610d5f647d23973f3",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/marksScope.ts": {
+    "mtime": 1791330277.5697324,
+    "seen": 1791330366.0040822,
+    "ast_hash": "76e52b30a9e2f84597ae02c310122197",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/marksScope.test.mjs": {
+    "mtime": 1791330260.914441,
+    "seen": 1791330366.0040822,
+    "ast_hash": "dcf7c9097cd47b2779fcff1834b24747",
+    "semantic_hash": ""
+  },
+  "marks-app/app/supervisor/aset.tsx": {
+    "mtime": 1791418372.7718022,
+    "seen": 1791418535.6457016,
+    "ast_hash": "64b0057ca625e2d57fecdca9b32ac74e",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/AssetLog.tsx": {
+    "mtime": 1791418372.6116922,
+    "seen": 1791418535.6457016,
+    "ast_hash": "3afdb3ef82b939942dcdd4e3a0f0edf4",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-auth-resolve.mjs": {
+    "mtime": 1791355744.635089,
+    "seen": 1791418535.6457016,
+    "ast_hash": "1a151643190a7514d4f8b14a386258b4",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-supabase-auth.ts": {
+    "mtime": 1791355744.659349,
+    "seen": 1791418535.6457016,
+    "ast_hash": "74c8d99ec348b3aab6431a7be3c435a2",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/fixtures/stub-users-types.ts": {
+    "mtime": 1791355744.6802154,
+    "seen": 1791418535.6457016,
+    "ast_hash": "33443ec6ea6889dba971d52b0a489e71",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/inactiveSignIn.test.mjs": {
+    "mtime": 1791355744.7060738,
+    "seen": 1791418535.6457016,
+    "ast_hash": "d40a2aab412b460d75a3fae166955d59",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261008010000_sv_kekemasan_stor.sql": {
+    "mtime": 1791423306.151397,
+    "seen": 1791426795.069046,
+    "ast_hash": "12f4f1e4d4607e3cf6dc630801afe7db",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/ActivityBar.tsx": {
+    "mtime": 1791428888.7840204,
+    "seen": 1791429205.6784565,
+    "ast_hash": "fa5caa6f742df7dc77d81b74136b119b",
+    "semantic_hash": ""
+  },
+  "marks-app/src/components/FirstLoad.tsx": {
+    "mtime": 1791430684.3621328,
+    "seen": 1791430929.0856664,
+    "ast_hash": "e6cc30e5915f9dd5c00f0316238f2596",
+    "semantic_hash": ""
+  },
+  "marks-app/src/data/activity.ts": {
+    "mtime": 1791430684.3495293,
+    "seen": 1791430929.0856664,
+    "ast_hash": "c1f834d7b976a4e7dc22cec945a75486",
+    "semantic_hash": ""
+  },
+  "marks-app/src/lib/activity.ts": {
+    "mtime": 1791428783.1493876,
+    "seen": 1791429205.6784565,
+    "ast_hash": "227367ea121316f4c8ba1d680d7d14ac",
+    "semantic_hash": ""
+  },
+  "marks-app/src/store/useActivity.ts": {
+    "mtime": 1791430684.3495293,
+    "seen": 1791430929.0856664,
+    "ast_hash": "5ebe6e09dce9ccb01c4c320020fa16d5",
+    "semantic_hash": ""
+  },
+  "marks-app/tests/activity.test.mjs": {
+    "mtime": 1791430684.465823,
+    "seen": 1791430929.0856664,
+    "ast_hash": "69c968ab39ccfc7b53e4bad379ce553b",
+    "semantic_hash": ""
+  },
+  "supabase/diagnose_load.sql": {
+    "mtime": 1791433217.2706249,
+    "seen": 1791433330.6245072,
+    "ast_hash": "7f4bba93252877b5f971669a163a2607",
+    "semantic_hash": ""
+  }
+}

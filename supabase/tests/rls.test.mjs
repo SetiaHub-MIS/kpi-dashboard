@@ -104,6 +104,9 @@ for (const m of [
   'supabase/migrations/20261003040000_asset_issues.sql',
   'supabase/migrations/20261006010000_hr_administers.sql',
   'supabase/migrations/20261006020000_staff_see_own_marks.sql',
+  'supabase/migrations/20261008010000_sv_kekemasan_stor.sql',
+  'supabase/migrations/20261020010000_report_staff_monthly_notes.sql',
+
 ]) {
   try { await db.exec(file(m)); console.log(`OK   ${m.split('/').pop()}`); }
   catch (e) { console.log(`FAIL ${m.split('/').pop()}\n     ${e.message}`); process.exit(1); }
@@ -1397,6 +1400,15 @@ console.log('\n=== a month is filed under the form the person was marked on (202
   check("...so Machang's kedai and SV/AS headcounts for September do not move", await dmcHeads(), before);
   check('a month with no mark at all still falls back to the form of the role they hold now',
     await dueForm(8), ['sv']);
+
+  await db.exec(`UPDATE marks SET note = 'Fixture catatan' WHERE user_id = 'KP0093'
+                 AND period_year = 2026 AND period_month = 9 AND week_no = 1 AND form_key = 'kedai'`);
+  check('report_staff_monthly exposes each week catatan to GM/HR',
+    (await as(ACCOUNTS.gm[0], `SELECT w1_notes FROM report_staff_monthly
+      WHERE user_id = 'KP0093' AND period_year = 2026 AND period_month = 9 AND form_key = 'kedai'`))
+      .rows[0]?.w1_notes, 'Fixture catatan');
+  await db.exec(`UPDATE marks SET note = NULL WHERE user_id = 'KP0093'
+                 AND period_year = 2026 AND period_month = 9 AND week_no = 1 AND form_key = 'kedai'`);
 
   // Promoted mid-month: kedai in week 1, then their first SV/AS week, 68/85 = 80%.
   await db.exec(`INSERT INTO marks (user_id, branch_id, form_key, period_year, period_month, week_no, total_score, max_score, scored_by)
