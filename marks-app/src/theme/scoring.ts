@@ -12,6 +12,9 @@ export const C = {
   ink6: '#A0A19D',
   ink7: '#C3C3BE',
   ink8: '#C9C9C4',
+  gold: '#8A6A00',
+  goldBg: '#F6E7A8',
+  goldFill: '#C9A227',
   pass: '#1F7A4D',
   passBg: '#E8F3EC',
   warn: '#A5691A',
@@ -24,26 +27,33 @@ export const C = {
   link: '#2E63D8',
 } as const;
 
-/** Ink colour for a percentage, banded around the pass threshold. */
+/**
+ * Ink colour for a percentage, on the same levels as the reports app:
+ * 90–100 excellent (gold), 80–89 good (green), pass threshold–79 barely
+ * pass (plain ink on white), below the pass threshold fail (red).
+ */
 export function pctColor(v: number, pass: number): string {
-  if (v >= pass + 8) return C.pass;
-  if (v >= pass) return C.ink;
-  if (v >= pass - 15) return C.warn;
-  return C.fail;
+  if (v < pass) return C.fail;
+  if (v >= 90) return C.gold;
+  if (v >= 80) return C.pass;
+  return C.ink;
 }
 
 /** Matching wash for a percentage. */
 export function pctBg(v: number, pass: number): string {
-  if (v >= pass + 8) return C.passBg;
-  if (v >= pass) return C.rule;
-  if (v >= pass - 15) return C.warnBg;
-  return C.failBg;
+  if (v < pass) return C.failBg;
+  if (v >= 90) return C.goldBg;
+  if (v >= 80) return C.passBg;
+  return C.card;
 }
 
 /** Colour of a 1..max score band button when selected. */
+// Same levels as pctColor, on the score as a share of max (5 of 5 = 100%).
+// Barely pass stays ink here: the button is filled and its number is white.
 export function bandColor(v: number, max: number): string {
-  if (v >= max) return C.pass;
-  if (v >= max - 1) return C.ink;
-  if (v >= Math.ceil(max * 0.6)) return C.warn;
+  const pct = (v / max) * 100;
+  if (pct >= 90) return C.goldFill;
+  if (pct >= 80) return C.pass;
+  if (pct >= 60) return C.ink;
   return C.fail;
 }
