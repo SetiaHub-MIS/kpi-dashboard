@@ -133,7 +133,8 @@ const emptyPeriod = {
 };
 
 export const useMarks = create<MarksState>((set, get) => ({
-  passThreshold: 80,
+  // Matches scoring_rules (20261023010000_pass_threshold_60.sql): 60% at every outlet.
+  passThreshold: 60,
   scaleMax: 5,
   verifyByManager: true,
 
